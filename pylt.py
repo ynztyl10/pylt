@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-#    Copyright (c) 2007, Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007 Corey Goldberg (corey@goldb.org)
+#    License: GNU GPLv2
 #
 #    This file is part of PyLT.
 #
@@ -16,11 +17,14 @@ import httplib
 from threading import Thread
 
 
-class LoadManager:
+
+
+
+class LoadManager():
     def __init__(self):
         self.thread_refs = []
-        self.msg = ('localhost', 'GET', '/')
-    
+        self.msg = Message(host='www.google.com', method='GET', path='/')
+        
     def stop(self):
         for thread in self.thread_refs:
             thread.stop()
@@ -33,6 +37,7 @@ class LoadManager:
             agent.start()
             print 'started thread # ' + str(i + 1)
             self.thread_refs.append(agent)
+      
         
 
 class LoadAgent(Thread):
@@ -60,9 +65,10 @@ class LoadAgent(Thread):
                 time.sleep(expire_time)
                 
     def send(self, msg):
-        conn = httplib.HTTPConnection(msg[0])
+        self.msg = msg
+        conn = httplib.HTTPConnection(msg.host)
         try:
-            conn.request(msg[1], msg[2])
+            conn.request(msg.method, msg.path)
             body = conn.getresponse().read()
         except:
             print "failed request"
@@ -70,11 +76,26 @@ class LoadAgent(Thread):
 
 
 
+
+
+class Message():
+    def __init__(self, host, method='GET', path='/', body=''):
+        self.host = host
+        self.method = method
+        self.path = path
+        self.body = body
+    
+    def add_headers(self):
+        pass        
+        
+        
+
 # sample script:
 def main():
     lm = LoadManager()
-    lm.msg = ('www.example.com', 'GET', '/')
-    lm.start(threads=4, interval=10, rampup=5)
+    lm.msg = Message('www.goldb.org')
+    lm.start(threads=1, interval=2, rampup=0)
     
 if __name__ == "__main__":
     main()
+    
