@@ -23,7 +23,7 @@ from threading import Thread
 class LoadManager():
     def __init__(self):
         self.thread_refs = []
-        self.msg = Message(host='www.google.com', method='GET', path='/')
+        self.msg_queue = []
         
     def stop(self):
         for thread in self.thread_refs:
@@ -33,36 +33,41 @@ class LoadManager():
         for i in range(threads):
             spacing = (i * (float(rampup) / float(threads)))
             time.sleep(spacing)
-            agent = LoadAgent(interval, self.msg)
+            agent = LoadAgent(i, interval, self.msg_queue)
             agent.start()
-            print 'started thread # ' + str(i + 1)
+            print 'started thread ' + str(i)
             self.thread_refs.append(agent)
+    
+    def add_msg(self, msg):
+        self.msg_queue.append(msg)
       
         
 
 class LoadAgent(Thread):
-    def __init__(self, interval, msg):
+    def __init__(self, id, interval, msg_queue):
         Thread.__init__(self)
+        self.id = id
         self.running = True
         self.interval = interval
-        self.msg = msg
+        self.msg_queue = msg_queue
         
     def stop(self):
         self.running = False
         
     def run(self):
         while self.running:
-            start_time = time.time()
-            self.send(self.msg)
-            end_time = time.time()
-            raw_latency = end_time - start_time
-            latency = ('%.3f' % raw_latency)
-            
-            print latency
-            
-            expire_time = (self.interval - raw_latency)
-            if expire_time > 0:
-                time.sleep(expire_time)
+            for msg in self.msg_queue:
+                start_time = time.time()
+                self.send(msg)
+                end_time = time.time()
+                raw_latency = end_time - start_time
+                latency = ('%.3f' % raw_latency)
+                
+                print ('%s - %s' % (self.id, latency))
+                
+                expire_time = (self.interval - raw_latency)
+                if expire_time > 0:
+                    time.sleep(expire_time)
                 
     def send(self, msg):
         self.msg = msg
@@ -93,7 +98,7 @@ class Message():
 # sample script:
 def main():
     lm = LoadManager()
-    lm.msg = Message('www.goldb.org')
+    lm.add_msg(Message('www.goldb.org'))
     lm.start(threads=1, interval=2, rampup=0)
     
 if __name__ == "__main__":
