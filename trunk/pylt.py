@@ -42,6 +42,7 @@ class LoadManager():
         self.msg_queue.append(msg)
       
         
+        
 
 class LoadAgent(Thread):
     def __init__(self, id, interval, msg_queue):
@@ -58,13 +59,19 @@ class LoadAgent(Thread):
         while self.running:
             for msg in self.msg_queue:
                 start_time = time.time()
-                self.send(msg)
+                resp = self.send(msg)
                 end_time = time.time()
                 raw_latency = end_time - start_time
                 latency = ('%.3f' % raw_latency)
                 
-                print ('%s - %s' % (self.id, latency))
+                body = resp.read()
+                headers = resp.read()
+                status = resp.status
+                reason = resp.reason
                 
+                print ('%s - %s' % (self.id, latency))
+                print status, reason
+        
                 expire_time = (self.interval - raw_latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
@@ -72,9 +79,11 @@ class LoadAgent(Thread):
     def send(self, msg):
         self.msg = msg
         conn = httplib.HTTPConnection(msg.host)
+        # conn.set_debuglevel(1)
         try:
             conn.request(msg.method, msg.path)
-            body = conn.getresponse().read()
+            resp = conn.getresponse()
+            return resp
         except:
             print "failed request"
 
