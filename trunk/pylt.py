@@ -61,6 +61,7 @@ class LoadAgent(Thread):
                 start_time = time.time()
                 resp = self.send(msg)
                 end_time = time.time()
+                
                 raw_latency = end_time - start_time
                 latency = ('%.3f' % raw_latency)
                 
@@ -77,11 +78,10 @@ class LoadAgent(Thread):
                     time.sleep(expire_time)
                 
     def send(self, msg):
-        self.msg = msg
         conn = httplib.HTTPConnection(msg.host)
-        # conn.set_debuglevel(1)
+        #conn.set_debuglevel(1)
         try:
-            conn.request(msg.method, msg.path)
+            conn.request(msg.method, msg.path, msg.body, msg.headers)
             resp = conn.getresponse()
             return resp
         except:
@@ -93,11 +93,17 @@ class LoadAgent(Thread):
 
 
 class Message():
-    def __init__(self, host, method='GET', path='/', body=''):
+    def __init__(self, host, method='GET', path='/', body='', headers={}):
         self.host = host
         self.method = method
         self.path = path
         self.body = body
+        self.headers = headers
+        
+        if method == 'POST':
+            #self.headers['Content-type'] = 'application/x-www-form-urlencoded'
+            self.headers['Content-type'] = 'text/xml'
+    
     
     def add_headers(self):
         pass        
