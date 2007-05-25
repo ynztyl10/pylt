@@ -101,14 +101,15 @@ class Message():
         self.headers = headers
         
         if method == 'POST':
-            #self.headers['Content-type'] = 'application/x-www-form-urlencoded'
-            self.headers['Content-type'] = 'text/xml'
+            self.headers['Content-type'] = 'text/xml'  # default to text/xml
     
+    def add_header(self, (key, value)):
+        self.headers[key] = value
     
-    def add_headers(self):
-        pass        
+    def set_content_type(self, content_type):
+        self.headers['Content-type'] = content_type
         
-        
+
 
 # sample script:
 def main():
