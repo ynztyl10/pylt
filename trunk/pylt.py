@@ -24,6 +24,7 @@ class LoadManager():
     def __init__(self):
         self.thread_refs = []
         self.msg_queue = []
+        self.runtime_stats = {}
         
     def stop(self):
         for thread in self.thread_refs:
@@ -33,11 +34,18 @@ class LoadManager():
         for i in range(threads):
             spacing = (i * (float(rampup) / float(threads)))
             time.sleep(spacing)
-            agent = LoadAgent(i, interval, self.msg_queue)
+            
+            agent = LoadAgent(self.runtime_stats, i, interval, self.msg_queue)
             agent.start()
+            
             print 'started thread ' + str(i)
             self.thread_refs.append(agent)
-    
+            
+            
+        while True:
+            print self.runtime_stats
+            time.sleep(5)
+
     def add_msg(self, msg):
         self.msg_queue.append(msg)
       
@@ -45,12 +53,13 @@ class LoadManager():
         
 
 class LoadAgent(Thread):
-    def __init__(self, id, interval, msg_queue):
+    def __init__(self, runtime_stats, id, interval, msg_queue):
         Thread.__init__(self)
         self.id = id
         self.running = True
         self.interval = interval
         self.msg_queue = msg_queue
+        self.runtime_stats = runtime_stats
         
     def stop(self):
         self.running = False
@@ -70,8 +79,9 @@ class LoadAgent(Thread):
                 status = resp.status
                 reason = resp.reason
                 
-                print ('%s - %s' % (self.id, latency))
-                print status, reason
+                #print ('%s - %s' % (self.id, latency))
+                #print status, reason
+                self.runtime_stats[self.id] = latency 
         
                 expire_time = (self.interval - raw_latency)
                 if expire_time > 0:
@@ -115,7 +125,7 @@ class Message():
 def main():
     lm = LoadManager()
     lm.add_msg(Message('www.goldb.org'))
-    lm.start(threads=1, interval=2, rampup=0)
+    lm.start(threads=3, interval=2, rampup=0)
     
 if __name__ == "__main__":
     main()
