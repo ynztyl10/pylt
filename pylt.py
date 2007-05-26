@@ -46,8 +46,8 @@ class LoadManager():
             print self.runtime_stats
             time.sleep(5)
 
-    def add_msg(self, msg):
-        self.msg_queue.append(msg)
+    def add_req(self, req):
+        self.msg_queue.append(req)
       
         
         
@@ -66,9 +66,9 @@ class LoadAgent(Thread):
         
     def run(self):
         while self.running:
-            for msg in self.msg_queue:
+            for req in self.msg_queue:
                 start_time = time.time()
-                resp = self.send(msg)
+                resp = self.send(req)
                 end_time = time.time()
                 
                 raw_latency = end_time - start_time
@@ -87,11 +87,11 @@ class LoadAgent(Thread):
                 if expire_time > 0:
                     time.sleep(expire_time)
                 
-    def send(self, msg):
-        conn = httplib.HTTPConnection(msg.host)
+    def send(self, req):
+        conn = httplib.HTTPConnection(req.host)
         #conn.set_debuglevel(1)
         try:
-            conn.request(msg.method, msg.path, msg.body, msg.headers)
+            conn.request(req.method, req.path, req.body, req.headers)
             resp = conn.getresponse()
             return resp
         except:
@@ -102,7 +102,7 @@ class LoadAgent(Thread):
 
 
 
-class Message():
+class Request():
     def __init__(self, host, method='GET', path='/', body='', headers={}):
         self.host = host
         self.method = method
@@ -124,7 +124,8 @@ class Message():
 # sample script:
 def main():
     lm = LoadManager()
-    lm.add_msg(Message('www.goldb.org'))
+    lm.add_req(Request('www.goldb.org'))
+    #%lm.think_time(3.0)
     lm.start(threads=3, interval=2, rampup=0)
     
 if __name__ == "__main__":
