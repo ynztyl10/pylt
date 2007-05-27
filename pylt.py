@@ -22,6 +22,7 @@ from threading import Thread
 
 class LoadManager():
     def __init__(self):
+        self.refresh_rate = 5
         self.thread_refs = []
         self.msg_queue = []
         self.runtime_stats = {}
@@ -41,18 +42,26 @@ class LoadManager():
             print 'started thread ' + str(i)
             self.thread_refs.append(agent)
             
-        
+            
         time.sleep(2) # pause before first stat refresh
         while True:
             print '----'
-            print self.runtime_stats
-            time.sleep(5)
+            for id in self.runtime_stats.keys():
+                print '%d - %d - %d %s - %.3f' %  (
+                    id,
+                    self.runtime_stats[id].count,                
+                    self.runtime_stats[id].status,
+                    self.runtime_stats[id].reason,
+                    self.runtime_stats[id].latency
+                )
+            time.sleep(self.refresh_rate)
 
     def add_req(self, req):
         self.msg_queue.append(req)
       
         
         
+
 
 class LoadAgent(Thread):
     def __init__(self, runtime_stats, id, interval, msg_queue):
@@ -122,7 +131,7 @@ class Request():
 
 class StatCollection():
     def __init__(self, status, reason, latency, count):
-        self.satus = status
+        self.status = status
         self.reason = reason
         self.latency = latency
         self.count = count
