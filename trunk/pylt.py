@@ -41,8 +41,10 @@ class LoadManager():
             print 'started thread ' + str(i)
             self.thread_refs.append(agent)
             
-            
+        
+        time.sleep(2) # pause before first stat refresh
         while True:
+            print '----'
             print self.runtime_stats
             time.sleep(5)
 
@@ -60,6 +62,7 @@ class LoadAgent(Thread):
         self.interval = interval
         self.msg_queue = msg_queue
         self.runtime_stats = runtime_stats
+        self.count = 1
         
     def stop(self):
         self.running = False
@@ -71,21 +74,16 @@ class LoadAgent(Thread):
                 resp = self.send(req)
                 end_time = time.time()
                 
-                raw_latency = end_time - start_time
-                latency = ('%.3f' % raw_latency)
+                latency = end_time - start_time
+                response = resp.read()
                 
-                body = resp.read()
-                headers = resp.read()
-                status = resp.status
-                reason = resp.reason
-                
-                #print ('%s - %s' % (self.id, latency))
-                #print status, reason
-                self.runtime_stats[self.id] = latency 
+                self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
         
-                expire_time = (self.interval - raw_latency)
+                expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
+                
+                self.count += 1
                 
     def send(self, req):
         conn = httplib.HTTPConnection(req.host)
@@ -120,6 +118,17 @@ class Request():
         self.headers['Content-type'] = content_type
         
 
+
+
+class StatCollection():
+    def __init__(self, status, reason, latency, count):
+        self.satus = status
+        self.reason = reason
+        self.latency = latency
+        self.count = count
+        
+        
+        
 
 # sample script:
 def main():
