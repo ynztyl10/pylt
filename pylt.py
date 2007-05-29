@@ -20,6 +20,12 @@ from threading import Thread
 
 
 
+class Controller():
+    pass
+
+
+
+
 class LoadManager():
     def __init__(self):
         self.refresh_rate = 5
@@ -118,7 +124,7 @@ class Request():
         self.headers = headers
         
         if method == 'POST':
-            self.headers['Content-type'] = 'text/xml'  # default to text/xml
+            self.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
     
     def add_header(self, (key, value)):
         self.headers[key] = value
