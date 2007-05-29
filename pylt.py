@@ -5,10 +5,10 @@
 #
 #    This file is part of PyLT.
 #
-#    PyLT is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
+#    PyLT is free software; you can redistribute it and/or modify it 
+#    under the terms of the GNU General Public License as published 
+#    by the Free Software Foundation; either version 2 of the License,
+#    or (at your option) any later version.
 
 
 import time
@@ -21,34 +21,16 @@ from threading import Thread
 
 
 class Controller():
-    pass
-
-
-
-
-class LoadManager():
     def __init__(self):
         self.refresh_rate = 5
-        self.thread_refs = []
-        self.msg_queue = []
         self.runtime_stats = {}
+            
+    def start(self, threads=1, interval=0, rampup=0):
+        self.lm = LoadManager(self.runtime_stats, threads, interval, rampup)
+    
+    def run(self):
+        self.lm.start()
         
-    def stop(self):
-        for thread in self.thread_refs:
-            thread.stop()
-            
-    def start(self, threads=1, interval=0, rampup=1):
-        for i in range(threads):
-            spacing = (i * (float(rampup) / float(threads)))
-            time.sleep(spacing)
-            
-            agent = LoadAgent(self.runtime_stats, i, interval, self.msg_queue)
-            agent.start()
-            
-            print 'started thread ' + str(i)
-            self.thread_refs.append(agent)
-            
-            
         time.sleep(2) # pause before first stat refresh
         while True:
             print '----'
@@ -61,6 +43,38 @@ class LoadManager():
                     self.runtime_stats[id].latency
                 )
             time.sleep(self.refresh_rate)
+            
+    def add_req(self, req):
+        self.lm.add_req(req)
+
+
+
+class LoadManager(Thread):
+    def __init__(self, runtime_stats, threads, interval, rampup):
+        Thread.__init__(self)
+        
+        self.threads = threads
+        self.interval = interval
+        self.rampup = rampup
+        
+        self.thread_refs = []
+        self.msg_queue = []
+        self.runtime_stats = runtime_stats
+        
+    def stop(self):
+        for thread in self.thread_refs:
+            thread.stop()
+            
+    def run(self):
+        for i in range(self.threads):
+            spacing = (i * (float(self.rampup) / float(self.threads)))
+            time.sleep(spacing)
+            
+            agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
+            agent.start()
+            
+            print 'started thread ' + str(i)
+            self.thread_refs.append(agent)
 
     def add_req(self, req):
         self.msg_queue.append(req)
@@ -147,10 +161,10 @@ class StatCollection():
 
 # sample script:
 def main():
-    lm = LoadManager()
-    lm.add_req(Request('www.goldb.org'))
-    #%lm.think_time(3.0)
-    lm.start(threads=3, interval=2, rampup=0)
+    c = Controller()
+    c.start(threads=3, interval=2, rampup=0)
+    c.add_req(Request('www.goldb.org'))
+    c.run()
     
 if __name__ == "__main__":
     main()
