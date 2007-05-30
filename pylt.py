@@ -11,15 +11,11 @@
 #    or (at your option) any later version.
 
 
+
 from Tkinter import *
+from threading import Thread
 from pylt_engine import *
-import multitask
 
-
-#c = Controller()
-#c.start(agents=3, interval=5, rampup=5)
-#c.add_req(Request('www.goldb.org'))
-#c.run()
 
 
 class Application:
@@ -70,9 +66,11 @@ class Application:
         lm = LoadManager(self.runtime_stats, 3, .5, 3)
         #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         lm.add_req(Request('www.goldb.org'))
+        lm.setDaemon(True)
         lm.start()
         
-        c = Console(self.runtime_stats, self.refresh_rate)
+        c = Console(self.runtime_stats, self.refresh_rate, self.text_box)
+        c.setDaemon(True)
         c.start()
 
         
@@ -80,15 +78,30 @@ class Application:
 
   
 class Console(Thread): # Monitoring Console runs in its own thread so we don't block UI events      
-    def __init__(self, runtime_stats, refresh_rate):
+    def __init__(self, runtime_stats, refresh_rate, text_box):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
         self.refresh_rate = refresh_rate
+        self.text_box = text_box
         
     def run(self):
         time.sleep(2) # pause before first stat refresh
         while True:
-            print '----'
+            self.text_box.delete(1.0, END)
+            for id in self.runtime_stats.keys():
+                self.text_box.insert(INSERT, id)
+                self.text_box.insert(INSERT, ' - ')       
+                self.text_box.insert(INSERT, self.runtime_stats[id].count)
+                self.text_box.insert(INSERT, ' - ')
+                self.text_box.insert(INSERT, self.runtime_stats[id].status)
+                self.text_box.insert(INSERT, ' ')
+                self.text_box.insert(INSERT, self.runtime_stats[id].reason)
+                self.text_box.insert(INSERT, ' - ')
+                self.text_box.insert(INSERT, '%.3f' % self.runtime_stats[id].latency)                
+                self.text_box.insert(INSERT, '\n')
+            
+            print '------'
+            
             for id in self.runtime_stats.keys():
                 print '%d - %d - %d %s - %.3f' %  (
                     id,
@@ -97,6 +110,7 @@ class Console(Thread): # Monitoring Console runs in its own thread so we don't b
                     self.runtime_stats[id].reason,
                     self.runtime_stats[id].latency
                 )
+                
             time.sleep(self.refresh_rate)
 
 
