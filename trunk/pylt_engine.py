@@ -120,17 +120,5 @@ class StatCollection():
         self.reason = reason
         self.latency = latency
         self.count = count
-        
-        
-        
 
-# sample script:
-def main():
-    c = Controller()
-    c.start(agents=3, interval=2, rampup=0)
-    c.add_req(Request('www.goldb.org'))
-    c.run()
-    
-if __name__ == "__main__":
-    main()
     
