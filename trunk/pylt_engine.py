@@ -25,8 +25,8 @@ class Controller():
         self.refresh_rate = 5
         self.runtime_stats = {}
             
-    def start(self, threads=1, interval=0, rampup=0):
-        self.lm = LoadManager(self.runtime_stats, threads, interval, rampup)
+    def start(self, agents=1, interval=0, rampup=0):
+        self.lm = LoadManager(self.runtime_stats, agents, interval, rampup)
     
     def run(self):
         self.lm.start()
@@ -49,11 +49,12 @@ class Controller():
 
 
 
-class LoadManager(Thread):
-    def __init__(self, runtime_stats, threads, interval, rampup):
+
+class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from the Controller
+    def __init__(self, runtime_stats, agents, interval, rampup):
         Thread.__init__(self)
         
-        self.threads = threads
+        self.agents = agents
         self.interval = interval
         self.rampup = rampup
         
@@ -66,14 +67,14 @@ class LoadManager(Thread):
             thread.stop()
             
     def run(self):
-        for i in range(self.threads):
-            spacing = (i * (float(self.rampup) / float(self.threads)))
+        for i in range(self.agents):
+            spacing = (i * (float(self.rampup) / float(self.agents)))
             time.sleep(spacing)
             
             agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
             agent.start()
             
-            print 'started thread ' + str(i)
+            print 'started agent ' + str(i)
             self.thread_refs.append(agent)
 
     def add_req(self, req):
@@ -83,7 +84,7 @@ class LoadManager(Thread):
         
 
 
-class LoadAgent(Thread):
+class LoadAgent(Thread):  # each agent runs in its own thread
     def __init__(self, runtime_stats, id, interval, msg_queue):
         Thread.__init__(self)
         self.id = id
@@ -162,7 +163,7 @@ class StatCollection():
 # sample script:
 def main():
     c = Controller()
-    c.start(threads=3, interval=2, rampup=0)
+    c.start(agents=3, interval=2, rampup=0)
     c.add_req(Request('www.goldb.org'))
     c.run()
     
