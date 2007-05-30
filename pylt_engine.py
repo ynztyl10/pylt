@@ -89,7 +89,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             resp = conn.getresponse()
             return resp
         except:
-            raise
+            raise  # rethrow the exception
 
 
 
