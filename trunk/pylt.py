@@ -15,6 +15,6 @@ from pylt_engine import *
 
 
 c = Controller()
-c.start(threads=3, interval=5, rampup=5)
+c.start(agents=3, interval=5, rampup=5)
 c.add_req(Request('www.goldb.org'))
 c.run()
