@@ -20,32 +20,32 @@ from threading import Thread
 
 
 
-class Controller():
-    def __init__(self):
-        self.refresh_rate = 5
-        self.runtime_stats = {}
-            
-    def start(self, agents=1, interval=0, rampup=0):
-        self.lm = LoadManager(self.runtime_stats, agents, interval, rampup)
-    
-    def run(self):
-        self.lm.start()
-        
-        time.sleep(2) # pause before first stat refresh
-        while True:
-            print '----'
-            for id in self.runtime_stats.keys():
-                print '%d - %d - %d %s - %.3f' %  (
-                    id,
-                    self.runtime_stats[id].count,                
-                    self.runtime_stats[id].status,
-                    self.runtime_stats[id].reason,
-                    self.runtime_stats[id].latency
-                )
-            time.sleep(self.refresh_rate)
-            
-    def add_req(self, req):
-        self.lm.add_req(req)
+#class Controller():
+#    def __init__(self):
+#        self.refresh_rate = 5
+#        self.runtime_stats = {}
+#            
+#    def start(self, agents=1, interval=0, rampup=0):
+#        self.lm = LoadManager(self.runtime_stats, agents, interval, rampup)
+#    
+#    def run(self):
+#        self.lm.start()
+#        
+#        time.sleep(2) # pause before first stat refresh
+#        while True:
+#           print '----'
+#            for id in self.runtime_stats.keys():
+#                print '%d - %d - %d %s - %.3f' %  (
+#                    id,
+#                    self.runtime_stats[id].count,                
+#                    self.runtime_stats[id].status,
+#                    self.runtime_stats[id].reason,
+#                    self.runtime_stats[id].latency
+#                )
+#            time.sleep(self.refresh_rate)
+#            
+#    def add_req(self, req):
+#        self.lm.add_req(req)
 
 
 
