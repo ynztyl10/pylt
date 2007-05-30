@@ -49,7 +49,6 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.msg_queue.append(req)
       
         
-        
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
@@ -69,18 +68,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         while self.running:
             for req in self.msg_queue:
                 start_time = time.time()
-                resp = self.send(req)
+                try:
+                    resp = self.send(req)
+                except:
+                    resp = None
                 end_time = time.time()
-                
                 latency = end_time - start_time
-                response = resp.read()
-                
-                self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
-        
+                if resp:
+                    self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
-                
                 self.count += 1
                 
     def send(self, req):
@@ -91,9 +89,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             resp = conn.getresponse()
             return resp
         except:
-            print "failed request"
-
-
+            raise
 
 
 
