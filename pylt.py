@@ -65,7 +65,15 @@ class Application:
     def run(self):
         lm = LoadManager(self.runtime_stats, 3, .5, 3)
         #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
-        lm.add_req(Request('www.goldb.org'))
+        
+        reqs = [
+            Request('www.goldb.org'),
+        ]
+        
+        for req in reqs:
+            lm.add_req(req)
+        
+        
         lm.setDaemon(True)
         lm.start()
         
