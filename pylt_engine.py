@@ -42,7 +42,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
             agent.start()
             
-            print 'started agent ' + str(i)
+            print 'started agent ' + str(i + 1)
             self.thread_refs.append(agent)
 
     def add_req(self, req):
