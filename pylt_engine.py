@@ -25,10 +25,10 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.agents = agents
         self.interval = interval
         self.rampup = rampup
+        self.runtime_stats = self.init_runtime_stats(runtime_stats)
         
         self.thread_refs = []
         self.msg_queue = []
-        self.runtime_stats = runtime_stats
         
     def stop(self):
         for thread in self.thread_refs:
@@ -45,6 +45,12 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             print 'started agent ' + str(i + 1)
             self.thread_refs.append(agent)
 
+    
+    def init_runtime_stats(self, runtime_stats):
+        for i in range(self.agents):
+            runtime_stats[i] = StatCollection(0, '', 0, 0)
+        return runtime_stats
+    
     def add_req(self, req):
         self.msg_queue.append(req)
       
