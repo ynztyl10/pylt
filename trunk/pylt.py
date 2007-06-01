@@ -81,7 +81,7 @@ class Application:
 
     
     def run(self):
-        lm = LoadManager(self.runtime_stats, 3, .5, 3)
+        lm = LoadManager(self.runtime_stats, 10, 0, 10)
         #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         
         reqs = [
