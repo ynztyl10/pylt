@@ -54,13 +54,17 @@ class Application:
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
         
-        col_labels = 'Agent #  | Count    | Response | Latency'
+        col_labels = 'Agent    Count      Resp Code  Resp Time'
         
         
         Label(self.root, text=col_labels, background='#EFEFEF', font=mono_font).place(x=130, y=49)
         
-        Button(self.root, text='Start', command=self.run, width=15).place(x=15, y=165)
+        self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
+        self.btn_start.place(x=15, y=165)
         
+        self.btn_stop = Button(self.root, text='Stop', command=self.stop, width=15)
+        self.btn_stop.place(x=15, y=195)
+        self.btn_stop.configure(state=DISABLED)
         
         #Label(self.root, text='Run Num', background='#EFEFEF').place(x=15, y=140)
         #prefix_entry = Entry(self.root, width=6)
@@ -81,7 +85,11 @@ class Application:
 
     
     def run(self):
-        lm = LoadManager(self.runtime_stats, 10, 0, 10)
+        self.btn_start.configure(state=DISABLED)
+        self.btn_stop.configure(state=NORMAL)
+        
+        lm = LoadManager(self.runtime_stats, 1, 3, 0)
+        self.lm = lm
         #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         
         reqs = [
@@ -98,12 +106,17 @@ class Application:
         c = Console(self.runtime_stats, self.refresh_rate, self.text_box)
         c.setDaemon(True)
         c.start()
-
+        
+    
+    def stop(self):
+        self.btn_start.configure(state=NORMAL)
+        self.btn_stop.configure(state=DISABLED)
+        self.lm.stop()
         
 
 
   
-class Console(Thread): # Monitoring Console runs in its own thread so we don't block UI events      
+class Console(Thread): # Runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, refresh_rate, text_box):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
@@ -112,6 +125,7 @@ class Console(Thread): # Monitoring Console runs in its own thread so we don't b
         self.logging = False
         
     def run(self):
+        self.text_box.delete(1.0, END)
         self.text_box.insert(INSERT, 'starting agents... ') 
         time.sleep(2) # pause before first stat refresh
         while True:
@@ -137,9 +151,9 @@ class Console(Thread): # Monitoring Console runs in its own thread so we don't b
                         self.runtime_stats[id].status,
                         self.runtime_stats[id].latency
                     )
-                
-            time.sleep(self.refresh_rate)
-
+    
+            time.sleep(self.refresh_rate)        
+    
     def pad_txt(self, length, txt):
         pad_length = length - len(txt)
         padded_txt = txt
