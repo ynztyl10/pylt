@@ -88,7 +88,7 @@ class Application:
         self.btn_start.configure(state=DISABLED)
         self.btn_stop.configure(state=NORMAL)
         
-        lm = LoadManager(self.runtime_stats, 1, 3, 0)
+        lm = LoadManager(self.runtime_stats, 2, 3, 0)
         self.lm = lm
         #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         
