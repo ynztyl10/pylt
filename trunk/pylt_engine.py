@@ -45,7 +45,6 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             print 'started agent ' + str(i + 1)
             self.thread_refs.append(agent)
 
-    
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0)
@@ -60,12 +59,19 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 class LoadAgent(Thread):  # each agent runs in its own thread
     def __init__(self, runtime_stats, id, interval, msg_queue):
         Thread.__init__(self)
-        self.id = id
+        
         self.running = True
+        self.resp_logging = False
+        self.resp_log = None
+        
+        self.runtime_stats = runtime_stats
+        self.id = id
         self.interval = interval
         self.msg_queue = msg_queue
-        self.runtime_stats = runtime_stats
+        
         self.count = 1
+        
+        self.__enable_resp_logging()
         
     def stop(self):
         self.running = False
@@ -81,7 +87,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 end_time = time.time()
                 latency = end_time - start_time
                 if resp:
+                    # update the shared stats dictionary
                     self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
+                    self.log_resp(resp.status)
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
@@ -96,8 +104,22 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             return resp
         except:
             raise  # rethrow the exception
+            
+    def log_resp(self, txt):
+        if self.resp_logging:
+            self.resp_log.write('%s\n' % txt)
+            
+    def __enable_resp_logging(self):
+        self.resp_log = open('agent_%d_output.csv' % self.id, 'w')
+        self.resp_logging = True
+        
+    def __disable_resp_logging(self):
+        self.resp_log.close()
+        self.resp_logging = False
 
-
+            
+            
+            
 
 
 class Request():
