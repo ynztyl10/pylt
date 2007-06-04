@@ -69,7 +69,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.interval = interval
         self.msg_queue = msg_queue
         
-        self.count = 1
+        self.count = 0
         
         self.__enable_resp_logging()
         
@@ -84,16 +84,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     resp = self.send(req)
                 except:
                     resp = None
+                self.count += 1
                 end_time = time.time()
                 latency = end_time - start_time
                 if resp:
                     # update the shared stats dictionary
                     self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
-                    self.log_resp(resp.status)
+                    self.log_resp('%d,%s,%f' % (resp.status, resp.reason, latency))
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
-                self.count += 1
                 
     def send(self, req):
         conn = httplib.HTTPConnection(req.host)
