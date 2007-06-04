@@ -54,10 +54,10 @@ class Application:
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
         
-        col_labels = 'Agent    Count      Resp Code  Resp Time'
+        col_labels = 'Agent                 Count                     Resp Code             Resp Time'
         
         
-        Label(self.root, text=col_labels, background='#EFEFEF', font=mono_font).place(x=130, y=49)
+        Label(self.root, text=col_labels, background='#EFEFEF').place(x=130, y=52)
         
         self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
         self.btn_start.place(x=15, y=165)
@@ -131,7 +131,7 @@ class Console(Thread): # Runs in its own thread so we don't block UI events
         while True:
             self.text_box.delete(1.0, END)
             for id in self.runtime_stats.keys():
-                gui_col_width = 8
+                gui_col_width = 10
                 col_separator = ' | '
                 self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(id + 1)))
                 self.text_box.insert(INSERT, col_separator)       

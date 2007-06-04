@@ -90,7 +90,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 if resp:
                     # update the shared stats dictionary
                     self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
-                    self.log_resp('%d,%s,%f' % (resp.status, resp.reason, latency))
+                    self.log_resp('%s,%d,%s,%f' % (end_time, resp.status, resp.reason, latency))
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
