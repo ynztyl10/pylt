@@ -88,9 +88,22 @@ class Application:
         self.btn_start.configure(state=DISABLED)
         self.btn_stop.configure(state=NORMAL)
         
-        lm = LoadManager(self.runtime_stats, 2, 3, 0)
+        #lm = LoadManager(self.runtime_stats, 2, 3, 0)
+        agents = 6
+        lm = LoadManager(self.runtime_stats, agents, 10, 20)
+        
+        
         self.lm = lm
-        #lm = LoadManager(self.runtime_stats, agents, interval, rampup)
+        
+        
+                    
+        for id in range(agents):
+            self.runtime_stats[id] = StatCollection(0, '', 0, 0)                
+            #self.runtime_stats[id].status,
+            #self.runtime_stats[id].latency
+                        
+                        
+        
         
         reqs = [
             Request('www.goldb.org'),
@@ -116,7 +129,7 @@ class Application:
 
 
   
-class Console(Thread): # Runs in its own thread so we don't block UI events      
+class Console(Thread): # runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, refresh_rate, text_box):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
@@ -134,12 +147,19 @@ class Console(Thread): # Runs in its own thread so we don't block UI events
                 gui_col_width = 10
                 col_separator = ' | '
                 self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(id + 1)))
-                self.text_box.insert(INSERT, col_separator)       
+                self.text_box.insert(INSERT, col_separator)
                 self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].count)))
-                self.text_box.insert(INSERT, col_separator)
-                self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].status)))
-                self.text_box.insert(INSERT, col_separator)
-                self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].latency))                
+                if self.runtime_stats[id].count > 0:                 
+                    
+                    self.text_box.insert(INSERT, col_separator)
+                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].status)))
+                    self.text_box.insert(INSERT, col_separator)
+                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].latency))
+                else:
+                    self.text_box.insert(INSERT, col_separator)
+                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '-'))
+                    self.text_box.insert(INSERT, col_separator)
+                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '-'))                         
                 self.text_box.insert(INSERT, '\n')
             
             if self.logging:
