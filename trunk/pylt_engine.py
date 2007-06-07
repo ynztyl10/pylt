@@ -42,7 +42,6 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         os.mkdir(out_dir)
         
         
-        
     def stop(self):
         self.running = False
         for agent in self.agent_refs:
@@ -118,7 +117,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     self.log_resp('%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, resp.status, resp.reason, latency))
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
-                    time.sleep(expire_time)
+                    time.sleep(expire_time)  # sleep the rest of the interval so we keep even pacing
         
         
     def send(self, req):
