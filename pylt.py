@@ -24,10 +24,11 @@ class Application:
         self.refresh_rate = 5
         self.runtime_stats = {}
         
-        self.initialization()
+        self.init_gui()
 
 
-    def initialization(self):
+
+    def init_gui(self):
         self.root.geometry('%dx%d%+d%+d' % (600, 300, 200, 100))
         mono_font = ('Courier', 8)
         self.root.title('PyLT - HTTP Load Test')
@@ -35,6 +36,9 @@ class Application:
        
         canvas = Canvas(self.root, width=215, height=60, background='#EFEFEF', highlightthickness=0)
         canvas.place(x=0, y=0)
+        
+        
+        
 
 
 
@@ -72,12 +76,12 @@ class Application:
         #prefix_entry.insert(0, '')
         #self.prefix_entry = prefix_entry
         
-        
 
         text_box = Text(self.root, background='#CCCCCC', font=mono_font, width=75, height=16)
         text_box.place(x=130, y=70)
         self.text_box = text_box
-    
+        
+        self.switch_status(False)
     
 
         
@@ -85,8 +89,7 @@ class Application:
 
     
     def run(self):
-        self.btn_start.configure(state=DISABLED)
-        self.btn_stop.configure(state=NORMAL)
+        self.switch_status(True)
         
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
         agents = 6
@@ -122,13 +125,34 @@ class Application:
         
     
     def stop(self):
-        self.btn_start.configure(state=NORMAL)
-        self.btn_stop.configure(state=DISABLED)
+        self.switch_status(False)
         self.lm.stop()
         
 
 
-  
+    def switch_status(self, is_on):
+        # flip the status light to gray or green and swap enabling of Start/Stop buttons
+        if is_on:
+            image = 'ui/greenlight.gif'
+            self.btn_start.config(state='disabled')
+            self.btn_stop.config(state='active')
+        else:
+            image = 'ui/graylight.gif'
+            self.btn_start.config(state='active')
+            self.btn_stop.config(state='disabled')
+        try:
+            self.canvas_statuslight.destroy()
+        except:
+            pass
+        self.canvas_statuslight = Canvas(self.root, width=15, height=15, background='#EFEFEF', highlightthickness=0)
+        self.canvas_statuslight.place(x=460, y=5)
+        self.photo = PhotoImage(file=image)
+        self.canvas_statuslight.create_image(0, 0, anchor=NW, image=self.photo)
+        
+        
+        
+        
+        
 class Console(Thread): # runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, refresh_rate, text_box):
         Thread.__init__(self)
