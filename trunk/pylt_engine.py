@@ -11,8 +11,8 @@
 #    or (at your option) any later version.
 
 
-import time
 import os
+import time
 import httplib
 from threading import Thread
 
@@ -31,6 +31,16 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         
         self.agent_refs = []
         self.msg_queue = []
+    
+    
+    def __create_output_dir(self):
+        out_dir = 'output'
+        if out_dir in os.listdir(os.getcwd()):
+            for file in os.listdir(out_dir):
+                os.remove(out_dir + '/' + file)
+            os.rmdir(out_dir)
+        os.mkdir(out_dir)
+        
         
         
     def stop(self):
@@ -41,6 +51,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         
     def run(self):
         self.running = True
+        self.__create_output_dir()
         for i in range(self.agents):
             spacing = (i * (float(self.rampup) / float(self.agents)))
             time.sleep(spacing)
@@ -50,13 +61,13 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
-
-
+        
+    
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0)
         return runtime_stats
-
+    
 
     def add_req(self, req):
         self.msg_queue.append(req)
@@ -127,7 +138,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
             
     def __enable_resp_logging(self):
-        self.resp_log = open('agent_%d_output.csv' % self.id, 'w')
+        self.resp_log = open('output/agent_%d_output.csv' % self.id, 'w')
         self.resp_logging = True
         
         
