@@ -29,12 +29,10 @@ class Application:
     def init_gui(self):
         self.root.geometry('%dx%d%+d%+d' % (780, 580, 200, 100))
         mono_font = ('Courier', 8)
+        small_font = ('Helvetica', 7)
         self.root.title('PyLT - HTTP Load Test')
         self.root.configure(background='#EFEFEF')
-       
-        canvas = Canvas(self.root, width=215, height=60, background='#EFEFEF', highlightthickness=0)
-        canvas.place(x=0, y=0)
-        
+              
         #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
         #interval_entry = Entry(self.root, width=3)
         #interval_entry.place(x=78, y=115)
@@ -47,9 +45,8 @@ class Application:
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
         
-        col_labels = 'Agent                 Req Count              Resp Code             Resp Time'
-        
-        Label(self.root, text=col_labels, background='#EFEFEF').place(x=130, y=52)
+        col_labels = 'Agent Num               Req Count               Last Resp Code        Last Resp Time        Avg Resp Time'
+        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=52)
         
         self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
         self.btn_start.place(x=15, y=70)
@@ -64,7 +61,6 @@ class Application:
         #prefix_entry.insert(0, '')
         #self.prefix_entry = prefix_entry
         
-
         text_box = Text(self.root, background='#CCCCCC', font=mono_font, width=75, height=16)
         text_box.place(x=130, y=70)
         self.text_box = text_box
@@ -80,13 +76,10 @@ class Application:
         self.switch_status(True)
         
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 5
-        lm = LoadManager(self.runtime_stats, agents, 10, 10)
+        agents = 1
+        lm = LoadManager(self.runtime_stats, agents, 3, 0)
         self.lm = lm
-                    
-        for id in range(agents):
-            self.runtime_stats[id] = StatCollection(0, '', 0, 0)                
-            
+ 
         reqs = [
             Request('www.goldb.org'),
         ]
@@ -145,17 +138,18 @@ class Console(Thread): # runs in its own thread so we don't block UI events
         while True:
             self.text_box.delete(1.0, END)
             for id in self.runtime_stats.keys():
-                gui_col_width = 10
-                col_separator = ' | '
+                gui_col_width = 12
+                col_separator = ' '
                 self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(id + 1)))
                 self.text_box.insert(INSERT, col_separator)
                 self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].count)))
                 if self.runtime_stats[id].count > 0:                 
-                    
                     self.text_box.insert(INSERT, col_separator)
                     self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].status)))
                     self.text_box.insert(INSERT, col_separator)
                     self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].latency))
+                    self.text_box.insert(INSERT, col_separator)
+                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].avg_latency))
                 else:
                     self.text_box.insert(INSERT, col_separator)
                     self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '-'))
