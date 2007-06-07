@@ -29,7 +29,7 @@ class Application:
 
 
     def init_gui(self):
-        self.root.geometry('%dx%d%+d%+d' % (600, 300, 200, 100))
+        self.root.geometry('%dx%d%+d%+d' % (780, 580, 200, 100))
         mono_font = ('Courier', 8)
         self.root.title('PyLT - HTTP Load Test')
         self.root.configure(background='#EFEFEF')
@@ -37,20 +37,11 @@ class Application:
         canvas = Canvas(self.root, width=215, height=60, background='#EFEFEF', highlightthickness=0)
         canvas.place(x=0, y=0)
         
-        
-        
-
-
-
-
         #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
         #interval_entry = Entry(self.root, width=3)
         #interval_entry.place(x=78, y=115)
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
-        
-        
-        
         
         #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
         #interval_entry = Entry(self.root, width=3)
@@ -58,16 +49,15 @@ class Application:
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
         
-        col_labels = 'Agent                 Count                     Resp Code             Resp Time'
-        
+        col_labels = 'Agent                 Req Count              Resp Code             Resp Time'
         
         Label(self.root, text=col_labels, background='#EFEFEF').place(x=130, y=52)
         
         self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
-        self.btn_start.place(x=15, y=165)
+        self.btn_start.place(x=15, y=70)
         
         self.btn_stop = Button(self.root, text='Stop', command=self.stop, width=15)
-        self.btn_stop.place(x=15, y=195)
+        self.btn_stop.place(x=15, y=96)
         self.btn_stop.configure(state=DISABLED)
         
         #Label(self.root, text='Run Num', background='#EFEFEF').place(x=15, y=140)
@@ -102,11 +92,7 @@ class Application:
                     
         for id in range(agents):
             self.runtime_stats[id] = StatCollection(0, '', 0, 0)                
-            #self.runtime_stats[id].status,
-            #self.runtime_stats[id].latency
-                        
-                        
-        
+            
         
         reqs = [
             Request('www.goldb.org'),
@@ -145,7 +131,7 @@ class Application:
         except:
             pass
         self.canvas_statuslight = Canvas(self.root, width=15, height=15, background='#EFEFEF', highlightthickness=0)
-        self.canvas_statuslight.place(x=460, y=5)
+        self.canvas_statuslight.place(x=760, y=5)
         self.photo = PhotoImage(file=image)
         self.canvas_statuslight.create_image(0, 0, anchor=NW, image=self.photo)
         
