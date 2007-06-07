@@ -22,10 +22,8 @@ class Application:
     def __init__(self, root):
         self.root = root
         self.refresh_rate = 5
-        self.runtime_stats = {}
-        
+        self.runtime_stats = {}        
         self.init_gui()
-
 
 
     def init_gui(self):
@@ -82,25 +80,19 @@ class Application:
         self.switch_status(True)
         
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 6
-        lm = LoadManager(self.runtime_stats, agents, 10, 20)
-        
-        
+        agents = 5
+        lm = LoadManager(self.runtime_stats, agents, 10, 10)
         self.lm = lm
-        
-        
                     
         for id in range(agents):
             self.runtime_stats[id] = StatCollection(0, '', 0, 0)                
             
-        
         reqs = [
             Request('www.goldb.org'),
         ]
         
         for req in reqs:
             lm.add_req(req)
-        
         
         lm.setDaemon(True)
         lm.start()
@@ -114,7 +106,6 @@ class Application:
         self.lm.stop()
         self.switch_status(False)
         
-
 
     def switch_status(self, is_on):
         # flip the status light to gray or green and swap enabling of Start/Stop buttons
@@ -138,7 +129,6 @@ class Application:
         
         
         
-        
 class Console(Thread): # runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, refresh_rate, text_box):
         Thread.__init__(self)
@@ -146,6 +136,7 @@ class Console(Thread): # runs in its own thread so we don't block UI events
         self.refresh_rate = refresh_rate
         self.text_box = text_box
         self.logging = False
+        
         
     def run(self):
         self.text_box.delete(1.0, END)
@@ -184,6 +175,7 @@ class Console(Thread): # runs in its own thread so we don't block UI events
     
             time.sleep(self.refresh_rate)        
     
+    
     def pad_txt(self, length, txt):
         pad_length = length - len(txt)
         padded_txt = txt
@@ -192,6 +184,7 @@ class Console(Thread): # runs in its own thread so we don't block UI events
             padding += ' ' 
         return txt + padding 
     
+
 
 def main():
     root = Tk()

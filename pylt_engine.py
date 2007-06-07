@@ -32,11 +32,13 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.agent_refs = []
         self.msg_queue = []
         
+        
     def stop(self):
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
-            
+        
+        
     def run(self):
         self.running = True
         for i in range(self.agents):
@@ -48,12 +50,14 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
-                
+
+
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0)
         return runtime_stats
-    
+
+
     def add_req(self, req):
         self.msg_queue.append(req)
       
@@ -77,9 +81,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         self.__enable_resp_logging()
         
+        
     def stop(self):
         self.running = False
         self.__disable_resp_logging()
+        
         
     def run(self):
         while self.running:
@@ -102,7 +108,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)
-                
+        
+        
     def send(self, req):
         conn = httplib.HTTPConnection(req.host)
         #conn.set_debuglevel(1)
@@ -112,14 +119,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             return resp
         except:
             raise  # rethrow exception
-            
+
+
     def log_resp(self, txt):
         if self.resp_logging:
             self.resp_log.write('%s\n' % txt)
             
+            
     def __enable_resp_logging(self):
         self.resp_log = open('agent_%d_output.csv' % self.id, 'w')
         self.resp_logging = True
+        
         
     def __disable_resp_logging(self):
         self.resp_log.close()
@@ -141,8 +151,10 @@ class Request():
         if method == 'POST':
             self.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
     
+    
     def add_header(self, (key, value)):
         self.headers[key] = value
+    
     
     def set_content_type(self, content_type):
         self.headers['Content-type'] = content_type
