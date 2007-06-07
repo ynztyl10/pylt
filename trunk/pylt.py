@@ -111,8 +111,8 @@ class Application:
         
     
     def stop(self):
-        self.switch_status(False)
         self.lm.stop()
+        self.switch_status(False)
         
 
 

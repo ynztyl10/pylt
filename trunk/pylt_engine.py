@@ -22,29 +22,33 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     def __init__(self, runtime_stats, agents, interval, rampup):
         Thread.__init__(self)
         
+        self.running = True
+        
         self.agents = agents
         self.interval = interval
         self.rampup = rampup
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         
-        self.thread_refs = []
+        self.agent_refs = []
         self.msg_queue = []
         
     def stop(self):
-        for thread in self.thread_refs:
-            thread.stop()
+        self.running = False
+        for agent in self.agent_refs:
+            agent.stop()
             
     def run(self):
+        self.running = True
         for i in range(self.agents):
             spacing = (i * (float(self.rampup) / float(self.agents)))
             time.sleep(spacing)
             
-            agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
-            agent.start()
-            
-            print 'started agent ' + str(i + 1)
-            self.thread_refs.append(agent)
-
+            if self.running:  # check here in case stop() was called
+                agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
+                agent.start()
+                self.agent_refs.append(agent)
+                print 'started agent ' + str(i + 1)
+                
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0)
@@ -75,6 +79,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
     def stop(self):
         self.running = False
+        self.__disable_resp_logging()
         
     def run(self):
         while self.running:
@@ -106,7 +111,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             resp = conn.getresponse()
             return resp
         except:
-            raise  # rethrow the exception
+            raise  # rethrow exception
             
     def log_resp(self, txt):
         if self.resp_logging:
