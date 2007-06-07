@@ -45,9 +45,6 @@ class Application:
         #interval_entry.insert(0, '0')
         #self.interval_entry = interval_entry
         
-        col_labels = 'Agent Num               Req Count               Last Resp Code        Last Resp Time        Avg Resp Time'
-        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=52)
-        
         self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
         self.btn_start.place(x=15, y=70)
         
@@ -61,9 +58,17 @@ class Application:
         #prefix_entry.insert(0, '')
         #self.prefix_entry = prefix_entry
         
-        text_box = Text(self.root, background='#CCCCCC', font=mono_font, width=75, height=16)
-        text_box.place(x=130, y=70)
-        self.text_box = text_box
+        col_labels = 'Running Time           Req Count               Avg Resp Time'
+        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=34)
+        txtbox_totals = Text(self.root, background='#CCCCCC', font=mono_font, width=36, height=1)
+        txtbox_totals.place(x=130, y=50)
+        self.txtbox_totals = txtbox_totals
+        
+        col_labels = 'Agent Num               Req Count               Last Resp Code        Last Resp Time        Avg Resp Time'
+        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=84)
+        txtbox_agents = Text(self.root, background='#CCCCCC', font=mono_font, width=65, height=16)
+        txtbox_agents.place(x=130, y=100)
+        self.txtbox_agents = txtbox_agents
         
         self.switch_status(False)
     
@@ -76,7 +81,7 @@ class Application:
         self.switch_status(True)
         
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 1
+        agents = 2
         lm = LoadManager(self.runtime_stats, agents, 3, 0)
         self.lm = lm
  
@@ -90,7 +95,7 @@ class Application:
         lm.setDaemon(True)
         lm.start()
         
-        c = Console(self.runtime_stats, self.refresh_rate, self.text_box)
+        c = Console(self.runtime_stats, self.refresh_rate, self.txtbox_agents, self.txtbox_totals)
         c.setDaemon(True)
         c.start()
         
@@ -123,59 +128,71 @@ class Application:
         
         
 class Console(Thread): # runs in its own thread so we don't block UI events      
-    def __init__(self, runtime_stats, refresh_rate, text_box):
+    def __init__(self, runtime_stats, refresh_rate, txtbox_agents, txtbox_totals):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
         self.refresh_rate = refresh_rate
-        self.text_box = text_box
-        self.logging = False
+        self.txtbox_agents = txtbox_agents
+        self.txtbox_totals = txtbox_totals
         
         
     def run(self):
-        self.text_box.delete(1.0, END)
-        self.text_box.insert(INSERT, 'starting agents... ') 
-        time.sleep(2) # pause before first stat refresh
+        start_time = time.time()
         while True:
-            self.text_box.delete(1.0, END)
+            self.txtbox_agents.delete(1.0, END)
+            self.txtbox_totals.delete(1.0, END)
             for id in self.runtime_stats.keys():
-                gui_col_width = 12
-                col_separator = ' '
-                self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(id + 1)))
-                self.text_box.insert(INSERT, col_separator)
-                self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].count)))
-                if self.runtime_stats[id].count > 0:                 
-                    self.text_box.insert(INSERT, col_separator)
-                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, str(self.runtime_stats[id].status)))
-                    self.text_box.insert(INSERT, col_separator)
-                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].latency))
-                    self.text_box.insert(INSERT, col_separator)
-                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '%.3f' % self.runtime_stats[id].avg_latency))
-                else:
-                    self.text_box.insert(INSERT, col_separator)
-                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '-'))
-                    self.text_box.insert(INSERT, col_separator)
-                    self.text_box.insert(INSERT, self.pad_txt(gui_col_width, '-'))                         
-                self.text_box.insert(INSERT, '\n')
-            
-            if self.logging:
-                print '----------'
-                for id in self.runtime_stats.keys():
-                    print '%d|%d|%d|%.3f' %  (
-                        id + 1,
-                        self.runtime_stats[id].count,                
-                        self.runtime_stats[id].status,
-                        self.runtime_stats[id].latency
-                    )
+                self.__render_agentstats(id)
+            self.__render_totalstats(start_time)
+            time.sleep(self.refresh_rate)
+
+
+    def __render_agentstats(self, id):
+        col_width = 12
+        col_separator = ' '
+        self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, str(id + 1)))
+        self.txtbox_agents.insert(INSERT, col_separator)
+        self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, str(self.runtime_stats[id].count)))
+        if self.runtime_stats[id].count > 0:                 
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, str(self.runtime_stats[id].status)))
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, '%.3f' % self.runtime_stats[id].latency))
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, '%.3f' % self.runtime_stats[id].avg_latency))
+        else:
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, '-'))
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, '-'))
+            self.txtbox_agents.insert(INSERT, col_separator)
+            self.txtbox_agents.insert(INSERT, self.__pad_txt(col_width, '-'))            
+        self.txtbox_agents.insert(INSERT, '\n')
+        
+        
+    def __render_totalstats(self, start_time):
+        col_width = 12
+        col_separator = ' '
+        elapsed_secs = int(time.time() - start_time)  # running time in secs
+        agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])  # total req count
+        agg_total = sum([self.runtime_stats[id].total_latency for id in self.runtime_stats.keys()])
+        agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])
+        agg_avg = 0 # total avg response time
+        if agg_count > 0:
+            agg_avg = agg_total / agg_count
+        self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%d' % elapsed_secs))
+        self.txtbox_totals.insert(INSERT, col_separator)
+        self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%d' % agg_count))
+        self.txtbox_totals.insert(INSERT, col_separator)
+        self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%.3f' % agg_avg))   
     
-            time.sleep(self.refresh_rate)        
     
-    
-    def pad_txt(self, length, txt):
+    def __pad_txt(self, length, txt):
         pad_length = length - len(txt)
         padded_txt = txt
         padding = ''
-        for l in range(pad_length):
-            padding += ' ' 
+        for i in range(pad_length):
+            padding += ' '
         return txt + padding 
     
 
