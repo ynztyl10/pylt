@@ -64,7 +64,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
-            runtime_stats[i] = StatCollection(0, '', 0, 0)
+            runtime_stats[i] = StatCollection(0, '', 0, 0, 0)
         return runtime_stats
     
 
@@ -98,6 +98,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         
     def run(self):
+        total_latency = 0
         while self.running:
             for req in self.msg_queue:
                 start_time = time.time()
@@ -108,9 +109,10 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 self.count += 1
                 end_time = time.time()
                 latency = end_time - start_time
+                total_latency += latency
                 if resp:
                     # update the shared stats dictionary
-                    self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count)
+                    self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, total_latency)
                     # log response
                     log_date = time.strftime('%d %b %Y', time.localtime())
                     log_time = time.strftime('%H:%M:%S', time.localtime())
@@ -173,10 +175,15 @@ class Request():
 
 
 class StatCollection():
-    def __init__(self, status, reason, latency, count):
+    def __init__(self, status, reason, latency, count, total_latency):
         self.status = status
         self.reason = reason
         self.latency = latency
         self.count = count
+        self.total_latency = total_latency
+        if count > 0:
+            self.avg_latency = total_latency / count
+        else:
+            self.avg_latency = 0
 
     
