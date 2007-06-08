@@ -120,7 +120,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 # log response
                 log_date = time.strftime('%d %b %Y', time.localtime())
                 log_time = time.strftime('%H:%M:%S', time.localtime())
-                self.log_resp('%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, resp.status, resp.reason, latency))
+                self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, req.url, resp.status, resp.reason, latency))
  
 
                 expire_time = (self.interval - latency)
@@ -154,7 +154,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
 
 class Request():
-    def __init__(self, url, method='GET', body='', headers={}):
+    def __init__(self, url='localhost', method='GET', body='', headers={}):
         self.url = url
         self.method = method
         self.body = body
