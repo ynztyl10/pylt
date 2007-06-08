@@ -13,7 +13,7 @@
 
 import os
 import time
-import httplib
+import httplib2
 from threading import Thread
 
 
@@ -64,7 +64,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
-            runtime_stats[i] = StatCollection(0, '', 0, 0, 0)
+            runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0)
         return runtime_stats
     
 
@@ -88,6 +88,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.msg_queue = msg_queue
         
         self.count = 0
+        self.error_count = 0
         
         self.__enable_resp_logging()
         
@@ -102,35 +103,35 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         while self.running:
             for req in self.msg_queue:
                 start_time = time.time()
-                try:
-                    resp = self.send(req)
-                except:
-                    resp = None
+
+                resp = self.send(req)
+                if resp.status >= 400:
+                    self.error_count += 1
+
                 self.count += 1
                 end_time = time.time()
                 latency = end_time - start_time
                 total_latency += latency
-                if resp:
-                    # update the shared stats dictionary
-                    self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, total_latency)
-                    # log response
-                    log_date = time.strftime('%d %b %Y', time.localtime())
-                    log_time = time.strftime('%H:%M:%S', time.localtime())
-                    self.log_resp('%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, resp.status, resp.reason, latency))
+                
+
+                #if resp:
+                # update the shared stats dictionary
+                self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency)
+                # log response
+                log_date = time.strftime('%d %b %Y', time.localtime())
+                log_time = time.strftime('%H:%M:%S', time.localtime())
+                self.log_resp('%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, resp.status, resp.reason, latency))
+ 
+
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)  # sleep the rest of the interval so we keep even pacing
         
         
     def send(self, req):
-        conn = httplib.HTTPConnection(req.host)
-        #conn.set_debuglevel(1)
-        try:
-            conn.request(req.method, req.path, req.body, req.headers)
-            resp = conn.getresponse()
-            return resp
-        except:
-            raise  # rethrow exception
+        h = httplib2.Http()
+        resp, content = h.request(req.url, req.method)
+        return resp
 
 
     def log_resp(self, txt):
@@ -153,10 +154,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
 
 class Request():
-    def __init__(self, host, method='GET', path='/', body='', headers={}):
-        self.host = host
+    def __init__(self, url, method='GET', body='', headers={}):
+        self.url = url
         self.method = method
-        self.path = path
         self.body = body
         self.headers = headers
         
@@ -175,11 +175,12 @@ class Request():
 
 
 class StatCollection():
-    def __init__(self, status, reason, latency, count, total_latency):
+    def __init__(self, status, reason, latency, count, error_count, total_latency):
         self.status = status
         self.reason = reason
         self.latency = latency
         self.count = count
+        self.error_count = error_count
         self.total_latency = total_latency
         if count > 0:
             self.avg_latency = total_latency / count
