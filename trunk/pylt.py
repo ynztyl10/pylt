@@ -21,18 +21,18 @@ from pylt_engine import *
 class Application:
     def __init__(self, root):
         self.root = root
-        self.refresh_rate = 5
+        self.refresh_rate = 2
         self.runtime_stats = {}        
         self.init_gui()
 
 
     def init_gui(self):
-        self.root.geometry('%dx%d%+d%+d' % (780, 580, 200, 100))
+        self.root.geometry('%dx%d%+d%+d' % (610, 350, 200, 100))
         mono_font = ('Courier', 8)
         small_font = ('Helvetica', 7)
-        self.root.title('PyLT - HTTP Load Test')
         self.root.configure(background='#EFEFEF')
-              
+        self.root.title('PyLT - HTTP Load Test')
+
         #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
         #interval_entry = Entry(self.root, width=3)
         #interval_entry.place(x=78, y=115)
@@ -57,15 +57,15 @@ class Application:
         #prefix_entry.place(x=78, y=140)
         #prefix_entry.insert(0, '')
         #self.prefix_entry = prefix_entry
-        
-        col_labels = 'Running Time           Req Count               Avg Resp Time'
-        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=34)
-        txtbox_totals = Text(self.root, background='#CCCCCC', font=mono_font, width=36, height=1)
+               
+        col_labels = 'Running Time            Requests                 Errors                      Avg Resp Time'
+        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=128, y=34)
+        txtbox_totals = Text(self.root, background='#CCCCCC', font=mono_font, width=50, height=1)
         txtbox_totals.place(x=130, y=50)
         self.txtbox_totals = txtbox_totals
         
-        col_labels = 'Agent Num               Req Count               Last Resp Code        Last Resp Time        Avg Resp Time'
-        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=130, y=84)
+        col_labels = 'Agent Num               Requests                 Last Resp Code        Last Resp Time        Avg Resp Time'
+        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=128, y=84)
         txtbox_agents = Text(self.root, background='#CCCCCC', font=mono_font, width=65, height=16)
         txtbox_agents.place(x=130, y=100)
         self.txtbox_agents = txtbox_agents
@@ -81,12 +81,12 @@ class Application:
         self.switch_status(True)
         
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 2
-        lm = LoadManager(self.runtime_stats, agents, 3, 0)
+        agents = 1
+        lm = LoadManager(self.runtime_stats, agents, 0, 0)
         self.lm = lm
  
         reqs = [
-            Request('www.goldb.org'),
+            Request('http://www.goldb.org'),
         ]
         
         for req in reqs:
@@ -120,7 +120,7 @@ class Application:
         except:
             pass
         self.canvas_statuslight = Canvas(self.root, width=15, height=15, background='#EFEFEF', highlightthickness=0)
-        self.canvas_statuslight.place(x=760, y=5)
+        self.canvas_statuslight.place(x=585, y=5)
         self.photo = PhotoImage(file=image)
         self.canvas_statuslight.create_image(0, 0, anchor=NW, image=self.photo)
         
@@ -177,12 +177,15 @@ class Console(Thread): # runs in its own thread so we don't block UI events
         agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])  # total req count
         agg_total = sum([self.runtime_stats[id].total_latency for id in self.runtime_stats.keys()])
         agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])
+        agg_error_count = sum([self.runtime_stats[id].error_count for id in self.runtime_stats.keys()])
         agg_avg = 0 # total avg response time
         if agg_count > 0:
             agg_avg = agg_total / agg_count
         self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%d' % elapsed_secs))
         self.txtbox_totals.insert(INSERT, col_separator)
         self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%d' % agg_count))
+        self.txtbox_totals.insert(INSERT, col_separator)
+        self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%d' % agg_error_count))
         self.txtbox_totals.insert(INSERT, col_separator)
         self.txtbox_totals.insert(INSERT, self.__pad_txt(col_width, '%.3f' % agg_avg))   
     
