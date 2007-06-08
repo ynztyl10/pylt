@@ -75,16 +75,23 @@ class Application:
 
     
     def run(self):
-        self.switch_status(True)
         
+        
+        
+        
+            
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
         agents = 1
         lm = LoadManager(self.runtime_stats, agents, 0, 0)
         self.lm = lm
  
-        reqs = self.load_xml_cases()
-        for req in reqs:
+        cases, config = self.load_xml_cases()
+        
+        for req in cases:
             lm.add_req(req)
+            
+            
+            
         
         lm.setDaemon(True)
         lm.start()
@@ -93,7 +100,9 @@ class Application:
         c.setDaemon(True)
         c.start()
         
-    
+        self.switch_status(True)
+        
+        
     def stop(self):
         self.lm.stop()
         self.switch_status(False)
@@ -102,7 +111,7 @@ class Application:
     def load_xml_cases(self):
         # parse xml and load request queue
         dom = etree.parse('testcases.xml')
-        reqs = []
+        cases = []
         for child in dom.getiterator():
             if child.tag != dom.getroot().tag and child.tag =='case':
                 for element in child:
@@ -115,8 +124,17 @@ class Application:
                         req.body = element.text
                     if element.tag == 'headers': 
                         req.headers = element.text
-                reqs.append(req)
-        return reqs
+                cases.append(req)
+            if child.tag != dom.getroot().tag and child.tag =='config':
+                for element in child:
+                    if element.tag == 'agents':
+                        cfg = Config()                
+                        cfg.agents = element.text
+                    if element.tag == 'interval':
+                        cfg.interval = element.text
+                    if element.tag == 'rampup':
+                        cfg.rampup = element.text
+        return cases, cfg
                 
         
     def switch_status(self, is_on):
@@ -214,6 +232,14 @@ class Console(Thread): # runs in its own thread so we don't block UI events
     
 
 
+class Config():
+    def __init__(self, agents=1, interval=1, rampup=0):
+        self.agents = agents
+        self.interval = interval
+        self.rampup = rampup
+            
+            
+            
 def main():
     root = Tk()
     app = Application(root)

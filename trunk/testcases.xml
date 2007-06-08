@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<testcases>
+    <config>
+        <agents>2</agents>
+        <interval>2</interval>
+        <rampup>2</rampup>
+    </config>
+
+    <case>
+        <url>http://www.goldb.org/info.html</url>
+        <method>GET</method>
+    </case>
+    <case>
+        <url>http://www.webinject.org/dev.html</url>
+        <method>GET</method>
+    </case>
+</testcases>
