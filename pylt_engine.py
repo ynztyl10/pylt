@@ -18,7 +18,7 @@ from threading import Thread
 
 
 
-class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from the Controller
+class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
     def __init__(self, runtime_stats, agents, interval, rampup):
         Thread.__init__(self)
         
@@ -27,6 +27,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.agents = agents
         self.interval = interval
         self.rampup = rampup
+        
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         
         self.agent_refs = []
@@ -113,16 +114,14 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 latency = end_time - start_time
                 total_latency += latency
                 
-
-                #if resp:
                 # update the shared stats dictionary
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency)
+                
                 # log response
                 log_date = time.strftime('%d %b %Y', time.localtime())
                 log_time = time.strftime('%H:%M:%S', time.localtime())
                 self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, req.url, resp.status, resp.reason, latency))
  
-
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)  # sleep the rest of the interval so we keep even pacing
@@ -148,7 +147,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.resp_log.close()
         self.resp_logging = False
 
-            
             
             
 
