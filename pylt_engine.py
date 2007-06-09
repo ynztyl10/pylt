@@ -103,14 +103,18 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         total_latency = 0
         while self.running:
             for req in self.msg_queue:
+                
+                #timed msg send
                 start_time = time.time()
-
-                resp = self.send(req)
+                resp, content = self.send(req)
+                end_time = time.time()
+                
                 if resp.status >= 400:
                     self.error_count += 1
-
                 self.count += 1
-                end_time = time.time()
+                
+                content_bytes = len(content)
+                
                 latency = end_time - start_time
                 total_latency += latency
                 
@@ -130,7 +134,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def send(self, req):
         h = httplib2.Http()
         resp, content = h.request(req.url, req.method)
-        return resp
+        return (resp, content)
 
 
     def log_resp(self, txt):
