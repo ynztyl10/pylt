@@ -12,54 +12,67 @@
 
 
 
-from Tkinter import *
+import time
+import sys
+import wx
+from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 from threading import Thread
 import xml.etree.ElementTree as etree
 from pylt_engine import *
 
  
 
-class Application:
-    def __init__(self, root):
-        self.root = root
-        self.refresh_rate = 2
-        self.runtime_stats = {}        
-        self.init_gui()
+    
+class Application(wx.Frame):
+    def __init__(self, parent):
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(780, 600))
+        
+        self.runtime_stats = {}
+        
+        #text = wx.StaticText(panel, -1, "PyLT - Web Performance")
+        #text.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
+        #text.SetSize(text.GetBestSize())
+        
+        panel = wx.Panel(self)
+        
+        self.run_btn = wx.Button(panel, -1, 'Run')
+        self.stop_btn = wx.Button(panel, -1, 'Stop')
+        
+        # bind the button events to handlers
+        self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
+        
 
-
-    def init_gui(self):
-        self.root.geometry('%dx%d%+d%+d' % (610, 350, 200, 100))
-        mono_font = ('Courier', 8)
-        small_font = ('Helvetica', 7)
-        self.root.configure(background='#EFEFEF')
-        self.root.title('PyLT - HTTP Load Test')
-       
-        self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
-        self.btn_start.place(x=15, y=70)
+        self.total_statlist = AutoWidthListCtrl(panel)
+        self.total_statlist.InsertColumn(0, 'Agent Num', width=100)
+        self.total_statlist.InsertColumn(1, 'Requests', width=100)
+        self.total_statlist.InsertColumn(2, 'Errors', width=100)
+        self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
         
-        self.btn_stop = Button(self.root, text='Stop', command=self.stop, width=15)
-        self.btn_stop.place(x=15, y=96)
-        self.btn_stop.configure(state=DISABLED)
-               
-        col_labels = 'Running Time            Requests                 Errors                      Avg Resp Time'
-        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=128, y=34)
-        txtbox_totals = Text(self.root, background='#CCCCCC', font=mono_font, width=50, height=1)
-        txtbox_totals.place(x=130, y=50)
-        self.txtbox_totals = txtbox_totals
+        self.agents_statlist = AutoWidthListCtrl(panel)
+        self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
+        self.agents_statlist.InsertColumn(1, 'Requests', width=100)
+        self.agents_statlist.InsertColumn(2, 'Last Resp Code', width=100)
+        self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
+        self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
+                
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
+        sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
+        sizer.Add(self.run_btn, 0, wx.ALL, 3)
+        sizer.Add(self.stop_btn, 0, wx.ALL, 3)
+        panel.SetSizer(sizer)
         
-        col_labels = 'Agent Num               Requests                 Last Resp Code        Last Resp Time        Avg Resp Time'
-        Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=128, y=84)
-        txtbox_agents = Text(self.root, background='#CCCCCC', font=mono_font, width=65, height=16)
-        txtbox_agents.place(x=130, y=100)
-        self.txtbox_agents = txtbox_agents
-        
+        self.Centre()
+        self.Show(True)
+                
         self.switch_status(False)
 
     
-    def run(self):
+    def on_run(self, evt):
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 1
-        lm = LoadManager(self.runtime_stats, agents, 0, 0)
+        agents = 3
+        lm = LoadManager(self.runtime_stats, agents, .5, 0)
         self.lm = lm
  
         cases, config = self.load_xml_cases()
@@ -71,15 +84,16 @@ class Application:
         lm.setDaemon(True)
         lm.start()
         
-        c = Console(self.runtime_stats, self.refresh_rate, self.txtbox_agents, self.txtbox_totals)
-        c.setDaemon(True)
-        c.start()
+        self.console = Console(self.runtime_stats, self.agents_statlist, self.total_statlist)
+        self.console.setDaemon(True)
+        self.console.start()
         
         self.switch_status(True)
         
         
-    def stop(self):
+    def on_stop(self, evt):
         self.lm.stop()
+        self.console.stop()
         self.switch_status(False)
         
 
@@ -109,102 +123,76 @@ class Application:
                         cfg.interval = element.text
                     if element.tag == 'rampup':
                         cfg.rampup = element.text
-        return cases, cfg
-                
+        return (cases, cfg)
+   
         
     def switch_status(self, is_on):
-        # flip the status light to gray or green and swap enabling of Start/Stop buttons
+        # flip the status light and swap enabling of run/stop buttons
         if is_on:
-            image = 'ui/greenlight.gif'
-            self.btn_start.config(state='disabled')
-            self.btn_stop.config(state='active')
+            self.run_btn.Disable()
+            self.stop_btn.Enable()
         else:
-            image = 'ui/graylight.gif'
-            self.btn_start.config(state='active')
-            self.btn_stop.config(state='disabled')
-        try:
-            self.canvas_statuslight.destroy()
-        except:
-            pass
-        self.canvas_statuslight = Canvas(self.root, width=15, height=15, background='#EFEFEF', highlightthickness=0)
-        self.canvas_statuslight.place(x=585, y=5)
-        self.photo = PhotoImage(file=image)
-        self.canvas_statuslight.create_image(0, 0, anchor=NW, image=self.photo)
+            self.run_btn.Enable()
+            self.stop_btn.Disable()
+
+
+
+
+class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
+    def __init__(self, parent):
+        wx.ListCtrl.__init__(self, parent, -1, style=wx.LC_REPORT)
+        ListCtrlAutoWidthMixin.__init__(self)
         
-        
-        
-        
-class Console(Thread): # runs in its own thread so we don't block UI events      
-    def __init__(self, runtime_stats, refresh_rate, txtbox_agents, txtbox_totals):
+
+
+class Console(Thread):  # runs in its own thread so we don't block UI events      
+    def __init__(self, runtime_stats, agents_statlist, total_statlist):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
-        self.refresh_rate = refresh_rate
-        self.txtbox_agents = txtbox_agents
-        self.txtbox_totals = txtbox_totals
-        
+        self.agents_statlist = agents_statlist
+        self.total_statlist = total_statlist
+        self.running = True
+        self.refresh_rate = 2
         
     def run(self):
         start_time = time.time()
-        while True:
-            self.txtbox_agents.delete(1.0, END)
-            self.txtbox_totals.delete(1.0, END)
+        while self.running:
+            # refresh total monitor
+            elapsed_secs = int(time.time() - start_time)  # running time in secs
+            ids = self.runtime_stats.keys()
+            agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
+            agg_total = sum([self.runtime_stats[id].total_latency for id in ids])
+            agg_count = sum([self.runtime_stats[id].count for id in ids])
+            agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
+            if agg_count > 0:
+                agg_avg = agg_total / agg_count  # total avg response time
+            else: 
+                agg_avg = 0
+            self.total_statlist.DeleteAllItems()       
+            index = self.total_statlist.InsertStringItem(sys.maxint, '%d' % elapsed_secs)
+            self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
+            self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
+            self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
+            
+            # refresh agents monitor
+            self.agents_statlist.DeleteAllItems()       
             for id in self.runtime_stats.keys():
-                self.render_agentstats(id)
-            self.render_totalstats(start_time)
+                index = self.agents_statlist.InsertStringItem(sys.maxint, '%d' % (id + 1))
+                self.agents_statlist.SetStringItem(index, 1, '%d' % self.runtime_stats[id].count)
+                self.agents_statlist.SetStringItem(index, 2, '%d' % self.runtime_stats[id].status)
+                self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
+                self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].latency)
+                self.agents_statlist.SetStringItem(index, 5, '%.3f' % self.runtime_stats[id].avg_latency)
+                
             time.sleep(self.refresh_rate)
+    
 
+    def stop(self):
+        self.running = False
+            
+            
+        
 
-    def render_agentstats(self, id):
-        col_width = 12
-        col_separator = ' '
-        self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, str(id + 1)))
-        self.txtbox_agents.insert(INSERT, col_separator)
-        self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, str(self.runtime_stats[id].count)))
-        if self.runtime_stats[id].count > 0:                 
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, str(self.runtime_stats[id].status)))
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, '%.3f' % self.runtime_stats[id].latency))
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, '%.3f' % self.runtime_stats[id].avg_latency))
-        else:
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, '-'))
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, '-'))
-            self.txtbox_agents.insert(INSERT, col_separator)
-            self.txtbox_agents.insert(INSERT, self.pad_txt(col_width, '-'))            
-        self.txtbox_agents.insert(INSERT, '\n')
-        
-        
-    def render_totalstats(self, start_time):
-        col_width = 12
-        col_separator = ' '
-        elapsed_secs = int(time.time() - start_time)  # running time in secs
-        agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])  # total req count
-        agg_total = sum([self.runtime_stats[id].total_latency for id in self.runtime_stats.keys()])
-        agg_count = sum([self.runtime_stats[id].count for id in self.runtime_stats.keys()])
-        agg_error_count = sum([self.runtime_stats[id].error_count for id in self.runtime_stats.keys()])
-        agg_avg = 0 # total avg response time
-        if agg_count > 0:
-            agg_avg = agg_total / agg_count
-        self.txtbox_totals.insert(INSERT, self.pad_txt(col_width, '%d' % elapsed_secs))
-        self.txtbox_totals.insert(INSERT, col_separator)
-        self.txtbox_totals.insert(INSERT, self.pad_txt(col_width, '%d' % agg_count))
-        self.txtbox_totals.insert(INSERT, col_separator)
-        self.txtbox_totals.insert(INSERT, self.pad_txt(col_width, '%d' % agg_error_count))
-        self.txtbox_totals.insert(INSERT, col_separator)
-        self.txtbox_totals.insert(INSERT, self.pad_txt(col_width, '%.3f' % agg_avg))   
-    
-    
-    def pad_txt(self, length, txt):
-        pad_length = length - len(txt)
-        padded_txt = txt
-        padding = ''
-        for i in range(pad_length):
-            padding += ' '
-        return txt + padding 
-    
 
 
 class Config():
@@ -214,11 +202,11 @@ class Config():
         self.rampup = rampup
             
             
-            
+
 def main():
-    root = Tk()
-    app = Application(root)
-    root.mainloop()
+    app = wx.App(0)
+    Application(None)
+    app.MainLoop()            
 
 if __name__ == "__main__":
     main()
