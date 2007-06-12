@@ -33,31 +33,13 @@ class Application:
         small_font = ('Helvetica', 7)
         self.root.configure(background='#EFEFEF')
         self.root.title('PyLT - HTTP Load Test')
-
-        #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
-        #interval_entry = Entry(self.root, width=3)
-        #interval_entry.place(x=78, y=115)
-        #interval_entry.insert(0, '0')
-        #self.interval_entry = interval_entry
-        
-        #Label(self.root, text='TS Interval', background='#EFEFEF').place(x=15, y=115)
-        #interval_entry = Entry(self.root, width=3)
-        #interval_entry.place(x=78, y=115)
-        #interval_entry.insert(0, '0')
-        #self.interval_entry = interval_entry
-        
+       
         self.btn_start = Button(self.root, text='Run', command=self.run, width=15)
         self.btn_start.place(x=15, y=70)
         
         self.btn_stop = Button(self.root, text='Stop', command=self.stop, width=15)
         self.btn_stop.place(x=15, y=96)
         self.btn_stop.configure(state=DISABLED)
-        
-        #Label(self.root, text='Run Num', background='#EFEFEF').place(x=15, y=140)
-        #prefix_entry = Entry(self.root, width=6)
-        #prefix_entry.place(x=78, y=140)
-        #prefix_entry.insert(0, '')
-        #self.prefix_entry = prefix_entry
                
         col_labels = 'Running Time            Requests                 Errors                      Avg Resp Time'
         Label(self.root, text=col_labels, background='#EFEFEF', font=small_font).place(x=128, y=34)
@@ -75,11 +57,6 @@ class Application:
 
     
     def run(self):
-        
-        
-        
-        
-            
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
         agents = 1
         lm = LoadManager(self.runtime_stats, agents, 0, 0)
@@ -89,8 +66,6 @@ class Application:
         
         for req in cases:
             lm.add_req(req)
-            
-            
             
         
         lm.setDaemon(True)
