@@ -104,7 +104,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         while self.running:
             for req in self.msg_queue:
                 
-                #timed msg send
+                # timed msg send
                 start_time = time.time()
                 resp, content = self.send(req)
                 end_time = time.time()
