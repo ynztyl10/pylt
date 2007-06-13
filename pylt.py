@@ -92,8 +92,8 @@ class Application(wx.Frame):
         
     def on_run(self, evt):
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 3
-        lm = LoadManager(self.runtime_stats, agents, .5, 0)
+        agents = 2
+        lm = LoadManager(self.runtime_stats, agents, 1, 10)
         self.lm = lm
  
         cases, config = self.load_xml_cases()
