@@ -53,15 +53,14 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.running = True
         self.__create_output_dir()
         for i in range(self.agents):
-            spacing = (i * (float(self.rampup) / float(self.agents)))
+            spacing = float(self.rampup) / float(self.agents)
             time.sleep(spacing)
-            
-            if self.running:  # check here in case stop() was called
+            if self.running:  # in case stop() was called
                 agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
-        
+    
     
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.agents):
