@@ -38,9 +38,11 @@ class Application(wx.Frame):
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
         
-        # bind the button events to handlers
-        self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
-        self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
+        self.busy_gauge = wx.Gauge(panel, -1, 50, size=(100, 10))
+        self.busy_timer = wx.Timer(self)
+        
+        
+        
         
 
         self.total_statlist = AutoWidthListCtrl(panel)
@@ -61,7 +63,19 @@ class Application(wx.Frame):
         sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
         sizer.Add(self.run_btn, 0, wx.ALL, 3)
         sizer.Add(self.stop_btn, 0, wx.ALL, 3)
+        sizer.Add(self.busy_gauge, 0, wx.ALL, 3)
+        
+        
         panel.SetSizer(sizer)
+        
+        
+        
+        # bind the button events to handlers
+        self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
+        self.Bind(wx.EVT_TIMER, self.timer_handler)
+        
+        
         
         self.Centre()
         self.Show(True)
@@ -69,6 +83,10 @@ class Application(wx.Frame):
         self.switch_status(False)
 
     
+    def timer_handler(self, evt):
+        self.busy_gauge.Pulse()
+        
+        
     def on_run(self, evt):
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
         agents = 3
@@ -127,13 +145,15 @@ class Application(wx.Frame):
    
         
     def switch_status(self, is_on):
-        # flip the status light and swap enabling of run/stop buttons
+        # change the status gauge and swap enablement of run/stop buttons
         if is_on:
             self.run_btn.Disable()
             self.stop_btn.Enable()
+            self.busy_timer.Start(75)
         else:
             self.run_btn.Enable()
             self.stop_btn.Disable()
+            self.busy_timer.Stop()
 
 
 
