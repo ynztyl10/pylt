@@ -114,7 +114,7 @@ class Application(wx.Frame):
                     if element.tag == 'headers': 
                         req.headers = element.text
                 cases.append(req)
-            if child.tag != dom.getroot().tag and child.tag =='config':
+            if child.tag != dom.getroot().tag and child.tag == 'config':
                 for element in child:
                     if element.tag == 'agents':
                         cfg = Config()                
