@@ -38,33 +38,37 @@ class Application(wx.Frame):
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
         
-        self.busy_gauge = wx.Gauge(panel, -1, 50, size=(100, 10))
-        self.busy_timer = wx.Timer(self)
+        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(100, 15))
+        self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
         
         
         
         
 
-        self.total_statlist = AutoWidthListCtrl(panel)
+        self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
         self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
         
-        self.agents_statlist = AutoWidthListCtrl(panel)
+        self.agents_statlist = AutoWidthListCtrl(panel, height=400)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
         self.agents_statlist.InsertColumn(1, 'Requests', width=100)
         self.agents_statlist.InsertColumn(2, 'Last Resp Code', width=100)
         self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
                 
+                
         sizer = wx.BoxSizer(wx.VERTICAL)
+        
+        controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
+        controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
+        controls_sizer.Add(self.busy_gauge, 0, wx.TOP|wx.LEFT, 5)
+        
+        sizer.Add(controls_sizer, 0, wx.ALL, 3)
         sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
         sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
-        sizer.Add(self.run_btn, 0, wx.ALL, 3)
-        sizer.Add(self.stop_btn, 0, wx.ALL, 3)
-        sizer.Add(self.busy_gauge, 0, wx.ALL, 3)
-        
         
         panel.SetSizer(sizer)
         
@@ -102,16 +106,16 @@ class Application(wx.Frame):
         lm.setDaemon(True)
         lm.start()
         
-        self.console = Console(self.runtime_stats, self.agents_statlist, self.total_statlist)
-        self.console.setDaemon(True)
-        self.console.start()
+        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist)
+        self.rt_mon.setDaemon(True)
+        self.rt_mon.start()
         
         self.switch_status(True)
         
         
     def on_stop(self, evt):
         self.lm.stop()
-        self.console.stop()
+        self.rt_mon.stop()
         self.switch_status(False)
         
 
@@ -159,13 +163,13 @@ class Application(wx.Frame):
 
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
-    def __init__(self, parent):
-        wx.ListCtrl.__init__(self, parent, -1, style=wx.LC_REPORT)
+    def __init__(self, parent, height=100):
+        wx.ListCtrl.__init__(self, parent, -1, size=(0, height), style=wx.LC_REPORT)
         ListCtrlAutoWidthMixin.__init__(self)
         
 
 
-class Console(Thread):  # runs in its own thread so we don't block UI events      
+class RTMonitor(Thread):  # runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, agents_statlist, total_statlist):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
@@ -189,7 +193,7 @@ class Console(Thread):  # runs in its own thread so we don't block UI events
             else: 
                 agg_avg = 0
             self.total_statlist.DeleteAllItems()       
-            index = self.total_statlist.InsertStringItem(sys.maxint, '%d' % elapsed_secs)
+            index = self.total_statlist.InsertStringItem(sys.maxint, '%d  secs' % elapsed_secs)
             self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
             self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
             self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
