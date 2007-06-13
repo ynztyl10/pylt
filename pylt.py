@@ -44,7 +44,7 @@ class Application(wx.Frame):
         
 
         self.total_statlist = AutoWidthListCtrl(panel)
-        self.total_statlist.InsertColumn(0, 'Agent Num', width=100)
+        self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
         self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
@@ -181,8 +181,7 @@ class Console(Thread):  # runs in its own thread so we don't block UI events
                 self.agents_statlist.SetStringItem(index, 1, '%d' % self.runtime_stats[id].count)
                 self.agents_statlist.SetStringItem(index, 2, '%d' % self.runtime_stats[id].status)
                 self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
-                self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].latency)
-                self.agents_statlist.SetStringItem(index, 5, '%.3f' % self.runtime_stats[id].avg_latency)
+                self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
                 
             time.sleep(self.refresh_rate)
     
