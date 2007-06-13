@@ -26,9 +26,11 @@ from pylt_engine import *
 class Application(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(780, 600))
+        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         
         self.runtime_stats = {}
         
+
         #text = wx.StaticText(panel, -1, "PyLT - Web Performance")
         #text.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
         #text.SetSize(text.GetBestSize())
@@ -40,9 +42,6 @@ class Application(wx.Frame):
         
         self.busy_gauge = wx.Gauge(panel, -1, 0, size=(100, 15))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
-        
-        
-        
         
 
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
