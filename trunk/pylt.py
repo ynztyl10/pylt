@@ -92,8 +92,8 @@ class Application(wx.Frame):
         
     def on_run(self, evt):
         #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 2
-        lm = LoadManager(self.runtime_stats, agents, 1, 10)
+        agents = 20
+        lm = LoadManager(self.runtime_stats, agents, 1, 5)
         self.lm = lm
  
         cases, config = self.load_xml_cases()
@@ -148,7 +148,7 @@ class Application(wx.Frame):
    
         
     def switch_status(self, is_on):
-        # change the status gauge and swap enablement of run/stop buttons
+        # change the status gauge and swap run/stop buttons
         if is_on:
             self.run_btn.Disable()
             self.stop_btn.Enable()
@@ -168,14 +168,14 @@ class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
         
 
 
-class RTMonitor(Thread):  # runs in its own thread so we don't block UI events      
+class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events      
     def __init__(self, runtime_stats, agents_statlist, total_statlist):
         Thread.__init__(self)
         self.runtime_stats = runtime_stats
         self.agents_statlist = agents_statlist
         self.total_statlist = total_statlist
         self.running = True
-        self.refresh_rate = 2
+        self.refresh_rate = 3
         
     def run(self):
         start_time = time.time()
