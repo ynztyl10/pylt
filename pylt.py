@@ -70,6 +70,7 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
         self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
+        self.total_statlist.InsertColumn(4, 'Throughput', width=100)
         
         self.agents_statlist = AutoWidthListCtrl(panel, height=400)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
@@ -111,7 +112,7 @@ class Application(wx.Frame):
         
         
         
-        # bind the button events to handlers
+        # bind the events to handlers
         self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
         self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
@@ -223,18 +224,22 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             elapsed_secs = int(time.time() - start_time)  # running time in secs
             ids = self.runtime_stats.keys()
             agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
-            agg_total = sum([self.runtime_stats[id].total_latency for id in ids])
-            agg_count = sum([self.runtime_stats[id].count for id in ids])
+            agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
             agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
             if agg_count > 0:
-                agg_avg = agg_total / agg_count  # total avg response time
+                agg_avg = agg_total_latency / agg_count  # total avg response time
             else: 
                 agg_avg = 0
+            if agg_count > 0:
+                throughput = float(agg_count) / elapsed_secs
+            else: 
+                throughput = 0
             self.total_statlist.DeleteAllItems()       
             index = self.total_statlist.InsertStringItem(sys.maxint, '%d  secs' % elapsed_secs)
             self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
             self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
             self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
+            self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
             
             # refresh agents monitor
             self.agents_statlist.DeleteAllItems()       
