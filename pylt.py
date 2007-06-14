@@ -84,15 +84,20 @@ class Application(wx.Frame):
         controls_sizer.Add(self.busy_gauge, 0, wx.TOP|wx.LEFT, 5)
         
 
-        controls_sizer.Add(wx.StaticText(panel, -1, "Agents (count)"), 0, wx.LEFT, 15)
-        controls_sizer.Add(self.num_agents_spin, 0, wx.TOP, -2)
-        controls_sizer.Add(wx.StaticText(panel, -1, "Interval (secs)"), 0, wx.LEFT, 15)
-        controls_sizer.Add(self.interval_spin, 0, wx.TOP, -2)
-        controls_sizer.Add(wx.StaticText(panel, -1, "Rampup (secs)"), 0, wx.LEFT, 15)
-        controls_sizer.Add(self.rampup_spin, 0, wx.TOP, -2)
+        #controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.LEFT, 15)
+        #controls_sizer.Add(self.num_agents_spin, 0, wx.TOP, -2)
+        #controls_sizer.Add(wx.StaticText(panel, -1, 'Interval (secs)'), 0, wx.LEFT, 15)
+        #controls_sizer.Add(self.interval_spin, 0, wx.TOP, -2)
+        #controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (secs)'), 0, wx.LEFT, 15)
+        #controls_sizer.Add(self.rampup_spin, 0, wx.TOP, -2)
         
 
-        
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count):'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Interval (secs)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (secs)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
         
         
         
