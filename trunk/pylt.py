@@ -26,9 +26,20 @@ from pylt_engine import *
 class Application(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(780, 600))
-        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         
         self.runtime_stats = {}
+        
+        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
+        self.CreateStatusBar()
+        
+        
+        
+        menuBar = wx.MenuBar()
+        file_menu = wx.Menu()
+        file_menu.Append(-1, "&Exit", "Exit PyLT")
+        menuBar.Append(file_menu, "&File")
+        self.SetMenuBar(menuBar)
+        
         
 
         #text = wx.StaticText(panel, -1, "PyLT - Web Performance")
@@ -42,8 +53,18 @@ class Application(wx.Frame):
         
         self.busy_gauge = wx.Gauge(panel, -1, 0, size=(100, 15))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
-        
 
+        self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.num_agents_spin.SetRange(1, 1000000)
+        self.num_agents_spin.SetValue(1)
+        self.interval_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.interval_spin.SetRange(0, 1000000)
+        self.interval_spin.SetValue(1)
+        self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.rampup_spin.SetRange(0, 1000000)
+        self.rampup_spin.SetValue(1)
+        
+        
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
@@ -56,15 +77,27 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(2, 'Last Resp Code', width=100)
         self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
-                
-                
-        sizer = wx.BoxSizer(wx.VERTICAL)
         
         controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
         controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.busy_gauge, 0, wx.TOP|wx.LEFT, 5)
         
+
+        controls_sizer.Add(wx.StaticText(panel, -1, "Agents (count)"), 0, wx.LEFT, 15)
+        controls_sizer.Add(self.num_agents_spin, 0, wx.TOP, -2)
+        controls_sizer.Add(wx.StaticText(panel, -1, "Interval (secs)"), 0, wx.LEFT, 15)
+        controls_sizer.Add(self.interval_spin, 0, wx.TOP, -2)
+        controls_sizer.Add(wx.StaticText(panel, -1, "Rampup (secs)"), 0, wx.LEFT, 15)
+        controls_sizer.Add(self.rampup_spin, 0, wx.TOP, -2)
+        
+
+        
+        
+        
+        
+        
+        sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
         sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
         sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
@@ -91,9 +124,10 @@ class Application(wx.Frame):
         
         
     def on_run(self, evt):
-        #lm = LoadManager(self.runtime_stats, 2, 3, 0)
-        agents = 20
-        lm = LoadManager(self.runtime_stats, agents, 1, 5)
+        agents = self.num_agents_spin.GetValue()
+        interval = self.interval_spin.GetValue()
+        rampup = self.rampup_spin.GetValue()
+        lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         self.lm = lm
  
         cases, config = self.load_xml_cases()
