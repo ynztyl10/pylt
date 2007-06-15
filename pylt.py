@@ -83,15 +83,7 @@ class Application(wx.Frame):
         controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.busy_gauge, 0, wx.TOP|wx.LEFT, 5)
-        
 
-        #controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.LEFT, 15)
-        #controls_sizer.Add(self.num_agents_spin, 0, wx.TOP, -2)
-        #controls_sizer.Add(wx.StaticText(panel, -1, 'Interval (secs)'), 0, wx.LEFT, 15)
-        #controls_sizer.Add(self.interval_spin, 0, wx.TOP, -2)
-        #controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (secs)'), 0, wx.LEFT, 15)
-        #controls_sizer.Add(self.rampup_spin, 0, wx.TOP, -2)
-        
 
         controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count):'), 0, wx.TOP, 5)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
@@ -99,9 +91,7 @@ class Application(wx.Frame):
         controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
         controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (secs)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
-        
-        
-        
+
         
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
@@ -118,11 +108,11 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.timer_handler)
         
         
-        
+        self.switch_status(False)
         self.Centre()
         self.Show(True)
-                
-        self.switch_status(False)
+            
+        
 
     
     def timer_handler(self, evt):
@@ -192,10 +182,16 @@ class Application(wx.Frame):
         if is_on:
             self.run_btn.Disable()
             self.stop_btn.Enable()
+            self.num_agents_spin.Disable()
+            self.interval_spin.Disable()
+            self.rampup_spin.Disable()
             self.busy_timer.Start(75)
         else:
             self.run_btn.Enable()
             self.stop_btn.Disable()
+            self.num_agents_spin.Enable()
+            self.interval_spin.Enable()
+            self.rampup_spin.Enable()
             self.busy_timer.Stop()
 
 
