@@ -32,8 +32,6 @@ class Application(wx.Frame):
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()
         
-        
-        
         menuBar = wx.MenuBar()
         file_menu = wx.Menu()
         file_menu.Append(-1, "&Exit", "Exit PyLT")
@@ -41,7 +39,6 @@ class Application(wx.Frame):
         self.SetMenuBar(menuBar)
         
         
-
         #text = wx.StaticText(panel, -1, "PyLT - Web Performance")
         #text.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
         #text.SetSize(text.GetBestSize())
@@ -50,7 +47,8 @@ class Application(wx.Frame):
         
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
-        
+        self.pause_btn = wx.Button(panel, -1, 'Pause')
+        self.resume_btn = wx.Button(panel, -1, 'Resume')
         self.busy_gauge = wx.Gauge(panel, -1, 0, size=(100, 15))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
 
@@ -72,7 +70,7 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
         self.total_statlist.InsertColumn(4, 'Throughput', width=100)
         
-        self.agents_statlist = AutoWidthListCtrl(panel, height=400)
+        self.agents_statlist = AutoWidthListCtrl(panel, height=350)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
         self.agents_statlist.InsertColumn(1, 'Requests', width=100)
         self.agents_statlist.InsertColumn(2, 'Last Resp Code', width=100)
@@ -97,23 +95,23 @@ class Application(wx.Frame):
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
         sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
         sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
+        sizer.Add(self.pause_btn, 0, wx.ALL, 3)
+        sizer.Add(self.resume_btn, 0, wx.ALL, 3)
         
         panel.SetSizer(sizer)
-        
-        
         
         # bind the events to handlers
         self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
         self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_pause, self.pause_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_resume, self.resume_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
-        
-        
+                
         self.switch_status(False)
+        
         self.Centre()
         self.Show(True)
             
-        
-
     
     def timer_handler(self, evt):
         self.busy_gauge.Pulse()
@@ -125,17 +123,18 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         self.lm = lm
- 
-        cases, config = self.load_xml_cases()
         
+        cases, config = self.load_xml_cases()
         for req in cases:
             lm.add_req(req)
-            
+        
+        self.start_time = time.time()    
+        
         
         lm.setDaemon(True)
         lm.start()
         
-        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist)
+        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist, self.start_time)
         self.rt_mon.setDaemon(True)
         self.rt_mon.start()
         
@@ -146,6 +145,22 @@ class Application(wx.Frame):
         self.lm.stop()
         self.rt_mon.stop()
         self.switch_status(False)
+        
+        
+    def on_pause(self, evt):
+        self.pause_btn.Disable()
+        self.resume_btn.Enable()
+        self.rt_mon.stop()
+        
+        
+    def on_resume(self, evt):
+        self.pause_btn.Enable()
+        self.resume_btn.Disable()
+        
+        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist, self.start_time)
+        self.rt_mon.setDaemon(True)
+        self.rt_mon.start()
+        
         
 
     def load_xml_cases(self):
@@ -182,6 +197,8 @@ class Application(wx.Frame):
         if is_on:
             self.run_btn.Disable()
             self.stop_btn.Enable()
+            self.pause_btn.Enable()
+            self.resume_btn.Disable()
             self.num_agents_spin.Disable()
             self.interval_spin.Disable()
             self.rampup_spin.Disable()
@@ -189,6 +206,8 @@ class Application(wx.Frame):
         else:
             self.run_btn.Enable()
             self.stop_btn.Disable()
+            self.pause_btn.Disable()
+            self.resume_btn.Disable()
             self.num_agents_spin.Enable()
             self.interval_spin.Enable()
             self.rampup_spin.Enable()
@@ -199,43 +218,42 @@ class Application(wx.Frame):
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
     def __init__(self, parent, height=100):
-        wx.ListCtrl.__init__(self, parent, -1, size=(0, height), style=wx.LC_REPORT)
+        wx.ListCtrl.__init__(self, parent, -1, size=(0, height), style=wx.LC_REPORT|wx.LC_HRULES)
         ListCtrlAutoWidthMixin.__init__(self)
         
 
 
 class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events      
-    def __init__(self, runtime_stats, agents_statlist, total_statlist):
-        Thread.__init__(self)
+    def __init__(self, runtime_stats, agents_statlist, total_statlist, start_time):
+        Thread.__init__(self)       
         self.runtime_stats = runtime_stats
         self.agents_statlist = agents_statlist
         self.total_statlist = total_statlist
-        self.running = True
+        self.start_time = start_time
         self.refresh_rate = 3
         
+        
     def run(self):
-        start_time = time.time()
+        self.running = True
         while self.running:
             # refresh total monitor
-            elapsed_secs = int(time.time() - start_time)  # running time in secs
+            elapsed_secs = int(time.time() - self.start_time)  # running time in secs
             ids = self.runtime_stats.keys()
             agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
             agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
             agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
-            if agg_count > 0:
+            if agg_count > 0 and elapsed_secs > 0:
                 agg_avg = agg_total_latency / agg_count  # total avg response time
-            else: 
-                agg_avg = 0
-            if agg_count > 0:
                 throughput = float(agg_count) / elapsed_secs
             else: 
+                agg_avg = 0
                 throughput = 0
             self.total_statlist.DeleteAllItems()       
             index = self.total_statlist.InsertStringItem(sys.maxint, '%d  secs' % elapsed_secs)
             self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
             self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
             self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
-            self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
+            self.total_statlist.SetStringItem(index, 4, '%.3f  reqs/sec' % throughput)
             
             # refresh agents monitor
             self.agents_statlist.DeleteAllItems()       
