@@ -67,8 +67,8 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
-        self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
-        self.total_statlist.InsertColumn(4, 'Throughput', width=100)
+        self.total_statlist.InsertColumn(3, 'Throughput', width=100)
+        self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
         
         self.agents_statlist = AutoWidthListCtrl(panel, height=350)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
@@ -118,12 +118,13 @@ class Application(wx.Frame):
         
         
     def on_run(self, evt):
+        self.runtime_stats = {}  # reset stats in case there was a previous run since startup
         agents = self.num_agents_spin.GetValue()
         interval = self.interval_spin.GetValue()
         rampup = self.rampup_spin.GetValue()
         lm = LoadManager(self.runtime_stats, agents, interval, rampup)
         self.lm = lm
-        
+
         cases, config = self.load_xml_cases()
         for req in cases:
             lm.add_req(req)
@@ -249,27 +250,52 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
                 agg_avg = 0
                 throughput = 0
             self.total_statlist.DeleteAllItems()       
-            index = self.total_statlist.InsertStringItem(sys.maxint, '%d  secs' % elapsed_secs)
+            index = self.total_statlist.InsertStringItem(sys.maxint, self.humanize_time(elapsed_secs))
             self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
             self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
-            self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
-            self.total_statlist.SetStringItem(index, 4, '%.3f  reqs/sec' % throughput)
+            self.total_statlist.SetStringItem(index, 3, '%.3f' % throughput)
+            self.total_statlist.SetStringItem(index, 4, '%.3f' % agg_avg)
             
             # refresh agents monitor
             self.agents_statlist.DeleteAllItems()       
             for id in self.runtime_stats.keys():
                 index = self.agents_statlist.InsertStringItem(sys.maxint, '%d' % (id + 1))
                 self.agents_statlist.SetStringItem(index, 1, '%d' % self.runtime_stats[id].count)
-                self.agents_statlist.SetStringItem(index, 2, '%d' % self.runtime_stats[id].status)
-                self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
-                self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
+                if self.runtime_stats[id].count == 0:
+                    self.agents_statlist.SetStringItem(index, 2, '-')
+                    self.agents_statlist.SetStringItem(index, 3, '-')
+                    self.agents_statlist.SetStringItem(index, 4, '-')
+                else:
+                    self.agents_statlist.SetStringItem(index, 2, '%d' % self.runtime_stats[id].status)
+                    self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
+                    self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
                 
             time.sleep(self.refresh_rate)
     
-
+    
+    
     def stop(self):
         self.running = False
-            
+    
+    
+
+    def humanize_time(self, secs):
+        # convert secs (int) into a human readable time string:  hh:mm:ss
+        mins, secs = divmod(secs, 60)
+        hours, mins = divmod(mins, 60)
+        if hours < 10:
+            hours = '0%d' % hours
+        else:
+            hours = str(hours)
+        if mins < 10:
+            mins = '0%d' % mins
+        else:
+            mins = str(mins)
+        if secs < 10:
+            secs = '0%d' % secs
+        else:
+            secs = str(secs)
+        return '%s:%s:%s' % (hours, mins, secs)
             
         
 
