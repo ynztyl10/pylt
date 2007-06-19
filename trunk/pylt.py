@@ -34,8 +34,11 @@ class Application(wx.Frame):
         
         menuBar = wx.MenuBar()
         file_menu = wx.Menu()
-        file_menu.Append(-1, "&Exit", "Exit PyLT")
-        menuBar.Append(file_menu, "&File")
+        file_menu.Append(101, '&About', 'About PyLT')
+        file_menu.Append(102, '&Exit', 'Exit PyLT')
+        wx.EVT_MENU(self, 101, self.on_about)
+        wx.EVT_MENU(self, 102, self.on_exit)
+        menuBar.Append(file_menu, '&File')
         self.SetMenuBar(menuBar)
         
         panel = wx.Panel(self)
@@ -57,13 +60,11 @@ class Application(wx.Frame):
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(1)
         
-        summary_monitor_text = wx.StaticText(panel, -1, "Summary")
+        summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
-        agent_monitor_text = wx.StaticText(panel, -1, "Agent Monitor")
+        agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
-
         
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
@@ -80,11 +81,18 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(4, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
         
+        monitor_sizer = wx.BoxSizer(wx.VERTICAL)
+        monitor_sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
+        monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
+        monitor_sizer.Add(agent_monitor_text, 0, wx.ALL, 3)
+        monitor_sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
+        monitor_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
+        monitor_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
+        
         controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
         controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         controls_sizer.Add(self.busy_gauge, 0, wx.TOP|wx.LEFT, 5)
-
 
         controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count):'), 0, wx.TOP, 5)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
@@ -95,12 +103,7 @@ class Application(wx.Frame):
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
-        sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
-        sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
-        sizer.Add(agent_monitor_text, 0, wx.ALL, 3)
-        sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
-        sizer.Add(self.pause_btn, 0, wx.ALL, 3)
-        sizer.Add(self.resume_btn, 0, wx.ALL, 3)
+        sizer.Add(monitor_sizer, 0, wx.ALL|wx.EXPAND, 10)
         
         panel.SetSizer(sizer)
         
@@ -111,11 +114,23 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_resume, self.resume_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
                 
-        self.switch_status(False)
+        self.switch_status(False)        
         self.Centre()
         self.Show(True)
-            
+        
+
+    def on_about(self, evt):
+        info = wx.AboutDialogInfo()
+        info.SetName('PyLT')
+        info.SetCopyright('Copyright %s 2007 Corey Goldberg' % u'\u00A9')
+        info.SetDescription('\nPyLT is Free Open Source Software\nLicense:  GNU GPL')
+        wx.AboutBox(info)
+
     
+    def on_exit(self, evt):    
+        sys.exit(0)
+        
+        
     def timer_handler(self, evt):
         self.busy_gauge.Pulse()
         
@@ -279,12 +294,10 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             time.sleep(self.refresh_rate)
     
     
-    
     def stop(self):
         self.running = False
     
     
-
     def humanize_time(self, secs):
         # convert secs (int) into a human readable time string:  hh:mm:ss
         mins, secs = divmod(secs, 60)
@@ -304,7 +317,23 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         return '%s:%s:%s' % (hours, mins, secs)
             
         
-
+        
+class AboutFrame(wx.Frame):
+    def __init__(self, parent, ID, title):
+        wx.Frame.__init__(self, parent, -1, title, pos=(0, 0), size=(320, 240))
+        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
+        panel = wx.Panel(self, -1)
+        
+        content = """\
+PyLT - Web Performance
+Copyright (c) 2007 Corey Goldberg
+PyLT is Free Open Source Software
+License:  GNU GPL
+        """
+        text = wx.StaticText(panel, -1, content, wx.Point(10, 10))
+        text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        
+        
 
 
 class Config():
@@ -320,5 +349,5 @@ def main():
     Application(None)
     app.MainLoop()            
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
