@@ -25,7 +25,7 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(980, 680))
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(780, 650))
         
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         
@@ -45,8 +45,8 @@ class Application(wx.Frame):
         
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
-        self.pause_btn = wx.Button(panel, -1, 'Pause')
-        self.resume_btn = wx.Button(panel, -1, 'Resume')
+        self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
+        self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
         self.busy_gauge = wx.Gauge(panel, -1, 0, size=(100, 15))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
 
@@ -72,6 +72,7 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
         self.total_statlist.InsertColumn(3, 'Throughput', width=100)
         self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
+        self.total_statlist.InsertColumn(5, '', width=100)
         
         self.agents_statlist = AutoWidthListCtrl(panel, height=350)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
@@ -81,13 +82,17 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(4, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
         
+        pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
+        pause_resume_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
+        
+        
         monitor_sizer = wx.BoxSizer(wx.VERTICAL)
         monitor_sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
         monitor_sizer.Add(agent_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
-        monitor_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
-        monitor_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
+        monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
         controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
         controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
@@ -103,7 +108,7 @@ class Application(wx.Frame):
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
-        sizer.Add(monitor_sizer, 0, wx.ALL|wx.EXPAND, 10)
+        sizer.Add(monitor_sizer, 0, wx.ALL, 10)
         
         panel.SetSizer(sizer)
         
@@ -180,7 +185,6 @@ class Application(wx.Frame):
         self.rt_mon.setDaemon(True)
         self.rt_mon.start()
         
-        
 
     def load_xml_cases(self):
         # parse xml and load request queue
@@ -236,8 +240,8 @@ class Application(wx.Frame):
 
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
-    def __init__(self, parent, height=100):
-        wx.ListCtrl.__init__(self, parent, -1, size=(0, height), style=wx.LC_REPORT|wx.LC_HRULES)
+    def __init__(self, parent, height=100, width=605):
+        wx.ListCtrl.__init__(self, parent, -1, size=(width, height), style=wx.LC_REPORT|wx.LC_HRULES)
         ListCtrlAutoWidthMixin.__init__(self)
         
 
