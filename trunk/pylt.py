@@ -25,9 +25,9 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(780, 600))
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(980, 680))
         
-        self.runtime_stats = {}
+        self.runtime_stats = {}  # shared dictionary for storing runtime stats
         
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()
@@ -37,11 +37,6 @@ class Application(wx.Frame):
         file_menu.Append(-1, "&Exit", "Exit PyLT")
         menuBar.Append(file_menu, "&File")
         self.SetMenuBar(menuBar)
-        
-        
-        #text = wx.StaticText(panel, -1, "PyLT - Web Performance")
-        #text.SetFont(wx.Font(14, wx.SWISS, wx.NORMAL, wx.BOLD))
-        #text.SetSize(text.GetBestSize())
         
         panel = wx.Panel(self)
         
@@ -62,6 +57,13 @@ class Application(wx.Frame):
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(1)
         
+        summary_monitor_text = wx.StaticText(panel, -1, "Summary")
+        summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        
+        agent_monitor_text = wx.StaticText(panel, -1, "Agent Monitor")
+        agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        
+
         
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
@@ -90,10 +92,11 @@ class Application(wx.Frame):
         controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (secs)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
 
-        
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
+        sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
         sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
+        sizer.Add(agent_monitor_text, 0, wx.ALL, 3)
         sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
         sizer.Add(self.pause_btn, 0, wx.ALL, 3)
         sizer.Add(self.resume_btn, 0, wx.ALL, 3)
@@ -108,7 +111,6 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.timer_handler)
                 
         self.switch_status(False)
-        
         self.Centre()
         self.Show(True)
             
