@@ -54,7 +54,8 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.__create_output_dir()
         for i in range(self.agents):
             spacing = float(self.rampup) / float(self.agents)
-            time.sleep(spacing)
+            if i > 0:  # first agent starts right away
+                time.sleep(spacing)
             if self.running:  # in case stop() was called
                 agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
                 agent.start()
@@ -102,7 +103,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         total_latency = 0
         while self.running:
             for req in self.msg_queue:
-                
                 # timed msg send
                 start_time = time.time()
                 resp, content = self.send(req)

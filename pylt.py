@@ -74,10 +74,11 @@ class Application(wx.Frame):
         
         self.agents_statlist = AutoWidthListCtrl(panel, height=350)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
-        self.agents_statlist.InsertColumn(1, 'Requests', width=100)
-        self.agents_statlist.InsertColumn(2, 'Last Resp Code', width=100)
-        self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
-        self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
+        self.agents_statlist.InsertColumn(1, 'Status', width=100)
+        self.agents_statlist.InsertColumn(2, 'Requests', width=100)
+        self.agents_statlist.InsertColumn(3, 'Last Resp Code', width=100)
+        self.agents_statlist.InsertColumn(4, 'Last Resp Time', width=100)
+        self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
         
         controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
         controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
@@ -261,16 +262,19 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             # refresh agents monitor
             self.agents_statlist.DeleteAllItems()       
             for id in self.runtime_stats.keys():
+                count = self.runtime_stats[id].count
                 index = self.agents_statlist.InsertStringItem(sys.maxint, '%d' % (id + 1))
-                self.agents_statlist.SetStringItem(index, 1, '%d' % self.runtime_stats[id].count)
-                if self.runtime_stats[id].count == 0:
-                    self.agents_statlist.SetStringItem(index, 2, '-')
+                self.agents_statlist.SetStringItem(index, 2, '%d' % count)
+                if count == 0:
+                    self.agents_statlist.SetStringItem(index, 1, 'waiting')
                     self.agents_statlist.SetStringItem(index, 3, '-')
                     self.agents_statlist.SetStringItem(index, 4, '-')
+                    self.agents_statlist.SetStringItem(index, 5, '-')
                 else:
-                    self.agents_statlist.SetStringItem(index, 2, '%d' % self.runtime_stats[id].status)
-                    self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
-                    self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
+                    self.agents_statlist.SetStringItem(index, 1, 'running')
+                    self.agents_statlist.SetStringItem(index, 3, '%d' % self.runtime_stats[id].status)
+                    self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].latency)
+                    self.agents_statlist.SetStringItem(index, 5, '%.3f' % self.runtime_stats[id].avg_latency)
                 
             time.sleep(self.refresh_rate)
     
