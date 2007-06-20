@@ -25,7 +25,7 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 600))
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 710))
         
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         self.error_queue = []  # shared list for storing errors
@@ -54,18 +54,33 @@ class Application(wx.Frame):
         self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.num_agents_spin.SetRange(1, 1000000)
         self.num_agents_spin.SetValue(1)
-        self.interval_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.interval_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
         self.interval_spin.SetRange(0, 1000000)
-        self.interval_spin.SetValue(1)
+        self.interval_spin.SetValue(1000)
         self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(1)
+        
+        # workload controls
+        controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
+        controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Interval (ms)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
+        controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (s)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
+        controls_sizer.Add(self.busy_gauge, 0, wx.LEFT|wx.BOTTOM, 15)
         
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        
+        error_text = wx.StaticText(panel, -1, 'Agent Monitor')
+        error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
@@ -83,16 +98,7 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(4, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
         
-        controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
-        controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Interval (secs)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (secs)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(self.busy_gauge, 0, wx.LEFT|wx.BOTTOM, 10)
+        self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
         
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
@@ -103,13 +109,13 @@ class Application(wx.Frame):
         monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
         monitor_sizer.Add(agent_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.agents_statlist, 0, wx.EXPAND, 0)
+        monitor_sizer.Add(error_text, 0, wx.ALL, 3)
+        monitor_sizer.Add(self.error_list, 0, wx.EXPAND, 0)
         monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
         sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
-        
-        panel.SetSizer(sizer)
         
         # bind the events to handlers
         self.Bind(wx.EVT_BUTTON, self.on_run, self.run_btn)
@@ -118,7 +124,8 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_resume, self.resume_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
                 
-        self.switch_status(False)        
+        self.switch_status(False)
+        panel.SetSizer(sizer)        
         self.Centre()
         self.Show(True)
         
@@ -144,8 +151,10 @@ class Application(wx.Frame):
         self.runtime_stats = {}
         self.error_queue = []
         
+        # get values from UI controls
         num_agents = self.num_agents_spin.GetValue()
-        interval = self.interval_spin.GetValue()
+        interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
+        print interval
         rampup = self.rampup_spin.GetValue()
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
@@ -159,7 +168,9 @@ class Application(wx.Frame):
         lm.setDaemon(True)
         lm.start()
         
-        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist, self.start_time)
+        self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
+        self.rt_mon.error_list.Clear()
+        
         self.rt_mon.setDaemon(True)
         self.rt_mon.start()
         
@@ -182,7 +193,7 @@ class Application(wx.Frame):
         self.pause_btn.Enable()
         self.resume_btn.Disable()
         
-        self.rt_mon = RTMonitor(self.runtime_stats, self.agents_statlist, self.total_statlist, self.start_time)
+        self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
         self.rt_mon.setDaemon(True)
         self.rt_mon.start()
         
@@ -248,11 +259,18 @@ class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 
 class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events      
-    def __init__(self, runtime_stats, agents_statlist, total_statlist, start_time):
-        Thread.__init__(self)       
+    def __init__(self, start_time, runtime_stats, error_queue, agents_statlist, total_statlist, error_list):
+        Thread.__init__(self)
+        
+        # references to shared data stores         
         self.runtime_stats = runtime_stats
-        self.agents_statlist = agents_statlist
+        self.error_queue = error_queue
+        
+        # references to list widgets
+        self.agents_statlist = agents_statlist  
         self.total_statlist = total_statlist
+        self.error_list = error_list
+        
         self.start_time = start_time
         self.refresh_rate = 3
         
@@ -295,7 +313,14 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
                     self.agents_statlist.SetStringItem(index, 3, '%d' % self.runtime_stats[id].status)
                     self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].latency)
                     self.agents_statlist.SetStringItem(index, 5, '%.3f' % self.runtime_stats[id].avg_latency)
+            
+            # refresh error monitor            
+            for error in self.error_queue:
+                # pop error strings off the queue and render them in the monitor
+                self.error_list.AppendText('%s\n' % self.error_queue.pop(0))
+            self.error_list.ShowPosition(self.error_list.GetLastPosition()) # scroll to end 
                 
+            # sleep until next refresh    
             time.sleep(self.refresh_rate)
     
     

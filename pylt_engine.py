@@ -29,6 +29,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.rampup = rampup
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
+        self.error_queue = error_queue
         
         self.agent_refs = []
         self.msg_queue = []
@@ -57,8 +58,6 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called
-                self.error_queue = []
-                
                 agent = LoadAgent(i, self.interval, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
@@ -114,6 +113,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 if resp.status >= 400:
                     self.error_count += 1
+                    self.error_queue.append('%s - %d' % (self.id, resp.status))
                 self.count += 1
                 
                 content_bytes = len(content)
