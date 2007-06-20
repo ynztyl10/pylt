@@ -28,6 +28,7 @@ class Application(wx.Frame):
         wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 600))
         
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
+        self.error_queue = []  # shared list for storing errors
         
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()
@@ -139,11 +140,14 @@ class Application(wx.Frame):
         
         
     def on_run(self, evt):
-        self.runtime_stats = {}  # reset stats in case there was a previous run since startup
-        agents = self.num_agents_spin.GetValue()
+        # reset stats and errors in case there was a previous run since startup
+        self.runtime_stats = {}
+        self.error_queue = []
+        
+        num_agents = self.num_agents_spin.GetValue()
         interval = self.interval_spin.GetValue()
         rampup = self.rampup_spin.GetValue()
-        lm = LoadManager(self.runtime_stats, agents, interval, rampup)
+        lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
 
         cases, config = self.load_xml_cases()
@@ -151,7 +155,6 @@ class Application(wx.Frame):
             lm.add_req(req)
         
         self.start_time = time.time()    
-        
         
         lm.setDaemon(True)
         lm.start()
