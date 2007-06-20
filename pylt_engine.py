@@ -113,7 +113,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 if resp.status >= 400:
                     self.error_count += 1
-                    self.error_queue.append('%s - %d' % (self.id, resp.status))
+                    # put an error message in the queue
+                    self.error_queue.append('Agent %s :  %d %s,  url : %s' % (self.id, resp.status, resp.reason, req.url))
                 self.count += 1
                 
                 content_bytes = len(content)

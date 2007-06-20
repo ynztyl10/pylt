@@ -79,7 +79,7 @@ class Application(wx.Frame):
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
-        error_text = wx.StaticText(panel, -1, 'Agent Monitor')
+        error_text = wx.StaticText(panel, -1, 'Errors')
         error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
@@ -99,6 +99,7 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
         
         self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
+        self.error_list.SetOwnForegroundColour(wx.RED)
         
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
@@ -154,7 +155,6 @@ class Application(wx.Frame):
         # get values from UI controls
         num_agents = self.num_agents_spin.GetValue()
         interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
-        print interval
         rampup = self.rampup_spin.GetValue()
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
