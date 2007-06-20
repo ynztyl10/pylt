@@ -19,12 +19,12 @@ from threading import Thread
 
 
 class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
-    def __init__(self, runtime_stats, agents, interval, rampup):
+    def __init__(self, num_agents, interval, rampup, runtime_stats, error_queue):
         Thread.__init__(self)
         
         self.running = True
         
-        self.agents = agents
+        self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
         
@@ -52,8 +52,8 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     def run(self):
         self.running = True
         self.__create_output_dir()
-        for i in range(self.agents):
-            spacing = float(self.rampup) / float(self.agents)
+        for i in range(self.num_agents):
+            spacing = float(self.rampup) / float(self.num_agents)
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called
@@ -66,7 +66,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     
     
     def init_runtime_stats(self, runtime_stats):
-        for i in range(self.agents):
+        for i in range(self.num_agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0)
         return runtime_stats
     
@@ -86,6 +86,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.resp_log = None
         
         self.runtime_stats = runtime_stats  # shared stats dictionary
+        self.error_queue = error_queue  # shared error list
+        
         self.id = id
         self.interval = interval
         self.msg_queue = msg_queue
