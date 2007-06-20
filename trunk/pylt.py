@@ -86,9 +86,9 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
         self.total_statlist.InsertColumn(2, 'Errors', width=100)
-        self.total_statlist.InsertColumn(3, 'Throughput', width=100)
-        self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
-        self.total_statlist.InsertColumn(5, '', width=100)
+        self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
+        self.total_statlist.InsertColumn(4, 'Avg Throughput', width=100)
+        self.total_statlist.InsertColumn(5, 'Cur Throughput', width=100)
         
         self.agents_statlist = AutoWidthListCtrl(panel, height=350)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
@@ -272,11 +272,12 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 3
+        self.refresh_rate = 3.0
         
         
     def run(self):
         self.running = True
+        last_count = 0  # to calc current throughput
         while self.running:
             # refresh total monitor
             elapsed_secs = int(time.time() - self.start_time)  # running time in secs
@@ -286,16 +287,21 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
             if agg_count > 0 and elapsed_secs > 0:
                 agg_avg = agg_total_latency / agg_count  # total avg response time
-                throughput = float(agg_count) / elapsed_secs
+                throughput = float(agg_count) / elapsed_secs  # avg throughput since start
+                interval_count = agg_count - last_count  # requests since last refresh
+                cur_throughput = float(interval_count) / self.refresh_rate  # throughput since last refresh
+                last_count = agg_count  # reset for next time
             else: 
                 agg_avg = 0
                 throughput = 0
+                cur_throughput = 0
             self.total_statlist.DeleteAllItems()       
             index = self.total_statlist.InsertStringItem(sys.maxint, self.humanize_time(elapsed_secs))
             self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
             self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
-            self.total_statlist.SetStringItem(index, 3, '%.3f' % throughput)
-            self.total_statlist.SetStringItem(index, 4, '%.3f' % agg_avg)
+            self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
+            self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
+            self.total_statlist.SetStringItem(index, 5, '%.3f' % cur_throughput)
             
             # refresh agents monitor
             self.agents_statlist.DeleteAllItems()       
