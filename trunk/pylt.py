@@ -25,7 +25,7 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(720, 600))
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 600))
         
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         
@@ -47,7 +47,7 @@ class Application(wx.Frame):
         self.stop_btn = wx.Button(panel, -1, 'Stop')
         self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
         self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
-        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(80, 15))
+        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 12))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
 
         self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
@@ -91,7 +91,7 @@ class Application(wx.Frame):
         controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
         controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (secs)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(self.busy_gauge, 0, wx.LEFT|wx.TOP, 10)
+        controls_sizer.Add(self.busy_gauge, 0, wx.LEFT|wx.BOTTOM, 10)
         
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
@@ -106,7 +106,7 @@ class Application(wx.Frame):
         
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(controls_sizer, 0, wx.ALL, 3)
-        sizer.Add(monitor_sizer, 0, wx.LEFT, 25)
+        sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
         
         panel.SetSizer(sizer)
         

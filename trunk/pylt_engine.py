@@ -57,7 +57,9 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called
-                agent = LoadAgent(self.runtime_stats, i, self.interval, self.msg_queue)
+                self.error_queue = []
+                
+                agent = LoadAgent(i, self.interval, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
@@ -76,14 +78,14 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, runtime_stats, id, interval, msg_queue):
+    def __init__(self, id, interval, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
         
         self.running = True
         self.resp_logging = False
         self.resp_log = None
         
-        self.runtime_stats = runtime_stats
+        self.runtime_stats = runtime_stats  # shared stats dictionary
         self.id = id
         self.interval = interval
         self.msg_queue = msg_queue
