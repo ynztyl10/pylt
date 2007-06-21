@@ -59,19 +59,23 @@ class Application(wx.Frame):
         self.interval_spin.SetValue(1000)
         self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.rampup_spin.SetRange(0, 1000000)
-        self.rampup_spin.SetValue(1)
+        self.rampup_spin.SetValue(0)
         
         # workload controls
-        controls_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        controls_sizer.Add(self.run_btn, 0, wx.ALL, 3)
-        controls_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Agents (count)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Interval (ms)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.interval_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(wx.StaticText(panel, -1, '    Rampup (s)'), 0, wx.TOP, 5)
-        controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 3)
-        controls_sizer.Add(self.busy_gauge, 0, wx.LEFT|wx.BOTTOM, 15)
+        controls_sizer = wx.GridSizer(0, 4, 0, 0)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Interval (ms)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.interval_spin, 0, wx.ALL, 2)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (s)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 2)
+        
+        # run controls
+        runcontrols_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        runcontrols_sizer.Add(self.run_btn, 0, wx.ALL, 3)
+        runcontrols_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
+        runcontrols_sizer.Add(controls_sizer, 0, wx.LEFT, 55)
+        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 65)
         
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
@@ -90,7 +94,7 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(4, 'Avg Throughput', width=100)
         self.total_statlist.InsertColumn(5, 'Cur Throughput', width=100)
         
-        self.agents_statlist = AutoWidthListCtrl(panel, height=350)
+        self.agents_statlist = AutoWidthListCtrl(panel, height=300)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
         self.agents_statlist.InsertColumn(1, 'Status', width=100)
         self.agents_statlist.InsertColumn(2, 'Requests', width=100)
@@ -115,7 +119,7 @@ class Application(wx.Frame):
         monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(controls_sizer, 0, wx.ALL, 3)
+        sizer.Add(runcontrols_sizer, 0, wx.ALL, 3)
         sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
         
         # bind the events to handlers
@@ -165,7 +169,7 @@ class Application(wx.Frame):
                 lm.add_req(req)
         except:
             # there was a problem getting cases from the xml file
-            dial = wx.MessageDialog(None, 'Error loading testcase file', 'Error', wx.OK | wx.ICON_ERROR)
+            dial = wx.MessageDialog(None, 'create a valid testcases.xml', 'Error', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             cases = None
         
