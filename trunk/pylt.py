@@ -59,6 +59,9 @@ class Application(wx.Frame):
         self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(0)
+        self.duration_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
+        self.duration_spin.SetRange(0, 1000000)
+        self.duration_spin.SetValue(60)
         controls_sizer = wx.GridSizer(0, 4, 0, 0)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
@@ -66,6 +69,8 @@ class Application(wx.Frame):
         controls_sizer.Add(self.interval_spin, 0, wx.ALL, 2)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (s)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 2)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Duration (s)'), 0, wx.TOP, 5)
+        controls_sizer.Add(self.duration_spin, 0, wx.ALL, 2)
         
         # run controls
         self.run_btn = wx.Button(panel, -1, 'Run')
@@ -140,7 +145,20 @@ class Application(wx.Frame):
         info.SetDescription('\nPyLT is Free Open Source Software\nLicense:  GNU GPL')
         wx.AboutBox(info)
 
+
+    def stop(self):
+        self.lm.stop()
+        self.rt_mon.stop()
+        self.rt_mon.refresh()
+        self.switch_status(False)
     
+    def refresh_monitor(self):
+        ############HERE
+        self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
+        self.rt_mon.stop()
+        #self.rt_mon.setDaemon(True)
+        #self.rt_mon.start()
+        
     def on_exit(self, evt):    
         sys.exit(0)
         
@@ -158,6 +176,9 @@ class Application(wx.Frame):
         num_agents = self.num_agents_spin.GetValue()
         interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
         rampup = self.rampup_spin.GetValue()
+        duration = self.duration_spin.GetValue()
+        
+        # create a load manager
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
         
@@ -174,8 +195,13 @@ class Application(wx.Frame):
         if cases != None:  # only run if we have valid cases
             self.start_time = time.time()    
             
+            # start the load manager
             lm.setDaemon(True)
             lm.start()
+            
+            s = Stopper(self, duration)
+            s.setDaemon(True)
+            s.start()
             
             self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
             self.rt_mon.error_list.Clear()
@@ -187,9 +213,7 @@ class Application(wx.Frame):
         
         
     def on_stop(self, evt):
-        self.lm.stop()
-        self.rt_mon.stop()
-        self.switch_status(False)
+        self.stop()
         
         
     def on_pause(self, evt):
@@ -228,7 +252,7 @@ class Application(wx.Frame):
    
         
     def switch_status(self, is_on):
-        # change the status gauge and swap run/stop buttons
+        # change the status gauge and swap run/stop buttons, turn off workload controls
         if is_on:
             self.run_btn.Disable()
             self.stop_btn.Enable()
@@ -237,6 +261,7 @@ class Application(wx.Frame):
             self.num_agents_spin.Disable()
             self.interval_spin.Disable()
             self.rampup_spin.Disable()
+            self.duration_spin.Disable()
             self.busy_timer.Start(75)
         else:
             self.run_btn.Enable()
@@ -246,9 +271,24 @@ class Application(wx.Frame):
             self.num_agents_spin.Enable()
             self.interval_spin.Enable()
             self.rampup_spin.Enable()
+            self.duration_spin.Enable()
             self.busy_timer.Stop()
 
 
+
+
+class Stopper(Thread):  # timer thread for stopping execution once duration lapses      
+    def __init__(self, root, duration):
+        Thread.__init__(self)
+        self.root = root
+        self.duration = duration
+        self.start_time = time.time()
+    def run(self):
+        while time.time() < self.start_time + self.duration:
+            time.sleep(1)
+        self.root.stop()
+        
+    
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
     def __init__(self, parent, height=100, width=605):
@@ -276,62 +316,65 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         
     def run(self):
         self.running = True
-        last_count = 0  # to calc current throughput
+        self.last_count = 0  # to calc current throughput
         while self.running:
-            # refresh total monitor
-            elapsed_secs = int(time.time() - self.start_time)  # running time in secs
-            ids = self.runtime_stats.keys()
-            agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
-            agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
-            agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
-            if agg_count > 0 and elapsed_secs > 0:
-                agg_avg = agg_total_latency / agg_count  # total avg response time
-                throughput = float(agg_count) / elapsed_secs  # avg throughput since start
-                interval_count = agg_count - last_count  # requests since last refresh
-                cur_throughput = float(interval_count) / self.refresh_rate  # throughput since last refresh
-                last_count = agg_count  # reset for next time
-            else: 
-                agg_avg = 0
-                throughput = 0
-                cur_throughput = 0
-            self.total_statlist.DeleteAllItems()       
-            index = self.total_statlist.InsertStringItem(sys.maxint, self.humanize_time(elapsed_secs))
-            self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
-            self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
-            self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
-            self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
-            self.total_statlist.SetStringItem(index, 5, '%.3f' % cur_throughput)
-            
-            # refresh agents monitor
-            self.agents_statlist.DeleteAllItems()       
-            for id in self.runtime_stats.keys():
-                count = self.runtime_stats[id].count
-                index = self.agents_statlist.InsertStringItem(sys.maxint, '%d' % (id + 1))
-                self.agents_statlist.SetStringItem(index, 2, '%d' % count)
-                if count == 0:
-                    self.agents_statlist.SetStringItem(index, 1, 'waiting')
-                    self.agents_statlist.SetStringItem(index, 3, '-')
-                    self.agents_statlist.SetStringItem(index, 4, '-')
-                    self.agents_statlist.SetStringItem(index, 5, '-')
-                else:
-                    self.agents_statlist.SetStringItem(index, 1, 'running')
-                    self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
-                    self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
-                    self.agents_statlist.SetStringItem(index, 5, '%d' % self.runtime_stats[id].total_bytes)
-            
-            # refresh error monitor            
-            for error in self.error_queue:
-                # pop error strings off the queue and render them in the monitor
-                self.error_list.AppendText('%s\n' % self.error_queue.pop(0))
-            self.error_list.ShowPosition(self.error_list.GetLastPosition()) # scroll to end 
-                
+            self.refresh()
             # sleep until next refresh    
             time.sleep(self.refresh_rate)
     
     
+    def refresh(self):
+        # refresh total monitor
+        elapsed_secs = int(time.time() - self.start_time)  # running time in secs
+        ids = self.runtime_stats.keys()
+        agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
+        agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
+        agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
+        if agg_count > 0 and elapsed_secs > 0:
+            agg_avg = agg_total_latency / agg_count  # total avg response time
+            throughput = float(agg_count) / elapsed_secs  # avg throughput since start
+            interval_count = agg_count - self.last_count  # requests since last refresh
+            cur_throughput = float(interval_count) / self.refresh_rate  # throughput since last refresh
+            last_count = agg_count  # reset for next time
+        else: 
+            agg_avg = 0
+            throughput = 0
+            cur_throughput = 0
+        self.total_statlist.DeleteAllItems()       
+        index = self.total_statlist.InsertStringItem(sys.maxint, self.humanize_time(elapsed_secs))
+        self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
+        self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
+        self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
+        self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
+        self.total_statlist.SetStringItem(index, 5, '%.3f' % cur_throughput)
+        
+        # refresh agents monitor
+        self.agents_statlist.DeleteAllItems()       
+        for id in self.runtime_stats.keys():
+            count = self.runtime_stats[id].count
+            index = self.agents_statlist.InsertStringItem(sys.maxint, '%d' % (id + 1))
+            self.agents_statlist.SetStringItem(index, 2, '%d' % count)
+            if count == 0:
+                self.agents_statlist.SetStringItem(index, 1, 'waiting')
+                self.agents_statlist.SetStringItem(index, 3, '-')
+                self.agents_statlist.SetStringItem(index, 4, '-')
+                self.agents_statlist.SetStringItem(index, 5, '-')
+            else:
+                self.agents_statlist.SetStringItem(index, 1, 'running')
+                self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
+                self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
+                self.agents_statlist.SetStringItem(index, 5, '%d' % self.runtime_stats[id].total_bytes)
+        
+        # refresh error monitor            
+        for error in self.error_queue:
+            # pop error strings off the queue and render them in the monitor
+            self.error_list.AppendText('%s\n' % self.error_queue.pop(0))
+        self.error_list.ShowPosition(self.error_list.GetLastPosition()) # scroll to end 
+        
+        
     def stop(self):
         self.running = False
-    
+        
     
     def humanize_time(self, secs):
         # convert secs (int) into a human readable time string:  hh:mm:ss
