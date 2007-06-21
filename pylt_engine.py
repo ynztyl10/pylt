@@ -108,12 +108,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         total_latency = 0
         agent_start_time = time.time()
         while self.running:
-            
-            print agent_start_time
-            #print self.duration
-            #print time.time()
-            print "yo"
-                
             if time.time() > agent_start_time + self.duration:
                 self.running = False
             
