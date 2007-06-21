@@ -3,7 +3,7 @@
 
 <testcases>
     <case>
-        <url>http://perfsim1/csim/csim.aspx</url>
+        <url>http://www.goldb.org</url>
         <method>GET</method>
     </case>
 </testcases>

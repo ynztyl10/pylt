@@ -66,7 +66,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
     
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.num_agents):
-            runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0)
+            runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
         return runtime_stats
     
 
@@ -104,6 +104,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
     def run(self):
         total_latency = 0
+        total_bytes = 0
         while self.running:
             for req in self.msg_queue:
                 # timed msg send
@@ -112,8 +113,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 end_time = time.time()  # epoch
                 
                 # get times for logging and error display
-                cur_date = time.strftime('%d %b %Y', time.localtime())
-                cur_time = time.strftime('%H:%M:%S', time.localtime())
+                tmp_time = time.localtime()
+                cur_date = time.strftime('%d %b %Y', tmp_time)
+                cur_time = time.strftime('%H:%M:%S', tmp_time)
                 
                 if resp.status >= 400:
                     self.error_count += 1
@@ -121,12 +123,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
-                content_bytes = len(content)
+                total_bytes += len(content)
                 latency = end_time - start_time
                 total_latency += latency
                 
                 # update the shared stats dictionary
-                self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency)
+                self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                 
                 # log response
                 self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
@@ -182,13 +184,14 @@ class Request():
 
 
 class StatCollection():
-    def __init__(self, status, reason, latency, count, error_count, total_latency):
+    def __init__(self, status, reason, latency, count, error_count, total_latency, total_bytes):
         self.status = status
         self.reason = reason
         self.latency = latency
         self.count = count
         self.error_count = error_count
         self.total_latency = total_latency
+        self.total_bytes = total_bytes
         if count > 0:
             self.avg_latency = total_latency / count
         else:
