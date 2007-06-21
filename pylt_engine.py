@@ -19,7 +19,7 @@ from threading import Thread
 
 
 class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
-    def __init__(self, num_agents, interval, rampup, duration, runtime_stats, error_queue):
+    def __init__(self, num_agents, interval, rampup, runtime_stats, error_queue):
         Thread.__init__(self)
         
         self.running = True
@@ -27,7 +27,6 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
-        self.duration = duration
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.error_queue = error_queue
@@ -59,7 +58,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.duration, self.runtime_stats, self.error_queue, self.msg_queue)
+                agent = LoadAgent(i, self.interval, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
@@ -78,7 +77,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, id, interval, duration, runtime_stats, error_queue, msg_queue):
+    def __init__(self, id, interval, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
         
         self.running = True
@@ -90,7 +89,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         self.id = id
         self.interval = interval
-        self.duration = duration  # time in secs until we stop executing
         self.msg_queue = msg_queue
         
         self.count = 0
@@ -106,11 +104,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
     def run(self):
         total_latency = 0
-        agent_start_time = time.time()
         while self.running:
-            if time.time() > agent_start_time + self.duration:
-                self.running = False
-            
             for req in self.msg_queue:
                 # timed msg send
                 start_time = time.time()
@@ -128,7 +122,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 self.count += 1
                 
                 content_bytes = len(content)
-                
                 latency = end_time - start_time
                 total_latency += latency
                 
