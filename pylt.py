@@ -26,13 +26,17 @@ from pylt_engine import *
 class Application(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 710))
-        
+    
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         self.error_queue = []  # shared list for storing errors
         
+        # set window icon
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
+        
+        # enable bottom status bar
         self.CreateStatusBar()
         
+        # menus
         menuBar = wx.MenuBar()
         file_menu = wx.Menu()
         file_menu.Append(101, '&About', 'About PyLT')
@@ -41,16 +45,11 @@ class Application(wx.Frame):
         wx.EVT_MENU(self, 102, self.on_exit)
         menuBar.Append(file_menu, '&File')
         self.SetMenuBar(menuBar)
-        
+
+        # main panel
         panel = wx.Panel(self)
         
-        self.run_btn = wx.Button(panel, -1, 'Run')
-        self.stop_btn = wx.Button(panel, -1, 'Stop')
-        self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
-        self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
-        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 12))
-        self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
-
+        # workload controls
         self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.num_agents_spin.SetRange(1, 1000000)
         self.num_agents_spin.SetValue(1)
@@ -60,8 +59,6 @@ class Application(wx.Frame):
         self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(0)
-        
-        # workload controls
         controls_sizer = wx.GridSizer(0, 4, 0, 0)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP, 5)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
@@ -71,21 +68,25 @@ class Application(wx.Frame):
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 2)
         
         # run controls
+        self.run_btn = wx.Button(panel, -1, 'Run')
+        self.stop_btn = wx.Button(panel, -1, 'Stop')
+        self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
+        self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
+        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 12))
+        self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
         runcontrols_sizer = wx.BoxSizer(wx.HORIZONTAL)
         runcontrols_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(controls_sizer, 0, wx.LEFT, 55)
         runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 65)
         
+        # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
         error_text = wx.StaticText(panel, -1, 'Errors')
         error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=100)
         self.total_statlist.InsertColumn(1, 'Requests', width=100)
@@ -93,7 +94,6 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
         self.total_statlist.InsertColumn(4, 'Avg Throughput', width=100)
         self.total_statlist.InsertColumn(5, 'Cur Throughput', width=100)
-        
         self.agents_statlist = AutoWidthListCtrl(panel, height=300)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
         self.agents_statlist.InsertColumn(1, 'Status', width=100)
@@ -101,14 +101,11 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(3, 'Last Resp Code', width=100)
         self.agents_statlist.InsertColumn(4, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Avg Resp Time', width=100)
-        
         self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
         self.error_list.SetOwnForegroundColour(wx.RED)
-        
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
         pause_resume_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
-        
         monitor_sizer = wx.BoxSizer(wx.VERTICAL)
         monitor_sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
@@ -118,6 +115,7 @@ class Application(wx.Frame):
         monitor_sizer.Add(self.error_list, 0, wx.EXPAND, 0)
         monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
+        # main layout
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(runcontrols_sizer, 0, wx.ALL, 3)
         sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
@@ -258,7 +256,6 @@ class Application(wx.Frame):
             self.interval_spin.Enable()
             self.rampup_spin.Enable()
             self.busy_timer.Stop()
-
 
 
 
