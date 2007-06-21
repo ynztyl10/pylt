@@ -160,7 +160,7 @@ class Application(wx.Frame):
         num_agents = self.num_agents_spin.GetValue()
         interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
         rampup = self.rampup_spin.GetValue()
-        lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
+        lm = LoadManager(num_agents, interval, rampup, 10, self.runtime_stats, self.error_queue)
         self.lm = lm
 
         try:
