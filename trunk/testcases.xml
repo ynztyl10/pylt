@@ -2,18 +2,8 @@
 
 
 <testcases>
-    <config>
-        <agents>2</agents>
-        <interval>2</interval>
-        <rampup>2</rampup>
-    </config>
-
     <case>
-        <url>http://www.goldb.org/infco.html</url>
-        <method>GET</method>
-    </case>
-    <case>
-        <url>http://www.webinject.org/dcev.html</url>
+        <url>http://perfsim1/csim/csim.aspx</url>
         <method>GET</method>
     </case>
 </testcases>

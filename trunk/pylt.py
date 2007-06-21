@@ -160,9 +160,9 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         lm = LoadManager(num_agents, interval, rampup, 10, self.runtime_stats, self.error_queue)
         self.lm = lm
-
+        
+        cases = self.load_xml_cases()
         try:
-            cases, config = self.load_xml_cases()
             for req in cases:
                 lm.add_req(req)
         except:
@@ -224,16 +224,7 @@ class Application(wx.Frame):
                     if element.tag == 'headers': 
                         req.headers = element.text
                 cases.append(req)
-            if child.tag != dom.getroot().tag and child.tag == 'config':
-                for element in child:
-                    if element.tag == 'agents':
-                        cfg = Config()                
-                        cfg.agents = element.text
-                    if element.tag == 'interval':
-                        cfg.interval = element.text
-                    if element.tag == 'rampup':
-                        cfg.rampup = element.text
-        return (cases, cfg)
+        return cases
    
         
     def switch_status(self, is_on):
@@ -377,21 +368,13 @@ License:  GNU GPL
         text = wx.StaticText(panel, -1, content, wx.Point(10, 10))
         text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
-        
-
-
-class Config():
-    def __init__(self, agents=1, interval=1, rampup=0):
-        self.agents = agents
-        self.interval = interval
-        self.rampup = rampup
-            
             
 
 def main():
     app = wx.App(0)
     Application(None)
     app.MainLoop()            
+
 
 if __name__ == '__main__':
     main()
