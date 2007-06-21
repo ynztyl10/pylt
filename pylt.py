@@ -159,22 +159,29 @@ class Application(wx.Frame):
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
 
-        cases, config = self.load_xml_cases()
-        for req in cases:
-            lm.add_req(req)
+        try:
+            cases, config = self.load_xml_cases()
+            for req in cases:
+                lm.add_req(req)
+        except:
+            # there was a problem getting cases from the xml file
+            dial = wx.MessageDialog(None, 'Error loading testcase file', 'Error', wx.OK | wx.ICON_ERROR)
+            dial.ShowModal()
+            cases = None
         
-        self.start_time = time.time()    
-        
-        lm.setDaemon(True)
-        lm.start()
-        
-        self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
-        self.rt_mon.error_list.Clear()
-        
-        self.rt_mon.setDaemon(True)
-        self.rt_mon.start()
-        
-        self.switch_status(True)
+        if cases != None:  # only run if we have valid cases
+            self.start_time = time.time()    
+            
+            lm.setDaemon(True)
+            lm.start()
+            
+            self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
+            self.rt_mon.error_list.Clear()
+            
+            self.rt_mon.setDaemon(True)
+            self.rt_mon.start()
+            
+            self.switch_status(True)
         
         
     def on_stop(self, evt):
