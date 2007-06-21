@@ -9,11 +9,11 @@
     </config>
 
     <case>
-        <url>http://www.goldb.org/info.html</url>
+        <url>http://www.goldb.org/infco.html</url>
         <method>GET</method>
     </case>
     <case>
-        <url>http://www.webinject.org/dev.html</url>
+        <url>http://www.webinject.org/dcev.html</url>
         <method>GET</method>
     </case>
 </testcases>

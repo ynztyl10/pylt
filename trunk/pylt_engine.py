@@ -109,12 +109,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 # timed msg send
                 start_time = time.time()
                 resp, content = self.send(req)
-                end_time = time.time()
+                end_time = time.time()  # epoch
+                
+                # get times for logging and error display
+                cur_date = time.strftime('%d %b %Y', time.localtime())
+                cur_time = time.strftime('%H:%M:%S', time.localtime())
                 
                 if resp.status >= 400:
                     self.error_count += 1
-                    # put an error message in the queue
-                    self.error_queue.append('Agent %s :  %d %s,  url : %s' % (self.id, resp.status, resp.reason, req.url))
+                    # put an error message on the queue
+                    self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
                 content_bytes = len(content)
@@ -126,9 +130,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency)
                 
                 # log response
-                log_date = time.strftime('%d %b %Y', time.localtime())
-                log_time = time.strftime('%H:%M:%S', time.localtime())
-                self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (log_date, log_time, end_time, req.url, resp.status, resp.reason, latency))
+                self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
  
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
