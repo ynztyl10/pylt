@@ -335,7 +335,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             throughput = float(agg_count) / elapsed_secs  # avg throughput since start
             interval_count = agg_count - self.last_count  # requests since last refresh
             cur_throughput = float(interval_count) / self.refresh_rate  # throughput since last refresh
-            last_count = agg_count  # reset for next time
+            self.last_count = agg_count  # reset for next time
         else: 
             agg_avg = 0
             throughput = 0
