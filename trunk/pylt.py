@@ -88,17 +88,16 @@ class Application(wx.Frame):
         # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        self.total_statlist = AutoWidthListCtrl(panel, height=45)
+        self.total_statlist.InsertColumn(0, 'Run Time', width=85)
+        self.total_statlist.InsertColumn(1, 'Agents', width=80)
+        self.total_statlist.InsertColumn(2, 'Requests', width=75)
+        self.total_statlist.InsertColumn(3, 'Errors', width=75)
+        self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=95)
+        self.total_statlist.InsertColumn(5, 'Avg Throughput', width=95)
+        self.total_statlist.InsertColumn(6, 'Cur Throughput', width=95) 
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        error_text = wx.StaticText(panel, -1, 'Errors')
-        error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        self.total_statlist = AutoWidthListCtrl(panel, height=45)
-        self.total_statlist.InsertColumn(0, 'Run Time', width=100)
-        self.total_statlist.InsertColumn(1, 'Requests', width=100)
-        self.total_statlist.InsertColumn(2, 'Errors', width=100)
-        self.total_statlist.InsertColumn(3, 'Avg Resp Time', width=100)
-        self.total_statlist.InsertColumn(4, 'Avg Throughput', width=100)
-        self.total_statlist.InsertColumn(5, 'Cur Throughput', width=100)
         self.agents_statlist = AutoWidthListCtrl(panel, height=300)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
         self.agents_statlist.InsertColumn(1, 'Status', width=100)
@@ -106,6 +105,8 @@ class Application(wx.Frame):
         self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Bytes Received', width=100)
+        error_text = wx.StaticText(panel, -1, 'Errors')
+        error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
         self.error_list.SetOwnForegroundColour(wx.RED)
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -327,6 +328,8 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         # refresh total monitor
         elapsed_secs = int(time.time() - self.start_time)  # running time in secs
         ids = self.runtime_stats.keys()
+        
+        agents_running = '%d/%d' % (len([self.runtime_stats[id].count for id in ids if self.runtime_stats[id].count > 0]), len(ids))
         agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
         agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
         agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
@@ -342,11 +345,12 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             cur_throughput = 0
         self.total_statlist.DeleteAllItems()       
         index = self.total_statlist.InsertStringItem(sys.maxint, self.humanize_time(elapsed_secs))
-        self.total_statlist.SetStringItem(index, 1, '%d' % agg_count)
-        self.total_statlist.SetStringItem(index, 2, '%d' % agg_error_count)
-        self.total_statlist.SetStringItem(index, 3, '%.3f' % agg_avg)
-        self.total_statlist.SetStringItem(index, 4, '%.3f' % throughput)
-        self.total_statlist.SetStringItem(index, 5, '%.3f' % cur_throughput)
+        self.total_statlist.SetStringItem(index, 1, '%s' % agents_running)
+        self.total_statlist.SetStringItem(index, 2, '%d' % agg_count)
+        self.total_statlist.SetStringItem(index, 3, '%d' % agg_error_count)
+        self.total_statlist.SetStringItem(index, 4, '%.3f' % agg_avg)
+        self.total_statlist.SetStringItem(index, 5, '%.3f' % throughput)
+        self.total_statlist.SetStringItem(index, 6, '%.3f' % cur_throughput)
         
         # refresh agents monitor
         self.agents_statlist.DeleteAllItems()       
