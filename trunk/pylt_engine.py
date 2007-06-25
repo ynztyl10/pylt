@@ -134,12 +134,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 # update the shared stats dictionary
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                 
-                # log response
+                # log response info
                 self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
                 
-                # log trace content
-                self.log_trace('%s %s\n%s\n\n%s\n\n*************** LOG SEPARATOR ***************\n\n' % (cur_date, cur_time, req.url, content))
                 
+                # log tresponse trace
+                self.log_resp('%s %s\n%s\n' % (cur_date, cur_time, req.url))
+                for key in resp:
+                    self.log_trace('%s: %s' % (key, resp[key]))
+                self.log_trace('\n\n%s' % content)
+                self.log_trace('\n\n*************** LOG SEPARATOR ***************\n\n')
                 
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
@@ -155,15 +159,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         resp, content = h.request(req.url, method=req.method, body=body)
         return (resp, content)
 
-
+    
     def log_resp(self, txt):
         if self.resp_logging:
             self.resp_log.write('%s\n' % txt)
-    
+            self.resp_log.flush()  # flush the write buffer so we always log in real-time
+
     
     def log_trace(self, txt):
         if self.trace_logging:
             self.trace_log.write('%s\n' % txt)
+            self.trace_log.flush()
             
             
     def enable_resp_logging(self):
