@@ -5,7 +5,7 @@
 #
 #    This file is part of PyLT.
 #
-#    PyLT is free software; you can redistribute it and/or modify it 
+#    PyLT is free software; you can redistribute it and/or modify it
 #    under the terms of the GNU General Public License as published 
 #    by the Free Software Foundation; either version 2 of the License,
 #    or (at your option) any later version.
@@ -152,13 +152,12 @@ class Application(wx.Frame):
         self.rt_mon.stop()
         self.rt_mon.refresh()
         self.switch_status(False)
-    
+
+
     def refresh_monitor(self):
-        ############HERE
         self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
         self.rt_mon.stop()
-        #self.rt_mon.setDaemon(True)
-        #self.rt_mon.start()
+
         
     def on_exit(self, evt):    
         sys.exit(0)
@@ -183,8 +182,9 @@ class Application(wx.Frame):
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
         
-        cases = self.load_xml_cases()
+        # load the test cases
         try:
+            cases = self.load_xml_cases()
             for req in cases:
                 lm.add_req(req)
         except:
@@ -200,6 +200,7 @@ class Application(wx.Frame):
             lm.setDaemon(True)
             lm.start()
             
+            # start a thread to stop execution when the test duration lapses
             s = Stopper(self, duration)
             s.setDaemon(True)
             s.start()
