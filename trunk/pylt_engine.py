@@ -81,8 +81,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         Thread.__init__(self)
         
         self.running = True
-        self.resp_logging = False
+        self.resp_logging = True
+        self.trace_logging = False
+        
         self.resp_log = None
+        self.trace_log = None
         
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
@@ -94,12 +97,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.count = 0
         self.error_count = 0
         
-        self.__enable_resp_logging()
+        self.enable_resp_logging()
+        self.enable_trace_logging()
         
         
     def stop(self):
         self.running = False
-        self.__disable_resp_logging()
+        self.disable_resp_logging()
         
         
     def run(self):
@@ -132,7 +136,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 # log response
                 self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
- 
+                
+                # log trace content
+                self.log_trace('%s %s\n%s\n\n%s\n\n*************** LOG SEPARATOR ***************\n\n' % (cur_date, cur_time, req.url, content))
+                
+                
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)  # sleep the rest of the interval so we keep even pacing
@@ -140,26 +148,45 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
     def send(self, req):
         h = httplib2.Http()
-        resp, content = h.request(req.url, req.method)
+        if req.body:
+            body = req.body
+        else:
+            body = ''
+        resp, content = h.request(req.url, method=req.method, body=body)
         return (resp, content)
 
 
     def log_resp(self, txt):
         if self.resp_logging:
             self.resp_log.write('%s\n' % txt)
+    
+    
+    def log_trace(self, txt):
+        if self.trace_logging:
+            self.trace_log.write('%s\n' % txt)
             
             
-    def __enable_resp_logging(self):
+    def enable_resp_logging(self):
         self.resp_log = open('output/agent_%d_output.csv' % self.id, 'w')
         self.resp_logging = True
         
+    
+    def enable_trace_logging(self):
+        self.trace_log = open('output/agent_%d_trace.log' % self.id, 'w')
+        self.trace_logging = True
         
-    def __disable_resp_logging(self):
+        
+    def disable_resp_logging(self):
         self.resp_log.close()
         self.resp_logging = False
+        
+    
+    def disable_trace_logging(self):
+        self.trace_log.close()
+        self.trace_logging = False
+        
+        
 
-            
-            
 
 
 class Request():
@@ -170,7 +197,8 @@ class Request():
         self.headers = headers
         
         if method == 'POST':
-            self.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
+            #self.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
+            self.headers['Content-type'] = 'application/x-www-form-urlencoded'
     
     
     def add_header(self, (key, value)):
