@@ -81,8 +81,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         Thread.__init__(self)
         
         self.running = True
-        self.resp_logging = True
-        self.trace_logging = False
         
         self.resp_log = None
         self.trace_log = None
@@ -152,11 +150,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
     def send(self, req):
         h = httplib2.Http()
+        headers = {}
+        body = ''
+        if req.headers:
+            headers = req.headers
         if req.body:
             body = req.body
-        else:
-            body = ''
-        resp, content = h.request(req.url, method=req.method, body=body)
+        resp, content = h.request(req.url, method=req.method, body=body, headers=headers)
         return (resp, content)
 
     
@@ -201,13 +201,9 @@ class Request():
         self.method = method
         self.body = body
         self.headers = headers
-        
-        if method == 'POST':
-            #self.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
-            self.headers['Content-type'] = 'application/x-www-form-urlencoded'
+            
     
-    
-    def add_header(self, (key, value)):
+    def add_header(self, key, value):
         self.headers[key] = value
     
     
