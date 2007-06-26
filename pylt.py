@@ -240,8 +240,8 @@ class Application(wx.Frame):
         for child in dom.getiterator():
             if child.tag != dom.getroot().tag and child.tag =='case':
                 for element in child:
+                    req = Request()
                     if element.tag == 'url':
-                        req = Request()                
                         req.url = element.text
                     if element.tag == 'method': 
                         req.method = element.text
@@ -249,6 +249,15 @@ class Application(wx.Frame):
                         req.body = element.text
                     if element.tag == 'headers': 
                         req.headers = element.text
+                if 'ontent-type' not in req.headers:
+                    #req.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
+                    req.headers['Content-type'] = 'application/x-www-form-urlencoded'
+            
+            
+                    print 'BORKED HERE'
+                    print req.headers
+                    print req.url
+                    
                 cases.append(req)
         return cases
    
