@@ -21,8 +21,9 @@ from threading import Thread
 class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
     def __init__(self, num_agents, interval, rampup, runtime_stats, error_queue):
         Thread.__init__(self)
-        
         self.running = True
+        
+        self.output_dir = time.strftime('results_%Y%m%d_%H%M%S', time.localtime())  
         
         self.num_agents = num_agents
         self.interval = interval
@@ -33,16 +34,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         
         self.agent_refs = []
         self.msg_queue = []
-    
-    
-    def __create_output_dir(self):
-        out_dir = 'output'
-        if out_dir in os.listdir(os.getcwd()):
-            for file in os.listdir(out_dir):
-                os.remove(out_dir + '/' + file)
-            os.rmdir(out_dir)
-        os.mkdir(out_dir)
-        
+            
         
     def stop(self):
         self.running = False
@@ -52,13 +44,13 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         
     def run(self):
         self.running = True
-        self.__create_output_dir()
+        os.mkdir(self.output_dir)
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.runtime_stats, self.error_queue, self.msg_queue)
+                agent = LoadAgent(i, self.interval, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
@@ -77,7 +69,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, id, interval, runtime_stats, error_queue, msg_queue):
+    def __init__(self, id, interval, output_dir, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
         
         self.running = True
@@ -85,11 +77,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.resp_log = None
         self.trace_log = None
         
-        self.runtime_stats = runtime_stats  # shared stats dictionary
-        self.error_queue = error_queue  # shared error list
-        
         self.id = id
         self.interval = interval
+        self.output_dir = output_dir
+        self.runtime_stats = runtime_stats  # shared stats dictionary
+        self.error_queue = error_queue  # shared error list
         self.msg_queue = msg_queue
         
         self.count = 0
@@ -174,12 +166,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
             
     def enable_resp_logging(self):
-        self.resp_log = open('output/agent_%d_output.csv' % self.id, 'w')
+        self.resp_log = open('%s/agent_%d_output.csv' % (self.output_dir, self.id), 'w')
         self.resp_logging = True
         
     
     def enable_trace_logging(self):
-        self.trace_log = open('output/agent_%d_trace.log' % self.id, 'w')
+        self.trace_log = open('%s/agent_%d_trace.log' % (self.output_dir, self.id), 'w')
         self.trace_logging = True
         
         
