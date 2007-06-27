@@ -102,6 +102,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def stop(self):
         self.running = False
         self.disable_resp_logging()
+        self.disable_trace_logging()
         
         
     def run(self):
