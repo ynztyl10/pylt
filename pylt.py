@@ -75,8 +75,6 @@ class Application(wx.Frame):
         # run controls
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
-        self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
-        self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
         self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 12))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
         runcontrols_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -109,6 +107,8 @@ class Application(wx.Frame):
         error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
         self.error_list.SetOwnForegroundColour(wx.RED)
+        self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
+        self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
         pause_resume_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
