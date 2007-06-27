@@ -293,7 +293,6 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         while time.time() < self.start_time + self.duration:
             time.sleep(1)
         self.root.stop()
-        del self  # die after each use
 
     
 
