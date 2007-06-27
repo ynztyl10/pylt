@@ -239,8 +239,8 @@ class Application(wx.Frame):
         cases = []
         for child in dom.getiterator():
             if child.tag != dom.getroot().tag and child.tag =='case':
+                req = Request()
                 for element in child:
-                    req = Request()
                     if element.tag == 'url':
                         req.url = element.text
                     if element.tag == 'method': 
@@ -250,14 +250,7 @@ class Application(wx.Frame):
                     if element.tag == 'headers': 
                         req.headers = element.text
                 if 'ontent-type' not in req.headers:
-                    #req.headers['Content-type'] = 'text/xml'  # use application/x-www-form-urlencoded for Form POSTs
-                    req.headers['Content-type'] = 'application/x-www-form-urlencoded'
-            
-            
-                    print 'BORKED HERE'
-                    print req.headers
-                    print req.url
-                    
+                    req.headers['Content-type'] = 'application/x-www-form-urlencoded'  # default if no type specified
                 cases.append(req)
         return cases
    
@@ -294,18 +287,23 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         self.root = root
         self.duration = duration
         self.start_time = time.time()
+        
+
     def run(self):
         while time.time() < self.start_time + self.duration:
             time.sleep(1)
         self.root.stop()
-        
+        del self  # die after each use
+
     
+
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
     def __init__(self, parent, height=100, width=605):
         wx.ListCtrl.__init__(self, parent, -1, size=(width, height), style=wx.LC_REPORT|wx.LC_HRULES)
         ListCtrlAutoWidthMixin.__init__(self)
         
+
 
 
 class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events      
@@ -410,6 +408,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
             
         
         
+        
 class AboutFrame(wx.Frame):
     def __init__(self, parent, ID, title):
         wx.Frame.__init__(self, parent, -1, title, pos=(0, 0), size=(320, 240))
@@ -426,6 +425,7 @@ License:  GNU GPL
         text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
             
+
 
 def main():
     app = wx.App(0)
