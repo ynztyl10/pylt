@@ -121,9 +121,16 @@ class Application(wx.Frame):
         monitor_sizer.Add(self.error_list, 0, wx.EXPAND, 0)
         monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
+        # run options
+        runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.saveresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
+        runopts_sizer.Add(self.saveresp_checkbox, wx.LEFT, 0)
+        
+        
         # main layout
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(runcontrols_sizer, 0, wx.ALL, 3)
+        sizer.Add(runopts_sizer, 0, wx.LEFT, 460)
         sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
         
         # bind the events to handlers
@@ -178,7 +185,7 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         
-        # create a load manager
+        # create load manager
         lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         self.lm = lm
         
@@ -189,7 +196,7 @@ class Application(wx.Frame):
                 lm.add_req(req)
         except:
             # there was a problem getting cases from the xml file
-            dial = wx.MessageDialog(None, 'create a valid testcases.xml', 'Error', wx.OK | wx.ICON_ERROR)
+            dial = wx.MessageDialog(None, 'invalid testcases.xml', 'Error', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             cases = None
         
