@@ -194,12 +194,8 @@ class Request():
         self.headers = headers
             
     
-    def add_header(self, key, value):
-        self.headers[key] = value
-    
-    
-    def set_content_type(self, content_type):
-        self.headers['Content-type'] = content_type
+    def add_header(self, header_name, value):
+        self.headers[header_name] = value
         
 
 

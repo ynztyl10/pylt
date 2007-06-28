@@ -195,7 +195,7 @@ class Application(wx.Frame):
                 self.lm.add_req(req)
         except:
             # there was a problem getting cases from the xml file
-            dial = wx.MessageDialog(None, 'invalid testcases.xml', 'Error', wx.OK | wx.ICON_ERROR)
+            dial = wx.MessageDialog(None, 'invalid testcase file', 'Error', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             cases = None
         
@@ -253,10 +253,11 @@ class Application(wx.Frame):
                         req.method = element.text
                     if element.tag == 'body': 
                         req.body = element.text
-                    if element.tag == 'headers': 
-                        req.headers = element.text
+                    if element.tag == 'add_header':
+                        splat = element.text.split(':')
+                        req.add_header(splat[0].strip(), splat[1].strip())
                 if 'ontent-type' not in req.headers:
-                    req.headers['Content-type'] = 'application/x-www-form-urlencoded'  # default if no type specified
+                    req.add_header('Content-type', 'application/x-www-form-urlencoded')  # default if no type specified
                 cases.append(req)
         return cases
    
