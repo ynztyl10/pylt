@@ -19,15 +19,17 @@ from threading import Thread
 
 
 class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
-    def __init__(self, num_agents, interval, rampup, runtime_stats, error_queue):
+    def __init__(self, num_agents, interval, rampup, save_resps, runtime_stats, error_queue):
         Thread.__init__(self)
-        self.running = True
         
-        self.output_dir = time.strftime('results_%Y%m%d_%H%M%S', time.localtime())  
+        self.running = True
         
         self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
+        self.save_resps = save_resps
+        
+        self.output_dir = time.strftime('results_%Y%m%d_%H%M%S', time.localtime()) 
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.error_queue = error_queue
@@ -50,7 +52,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
+                agent = LoadAgent(i, self.interval, self.save_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
@@ -69,17 +71,18 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, id, interval, output_dir, runtime_stats, error_queue, msg_queue):
+    def __init__(self, id, interval, save_resps, output_dir, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
         
         self.running = True
-        
-        self.resp_log = None
-        self.trace_log = None
+        self.resp_logging = True
+        self.trace_logging = False
         
         self.id = id
         self.interval = interval
+        self.save_resps = save_resps
         self.output_dir = output_dir
+        
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
         self.msg_queue = msg_queue
@@ -88,13 +91,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.error_count = 0
         
         self.enable_resp_logging()
-        self.enable_trace_logging()
+        if self.save_resps:
+            self.enable_trace_logging()
         
         
     def stop(self):
         self.running = False
-        self.disable_resp_logging()
-        self.disable_trace_logging()
+        if self.resp_logging:
+            self.disable_resp_logging()
+        if self.trace_logging:
+            self.disable_trace_logging()
         
         
     def run(self):
@@ -126,14 +132,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                 
                 # log response info
-                self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
+                if self.resp_logging:
+                    self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
                 
                 # log response content
-                for key in resp:
-                    self.log_trace('%s: %s' % (key, resp[key]))
-                self.log_trace('\n\n%s' % content)
-                self.log_trace('\n\n*************** LOG SEPARATOR ***************\n\n')
-                
+                if self.trace_logging:
+                    for key in resp:
+                        self.log_trace('%s: %s' % (key, resp[key]))
+                    self.log_trace('\n\n%s' % content)
+                    self.log_trace('\n\n*************** LOG SEPARATOR ***************\n\n')
+                    
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
                     time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
@@ -152,15 +160,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     
     def log_resp(self, txt):
-        if self.resp_logging:
-            self.resp_log.write('%s\n' % txt)
-            self.resp_log.flush()  # flush write buffer so we always log in real-time
+        self.resp_log.write('%s\n' % txt)
+        self.resp_log.flush()  # flush write buffer so we always log in real-time
 
     
     def log_trace(self, txt):
-        if self.trace_logging:
-            self.trace_log.write('%s\n' % txt)
-            self.trace_log.flush()
+        self.trace_log.write('%s\n' % txt)
+        self.trace_log.flush()
             
             
     def enable_resp_logging(self):
