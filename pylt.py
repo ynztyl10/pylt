@@ -126,7 +126,6 @@ class Application(wx.Frame):
         self.saveresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
         runopts_sizer.Add(self.saveresp_checkbox, wx.LEFT, 0)
         
-        
         # main layout
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(runcontrols_sizer, 0, wx.ALL, 3)
@@ -158,6 +157,7 @@ class Application(wx.Frame):
         self.lm.stop()
         self.rt_mon.stop()
         self.rt_mon.refresh()
+        self.stopper.stop()
         self.switch_status(False)
 
 
@@ -185,15 +185,14 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         
-        # create load manager
-        lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
-        self.lm = lm
+        # create a load manager
+        self.lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
         
         # load the test cases
         try:
             cases = self.load_xml_cases()
             for req in cases:
-                lm.add_req(req)
+                self.lm.add_req(req)
         except:
             # there was a problem getting cases from the xml file
             dial = wx.MessageDialog(None, 'invalid testcases.xml', 'Error', wx.OK | wx.ICON_ERROR)
@@ -204,13 +203,13 @@ class Application(wx.Frame):
             self.start_time = time.time()    
             
             # start the load manager
-            lm.setDaemon(True)
-            lm.start()
+            self.lm.setDaemon(True)
+            self.lm.start()
             
             # start a thread to stop execution when the test duration lapses
-            s = Stopper(self, duration)
-            s.setDaemon(True)
-            s.start()
+            self.stopper = Stopper(self, duration)
+            self.stopper.setDaemon(True)
+            self.stopper.start()
             
             self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
             self.rt_mon.error_list.Clear()
@@ -294,12 +293,19 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         self.root = root
         self.duration = duration
         self.start_time = time.time()
+        self.running = True
+        
+    
+    def stop(self):
+        self.running = False
+        
         
 
     def run(self):
-        while time.time() < self.start_time + self.duration:
-            time.sleep(1)
-        self.root.stop()
+        while (time.time() < self.start_time + self.duration) and self.running:
+            time.sleep(.75)
+        if self.running:  # if stop() was already called explicitly, don't stop again
+            self.root.stop()
 
     
 
