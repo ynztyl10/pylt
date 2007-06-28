@@ -122,15 +122,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 latency = end_time - start_time
                 total_latency += latency
                 
-                # update the shared stats dictionary
+                # update shared stats dictionary
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                 
                 # log response info
                 self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
                 
-                
-                # log tresponse trace
-                self.log_resp('%s %s\n%s\n' % (cur_date, cur_time, req.url))
+                # log response content
                 for key in resp:
                     self.log_trace('%s: %s' % (key, resp[key]))
                 self.log_trace('\n\n%s' % content)
@@ -138,7 +136,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 expire_time = (self.interval - latency)
                 if expire_time > 0:
-                    time.sleep(expire_time)  # sleep the rest of the interval so we keep even pacing
+                    time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
         
         
     def send(self, req):
@@ -156,7 +154,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def log_resp(self, txt):
         if self.resp_logging:
             self.resp_log.write('%s\n' % txt)
-            self.resp_log.flush()  # flush the write buffer so we always log in real-time
+            self.resp_log.flush()  # flush write buffer so we always log in real-time
 
     
     def log_trace(self, txt):
@@ -166,12 +164,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
             
     def enable_resp_logging(self):
-        self.resp_log = open('%s/agent_%d_output.csv' % (self.output_dir, self.id), 'w')
+        self.resp_log = open('%s/agent_%d.csv' % (self.output_dir, self.id), 'w')
         self.resp_logging = True
         
     
     def enable_trace_logging(self):
-        self.trace_log = open('%s/agent_%d_trace.log' % (self.output_dir, self.id), 'w')
+        self.trace_log = open('%s/agent_%d.log' % (self.output_dir, self.id), 'w')
         self.trace_logging = True
         
         

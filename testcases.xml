@@ -3,8 +3,14 @@
 
 <testcases>
     <case>
+        <url>http://www.example.com</url>
+    </case>
+
+    <!--
+    <case>
         <url>http://search.yahooapis.com/WebSearchService/V1/webSearch</url>
         <method>POST</method>
         <body><![CDATA[appid=YahooDemo&query=webinject]]></body>
     </case>
+    -->
 </testcases>
