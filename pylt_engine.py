@@ -19,7 +19,7 @@ from threading import Thread
 
 
 class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
-    def __init__(self, num_agents, interval, rampup, save_resps, runtime_stats, error_queue):
+    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue):
         Thread.__init__(self)
         
         self.running = True
@@ -27,7 +27,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
         self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
-        self.save_resps = save_resps
+        self.log_resps = log_resps
         
         self.output_dir = time.strftime('results_%Y%m%d_%H%M%S', time.localtime()) 
         
@@ -52,7 +52,7 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.save_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
+                agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
@@ -71,16 +71,16 @@ class LoadManager(Thread):  # LoadManager runs in its own thread to decouple fro
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, id, interval, save_resps, output_dir, runtime_stats, error_queue, msg_queue):
+    def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
         
         self.running = True
-        self.resp_logging = True
+        self.stat_logging = True
         self.trace_logging = False
         
         self.id = id
         self.interval = interval
-        self.save_resps = save_resps
+        self.log_resps = log_resps
         self.output_dir = output_dir
         
         self.runtime_stats = runtime_stats  # shared stats dictionary
@@ -90,15 +90,15 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.count = 0
         self.error_count = 0
         
-        self.enable_resp_logging()
-        if self.save_resps:
+        self.enable_stat_logging()
+        if self.log_resps:
             self.enable_trace_logging()
         
         
     def stop(self):
         self.running = False
-        if self.resp_logging:
-            self.disable_resp_logging()
+        if self.stat_logging:
+            self.disable_stat_logging()
         if self.trace_logging:
             self.disable_trace_logging()
         
@@ -131,9 +131,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 # update shared stats dictionary
                 self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                 
-                # log response info
-                if self.resp_logging:
-                    self.log_resp('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
+                # log response stats/info
+                if self.stat_logging:
+                    self.log_stat('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
                 
                 # log response content
                 if self.trace_logging:
@@ -159,9 +159,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         return (resp, content)
 
     
-    def log_resp(self, txt):
-        self.resp_log.write('%s\n' % txt)
-        self.resp_log.flush()  # flush write buffer so we always log in real-time
+    def log_stat(self, txt):
+        self.stat_log.write('%s\n' % txt)
+        self.stat_log.flush()  # flush write buffer so we always log in real-time
 
     
     def log_trace(self, txt):
@@ -169,9 +169,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.trace_log.flush()
             
             
-    def enable_resp_logging(self):
-        self.resp_log = open('%s/agent_%d.csv' % (self.output_dir, self.id), 'w')
-        self.resp_logging = True
+    def enable_stat_logging(self):
+        self.stat_log = open('%s/agent_%d.csv' % (self.output_dir, self.id), 'w')
+        self.stat_logging = True
         
     
     def enable_trace_logging(self):
@@ -179,9 +179,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.trace_logging = True
         
         
-    def disable_resp_logging(self):
-        self.resp_log.close()
-        self.resp_logging = False
+    def disable_stat_logging(self):
+        self.stat_log.close()
+        self.stat_logging = False
         
     
     def disable_trace_logging(self):
