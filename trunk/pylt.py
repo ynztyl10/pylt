@@ -184,9 +184,10 @@ class Application(wx.Frame):
         interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
+        save_resps = self.saveresp_checkbox.GetValue()
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, self.runtime_stats, self.error_queue)
+        self.lm = LoadManager(num_agents, interval, rampup, save_resps, self.runtime_stats, self.error_queue)
         
         # load the test cases
         try:
