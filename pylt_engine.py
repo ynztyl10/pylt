@@ -18,7 +18,7 @@ from threading import Thread
 
 
 
-class LoadManager(Thread):  # LoadManager runs in its own thread to decouple from its caller
+class LoadManager(Thread):  # runs in its own thread to decouple from its caller
     def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue):
         Thread.__init__(self)
         
@@ -129,16 +129,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     # log the error
                     if self.error_logging:
                         self.log_error(error_string)
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
                     self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
