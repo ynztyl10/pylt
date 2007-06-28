@@ -1,16 +1,20 @@
 
 <testcases>
-    <!-- <case>
+    <!-- 
+    <case>
         <url>http://www.example.com</url>
     </case>
--->
-   
+  
     <case>
         <url>http://search.yahooapis.com/WebSearchService/V1/webSearch</url>
         <method>POST</method>
         <body><![CDATA[appid=YahooDemo&query=webinject]]></body>
         <add_header>Content-type: application/x-www-form-urlencoded</add_header>
-
     </case>
-   
+    -->
+    <case>
+        <url>http://perfweb40/NaviNetISAPIExt.dll</url>
+        <method>POST</method>
+        <body><![CDATA[SCREEN_ID=Screen_Login&SCREEN_ORDINAL=0&HTTP_USER_AGENT=4.0+%28compatible%3B+MSIE+7.0%3B+Windows+NT+5.1%3B+InfoPath.1%3B+.NET+CLR+1.1.4322%3B+.NET+CLR+2.0.50727%29&ACTION_ID=Action_Login&InputHiddenCurrentQuoteId=&USERNAME=alastest&PASSWORD=8cambridge]]></body>
+    </case>
 </testcases>

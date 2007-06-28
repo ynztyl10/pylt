@@ -50,26 +50,26 @@ class Application(wx.Frame):
         panel = wx.Panel(self)
         
         # workload controls
-        self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.num_agents_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
         self.num_agents_spin.SetRange(1, 1000000)
         self.num_agents_spin.SetValue(1)
         self.interval_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
         self.interval_spin.SetRange(0, 1000000)
         self.interval_spin.SetValue(1000)
-        self.rampup_spin = wx.SpinCtrl(panel, -1, size=(55, -1))
+        self.rampup_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
         self.rampup_spin.SetRange(0, 1000000)
         self.rampup_spin.SetValue(0)
         self.duration_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
-        self.duration_spin.SetRange(0, 1000000)
+        self.duration_spin.SetRange(1, 1000000)
         self.duration_spin.SetValue(60)
         controls_sizer = wx.GridSizer(0, 4, 0, 0)
-        controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP, 5)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
-        controls_sizer.Add(wx.StaticText(panel, -1, 'Interval (ms)'), 0, wx.TOP, 5)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Interval (ms)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.interval_spin, 0, wx.ALL, 2)
-        controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (s)'), 0, wx.TOP, 5)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Rampup (s)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 2)
-        controls_sizer.Add(wx.StaticText(panel, -1, 'Duration (s)'), 0, wx.TOP, 5)
+        controls_sizer.Add(wx.StaticText(panel, -1, 'Duration (s)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.duration_spin, 0, wx.ALL, 2)
         
         # run controls
@@ -81,7 +81,12 @@ class Application(wx.Frame):
         runcontrols_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(controls_sizer, 0, wx.LEFT, 55)
-        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 65)
+        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 60)
+        
+        # run options
+        runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
+        runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
         
         # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
@@ -124,15 +129,10 @@ class Application(wx.Frame):
         monitor_sizer.Add(self.error_list, 0, wx.EXPAND, 0)
         monitor_sizer.Add(pause_resume_sizer, 0, wx.ALL, 3)
         
-        # run options
-        runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
-        runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
-        
         # main layout
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(runcontrols_sizer, 0, wx.ALL, 3)
-        sizer.Add(runopts_sizer, 0, wx.LEFT, 460)
+        sizer.Add(runopts_sizer, 0, wx.LEFT, 465)
         sizer.Add(monitor_sizer, 0, wx.LEFT, 33)
         
         # bind the events to handlers
