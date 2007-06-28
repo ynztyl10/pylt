@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 
 <testcases>
-    <case>
+    <!-- <case>
         <url>http://www.example.com</url>
     </case>
-
-    <!--
+-->
+   
     <case>
         <url>http://search.yahooapis.com/WebSearchService/V1/webSearch</url>
         <method>POST</method>
         <body><![CDATA[appid=YahooDemo&query=webinject]]></body>
+        <add_header>Content-type: application/x-www-form-urlencoded</add_header>
+
     </case>
-    -->
+   
 </testcases>
