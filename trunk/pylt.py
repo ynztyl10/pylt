@@ -96,16 +96,19 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(6, 'Cur Throughput', width=95) 
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        
         self.agents_statlist = AutoWidthListCtrl(panel, height=300)
-        self.agents_statlist.InsertColumn(0, 'Agent Num', width=100)
+        self.agents_statlist.InsertColumn(0, 'Agent Num', width=80)
         self.agents_statlist.InsertColumn(1, 'Status', width=100)
         self.agents_statlist.InsertColumn(2, 'Requests', width=100)
         self.agents_statlist.InsertColumn(3, 'Last Resp Time', width=100)
         self.agents_statlist.InsertColumn(4, 'Avg Resp Time', width=100)
         self.agents_statlist.InsertColumn(5, 'Bytes Received', width=100)
+        self.agents_statlist.resizeLastColumn(90)
+                
         error_text = wx.StaticText(panel, -1, 'Errors')
         error_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(500, 100))
+        self.error_list = wx.TextCtrl(panel, -1, style=wx.TE_MULTILINE, size=(0, 100))
         self.error_list.SetOwnForegroundColour(wx.RED)
         self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
         self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
@@ -123,8 +126,8 @@ class Application(wx.Frame):
         
         # run options
         runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.saveresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
-        runopts_sizer.Add(self.saveresp_checkbox, wx.LEFT, 0)
+        self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
+        runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
         
         # main layout
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -184,10 +187,10 @@ class Application(wx.Frame):
         interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
-        save_resps = self.saveresp_checkbox.GetValue()
+        log_resps = self.logresp_checkbox.GetValue()
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, save_resps, self.runtime_stats, self.error_queue)
+        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue)
         
         # load the test cases
         try:
@@ -274,6 +277,7 @@ class Application(wx.Frame):
             self.interval_spin.Disable()
             self.rampup_spin.Disable()
             self.duration_spin.Disable()
+            self.logresp_checkbox.Disable()
             self.busy_timer.Start(75)
         else:
             self.run_btn.Enable()
@@ -284,6 +288,7 @@ class Application(wx.Frame):
             self.interval_spin.Enable()
             self.rampup_spin.Enable()
             self.duration_spin.Enable()
+            self.logresp_checkbox.Enable()
             self.busy_timer.Stop()
 
 
@@ -390,6 +395,8 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
                 self.agents_statlist.SetStringItem(index, 3, '%.3f' % self.runtime_stats[id].latency)
                 self.agents_statlist.SetStringItem(index, 4, '%.3f' % self.runtime_stats[id].avg_latency)
                 self.agents_statlist.SetStringItem(index, 5, '%d' % self.runtime_stats[id].total_bytes)
+        self.agents_statlist.resizeLastColumn(80)  # avoid horizontal scrollbar
+        
         
         # refresh error monitor            
         for error in self.error_queue:
