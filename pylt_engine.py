@@ -75,14 +75,21 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         Thread.__init__(self)
         
         self.running = True
-        self.stat_logging = True
-        self.trace_logging = False
         
         self.id = id
         self.interval = interval
         self.log_resps = log_resps
         self.output_dir = output_dir
         
+        # log options
+        self.stat_logging = True
+        self.enable_stat_logging()
+        self.error_logging = True
+        self.enable_error_logging()
+        self.trace_logging = False
+        if self.log_resps:
+            self.enable_trace_logging()
+            
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
         self.msg_queue = msg_queue
@@ -90,11 +97,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.count = 0
         self.error_count = 0
         
-        self.enable_stat_logging()
-        if self.log_resps:
-            self.enable_trace_logging()
-        
-        
+
     def stop(self):
         self.running = False
         if self.stat_logging:
@@ -121,6 +124,21 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 if resp.status >= 400:
                     self.error_count += 1
                     # put an error message on the queue
+                    error_string = 'Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
+                    self.error_queue.append(error_string)
+                    # log the error
+                    if self.error_logging:
+                        self.log_error(error_string)
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
@@ -162,7 +180,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def log_stat(self, txt):
         self.stat_log.write('%s\n' % txt)
         self.stat_log.flush()  # flush write buffer so we always log in real-time
-
+    
+    
+    def log_error(self, txt):
+        self.error_log.write('%s\n' % txt)
+        self.error_log.flush()
+        
     
     def log_trace(self, txt):
         self.trace_log.write('%s\n' % txt)
@@ -170,12 +193,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
             
     def enable_stat_logging(self):
-        self.stat_log = open('%s/agent_%d.csv' % (self.output_dir, self.id), 'w')
+        self.stat_log = open('%s/agent_%d_stats.csv' % (self.output_dir, self.id + 1), 'w')
         self.stat_logging = True
         
     
+    def enable_error_logging(self):
+        self.error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'w')
+        self.error_logging = True
+        
+        
     def enable_trace_logging(self):
-        self.trace_log = open('%s/agent_%d.log' % (self.output_dir, self.id), 'w')
+        self.trace_log = open('%s/agent_%d.log' % (self.output_dir, self.id + 1), 'w')
         self.trace_logging = True
         
         
@@ -183,7 +211,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.stat_log.close()
         self.stat_logging = False
         
-    
+        
+    def disable_error_logging(self):
+        self.error_log.close()
+        self.error_log = False
+        
+        
     def disable_trace_logging(self):
         self.trace_log.close()
         self.trace_logging = False
