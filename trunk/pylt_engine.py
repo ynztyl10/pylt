@@ -18,7 +18,7 @@ from threading import Thread
 
 
 
-class LoadManager(Thread):  # runs in its own thread to decouple from its caller
+class LoadManager(Thread):  # separate thread to decouple from its caller
     def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue):
         Thread.__init__(self)
         
