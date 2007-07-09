@@ -27,7 +27,7 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance', size=(680, 710))
+        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance  |  version .01alpha', size=(680, 710))
     
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         self.error_queue = []  # shared list for storing errors
@@ -306,10 +306,9 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         
     
     def stop(self):
-        self.running = False
+        self.running = False        
         
         
-
     def run(self):
         while (time.time() < self.start_time + self.duration) and self.running:
             time.sleep(.75)
