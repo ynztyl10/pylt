@@ -3,7 +3,7 @@
 #    Copyright (c) 2007 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
-#    This file is part of PyLT.
+#    This file is part of Pylot.
 #    
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

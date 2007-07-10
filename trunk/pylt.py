@@ -3,7 +3,7 @@
 #    Copyright (c) 2007 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
-#    This file is part of PyLT.
+#    This file is part of Pylot.
 #    
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ from pylt_engine import *
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'PyLT - Web Performance  |  version .01alpha', size=(680, 710))
+        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  version .01alpha', size=(680, 710))
     
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         self.error_queue = []  # shared list for storing errors
@@ -41,8 +41,8 @@ class Application(wx.Frame):
         # menus
         menuBar = wx.MenuBar()
         file_menu = wx.Menu()
-        file_menu.Append(101, '&About', 'About PyLT')
-        file_menu.Append(102, '&Exit', 'Exit PyLT')
+        file_menu.Append(101, '&About', 'About Pylot')
+        file_menu.Append(102, '&Exit', 'Exit Pylot')
         wx.EVT_MENU(self, 101, self.on_about)
         wx.EVT_MENU(self, 102, self.on_exit)
         menuBar.Append(file_menu, '&File')
@@ -152,9 +152,9 @@ class Application(wx.Frame):
 
     def on_about(self, evt):
         info = wx.AboutDialogInfo()
-        info.SetName('PyLT')
+        info.SetName('Pylot')
         info.SetCopyright('Copyright %s 2007 Corey Goldberg' % u'\u00A9')
-        info.SetDescription('\nPyLT is Free Open Source Software\nLicense:  GNU GPL')
+        info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPL')
         wx.AboutBox(info)
 
 
@@ -438,9 +438,9 @@ class AboutFrame(wx.Frame):
         panel = wx.Panel(self, -1)
         
         content = """\
-PyLT - Web Performance
+Pylot - Web Performance
 Copyright (c) 2007 Corey Goldberg
-PyLT is Free Open Source Software
+Pylot is Free Open Source Software
 License:  GNU GPL
         """
         text = wx.StaticText(panel, -1, content, wx.Point(10, 10))
