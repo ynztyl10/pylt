@@ -119,9 +119,11 @@ class Application(wx.Frame):
         self.error_list.SetOwnForegroundColour(wx.RED)
         self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
         self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
+        self.results_btn = wx.Button(panel, -1, 'Generate Results')
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
         pause_resume_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
+        pause_resume_sizer.Add(self.results_btn, 0, wx.ALL, 3)
         monitor_sizer = wx.BoxSizer(wx.VERTICAL)
         monitor_sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
@@ -142,6 +144,7 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
         self.Bind(wx.EVT_BUTTON, self.on_pause, self.pause_btn)
         self.Bind(wx.EVT_BUTTON, self.on_resume, self.resume_btn)
+        self.Bind(wx.EVT_BUTTON, self.on_results, self.results_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
                 
         self.switch_status(False)
@@ -244,13 +247,23 @@ class Application(wx.Frame):
         self.rt_mon.setDaemon(True)
         self.rt_mon.start()
         
+        
+    def on_results(self, evt):
+        dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
+        if dir_dlg.ShowModal() == wx.ID_OK:
+            self.dirname = dir_dlg.GetPath()           
+            msg = 'Generating HTML report in:\n%s' % self.dirname
+            gen_dlg = wx.MessageDialog(None, msg, 'Info', wx.OK)
+            gen_dlg.ShowModal()
+        dir_dlg.Destroy()
+            
 
     def load_xml_cases(self):
         # parse xml and load request queue
         dom = etree.parse('testcases.xml')
         cases = []
         for child in dom.getiterator():
-            if child.tag != dom.getroot().tag and child.tag =='case':
+            if child.tag != dom.getroot().tag and child.tag == 'case':
                 req = Request()
                 for element in child:
                     if element.tag == 'url':
