@@ -143,7 +143,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 # log response stats/info
                 if self.stat_logging:
-                    self.log_stat('%s,%s,%s,%s,%d,%s,%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
+                    self.log_stat('%s|%s|%s|%s|%d|%s|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
                 
                 # log response content
                 if self.trace_logging:
@@ -185,7 +185,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
             
     def enable_stat_logging(self):
-        self.stat_log = open('%s/agent_%d_stats.csv' % (self.output_dir, self.id + 1), 'w')
+        self.stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'w')
         self.stat_logging = True
         
     
