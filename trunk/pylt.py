@@ -21,6 +21,7 @@ from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 from threading import Thread
 import xml.etree.ElementTree as etree
 from pylt_engine import *
+import results
 
  
 
@@ -251,8 +252,15 @@ class Application(wx.Frame):
     def on_results(self, evt):
         dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
         if dir_dlg.ShowModal() == wx.ID_OK:
-            self.dirname = dir_dlg.GetPath()           
-            msg = 'Generating HTML report in:\n%s' % self.dirname
+            dirname = dir_dlg.GetPath()
+
+            results_gen = ResultsGenerator(dirname)
+            results_gen.setDaemon(True)
+            results_gen.start()
+            
+            
+            
+            msg = 'Generating HTML report in:\n%s' % dirname
             gen_dlg = wx.MessageDialog(None, msg, 'Info', wx.OK)
             gen_dlg.ShowModal()
         dir_dlg.Destroy()
@@ -328,7 +336,21 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         if self.running:  # if stop() was already called explicitly, don't stop again
             self.root.stop()
 
+
+
+
+class ResultsGenerator(Thread):  # generate results in a new thread so we don't block the UI   
+    def __init__(self, dir):
+        Thread.__init__(self)
+        self.dir = dir
+       
+        
+    def run(self):
+        results.generate_results(self.dir)
     
+
+
+
 
 
 class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
