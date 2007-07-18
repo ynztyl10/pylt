@@ -13,8 +13,9 @@
 #
 
 
-import corestats
 import glob
+import corestats
+import grapher
 
 
 def generate_results(dir):
@@ -37,8 +38,19 @@ def generate_results(dir):
     print '99 pct:', stats.percentile(99)
     
     
-    #for foo in epoch_timings:
-    #    print foo
+    # grab just the epochs as rounded-down secs
+    epochs = [int(x[0]) for x in epoch_timings]
+    
+    tps = calc_throughputs(epochs) # dict of secs and throughputs
+    
+    
+    grapher.bar_graph(tps)
+    
+    
+    
+
+    
+    
     
     
     
@@ -62,5 +74,20 @@ def list_timings(merged_log):
         epoch_timings.append((float(epoch), float(response_time)))
     epoch_timings.sort()
     return epoch_timings
+    
+    
+def calc_throughputs(epochs):
+    # load up a dictionary with epochs as keys and counts as values
+    # todo: this can be better optimized
+    
+    # need start and end times
+    start_sec = epochs[0]
+    end_sec = epochs[-1]
+    
+    throughputs = {}
+    for epoch in range(start_sec, end_sec + 1):
+        count = epochs.count(epoch)       
+        throughputs[epoch] = count
+    return throughputs
     
     
