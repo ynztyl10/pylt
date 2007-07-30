@@ -31,7 +31,7 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.rampup = rampup
         self.log_resps = log_resps
         
-        self.output_dir = time.strftime('results_%Y%m%d_%H%M%S', time.localtime()) 
+        self.output_dir = time.strftime('results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.error_queue = error_queue
