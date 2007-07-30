@@ -37,22 +37,17 @@ def generate_results(dir):
     print '95 pct:', stats.percentile(95)
     print '99 pct:', stats.percentile(99)
     
+    # subtract start times so we have resp times by elapsed time starting at zero
+    start_epoch = epoch_timings[0][0]
+    based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
+    grapher.resp_graph(based_timings)
     
-    # grab just the epochs as rounded-down secs
-    epochs = [int(x[0]) for x in epoch_timings]
-    
+    epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     tps = calc_throughputs(epochs) # dict of secs and throughputs
-    
-    
-    grapher.bar_graph(tps)
-    
+    grapher.tp_graph(tps)
     
     
 
-    
-    
-    
-    
     
 def merge_log_files(dir):
     merged_file = []    
@@ -61,7 +56,6 @@ def merge_log_files(dir):
         merged_file += fh.readlines()
         fh.close()
     return merged_file
-
 
 
 def list_timings(merged_log):
@@ -77,17 +71,20 @@ def list_timings(merged_log):
     
     
 def calc_throughputs(epochs):
-    # load up a dictionary with epochs as keys and counts as values
-    # todo: this can be better optimized
-    
+    # load up a dictionary with epochs as keys and counts as values   
     # need start and end times
     start_sec = epochs[0]
     end_sec = epochs[-1]
-    
     throughputs = {}
     for epoch in range(start_sec, end_sec + 1):
         count = epochs.count(epoch)       
-        throughputs[epoch] = count
+        throughputs[epoch - start_sec] = count
     return throughputs
+
+
+
+    
+    
+    
     
     
