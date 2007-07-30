@@ -16,30 +16,22 @@
 from pylab import *
 
 
-def bar_graph(throughputs_dict, graph_title='', output_name='throughput_graph.png', xlabels=True):
-    figure(figsize=(6, 2)) # image dimensions  
+def resp_graph(nested_resp_list, graph_title='', output_name='response_time_graph.png', xlabels=True):
+    figure(figsize=(7, 2)) # image dimensions  
     title(graph_title, size='small')
+    xticks(size='x-small')
+    yticks(size='x-small')
+    for i in range(len(nested_resp_list)):  # add bars
+        bar(nested_resp_list[i][0], nested_resp_list[i][1], color='black')
+    savefig(output_name) 
     
-    # add line
-    plot(throughputs_dict.keys(), throughputs_dict.values(), color='blue', linestyle='-', linewidth=0.75)
-            
     
-#    # axis setup
-#    xticks([]) # turn off axis labels
-#    if xlabels:
-#        xticks(arange(0.65, len(name_value_dict)),
-#            [('%s: %d' % (name, value)) for name, value in
-#            zip(name_value_dict.keys(), name_value_dict.values())], size='xx-small')
-#    max_value = max(name_value_dict.values())
-#    if max_value < 7:
-#        step = 1
-#    else:
-#        step = max_value / 7        
-#    tick_range = arange(0, max_value, step)
-#    yticks(tick_range, size='xx-small')
-#    formatter = FixedFormatter([str(x) for x in tick_range])
-#    gca().yaxis.set_major_formatter(formatter)
-#    gca().yaxis.grid(which='major')
-   
+def tp_graph(throughputs_dict, graph_title='', output_name='throughput_graph.png', xlabels=True):
+    figure(figsize=(7, 2)) # image dimensions  
+    title(graph_title, size='small')
+    xticks(size='x-small')
+    yticks(size='x-small')
+    for i, key in zip(range(len(throughputs_dict)), throughputs_dict.keys()):  # add bars
+        bar(i, throughputs_dict[key], color='black')
     savefig(output_name) 
     
