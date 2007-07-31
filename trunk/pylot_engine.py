@@ -175,6 +175,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
         error_log.write('%s\n' % txt)
         error_log.flush()
+        error_log.close()
         
     
     def log_trace(self, txt):
