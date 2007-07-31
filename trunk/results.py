@@ -40,18 +40,18 @@ def generate_results(dir):
     # subtract start times so we have resp times by elapsed time starting at zero
     start_epoch = epoch_timings[0][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
-    grapher.resp_graph(based_timings)
+    grapher.resp_graph(based_timings, dir=dir + '/')
     
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     tps = calc_throughputs(epochs) # dict of secs and throughputs
-    grapher.tp_graph(tps)
+    grapher.tp_graph(tps, dir=dir + '/')
     
     
 
     
 def merge_log_files(dir):
     merged_file = []    
-    for filename in glob.glob(dir + r'\*'):
+    for filename in glob.glob(dir + r'/*'):
         fh = open(filename, 'rb')
         merged_file += fh.readlines()
         fh.close()

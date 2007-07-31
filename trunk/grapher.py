@@ -16,22 +16,22 @@
 from pylab import *
 
 
-def resp_graph(nested_resp_list, graph_title='', output_name='response_time_graph.png', xlabels=True):
+def resp_graph(nested_resp_list, graph_title='', dir='./', output_name='response_time_graph.png'):
     figure(figsize=(7, 2)) # image dimensions  
     title(graph_title, size='small')
     xticks(size='x-small')
     yticks(size='x-small')
     for i in range(len(nested_resp_list)):  # add bars
         bar(nested_resp_list[i][0], nested_resp_list[i][1], color='black')
-    savefig(output_name) 
+    savefig(dir + output_name) 
     
-    
-def tp_graph(throughputs_dict, graph_title='', output_name='throughput_graph.png', xlabels=True):
+
+def tp_graph(throughputs_dict, graph_title='', dir='./', output_name='throughput_graph.png'):
     figure(figsize=(7, 2)) # image dimensions  
     title(graph_title, size='small')
     xticks(size='x-small')
     yticks(size='x-small')
     for i, key in zip(range(len(throughputs_dict)), throughputs_dict.keys()):  # add bars
         bar(i, throughputs_dict[key], color='black')
-    savefig(output_name) 
+    savefig(dir + output_name) 
     
