@@ -22,10 +22,19 @@ def generate_results(dir):
     merged_log = merge_log_files(dir)
     epoch_timings = list_timings(merged_log)
     
-    # grab just the timings
-    data_set = [x[1] for x in epoch_timings]  
+    # throughput
+    epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
+    tps = calc_throughputs(epochs) # dict of secs and throughputs
+    grapher.tp_graph(tps, dir=dir + '/')
     
-    stats = corestats.Stats(data_set)
+    # response times
+    # subtract start times so we have resp times by elapsed time starting at zero
+    start_epoch = epoch_timings[0][0]
+    based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
+    grapher.resp_graph(based_timings, dir=dir + '/')
+    
+    resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
+    stats = corestats.Stats(resp_data_set)
     
     print 'count:', stats.count()
     print 'avg:', stats.avg()
@@ -37,14 +46,6 @@ def generate_results(dir):
     print '95 pct:', stats.percentile(95)
     print '99 pct:', stats.percentile(99)
     
-    # subtract start times so we have resp times by elapsed time starting at zero
-    start_epoch = epoch_timings[0][0]
-    based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
-    grapher.resp_graph(based_timings, dir=dir + '/')
-    
-    epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
-    tps = calc_throughputs(epochs) # dict of secs and throughputs
-    grapher.tp_graph(tps, dir=dir + '/')
     
     
 
