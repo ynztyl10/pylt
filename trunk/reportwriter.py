@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 
+import time
+
+
 def write_initial_html(file_handle):
     file_handle.write("""\
 <!DOCTYPE html 
@@ -76,6 +79,13 @@ def write_initial_html(file_handle):
 <body>
 <h1>Pylot - Web Performance Results</h1>
 """)
+    
+    cur_datetime = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
+    file_handle.write('<h2>Generated: %s</h2>\n' % cur_datetime)
+    file_handle.write('<h3>Response Time</h3>\n')
+    file_handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
+    file_handle.write('<h3>Throughput</h3>\n')
+    file_handle.write('<img src="throughput_graph.png" alt="throughput graph">\n')
     
     
 
