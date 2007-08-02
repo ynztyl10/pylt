@@ -15,7 +15,9 @@
 
 import glob
 import corestats
-import grapher
+import graph
+import reportwriter
+
 
 
 def generate_results(dir):
@@ -25,13 +27,13 @@ def generate_results(dir):
     # throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     tps = calc_throughputs(epochs) # dict of secs and throughputs
-    grapher.tp_graph(tps, dir=dir + '/')
+    graph.tp_graph(tps, dir=dir + '/')
     
     # response times
     # subtract start times so we have resp times by elapsed time starting at zero
     start_epoch = epoch_timings[0][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
-    grapher.resp_graph(based_timings, dir=dir + '/')
+    graph.resp_graph(based_timings, dir=dir + '/')
     
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
     stats = corestats.Stats(resp_data_set)
@@ -48,11 +50,16 @@ def generate_results(dir):
     
     
     
+    fh = open(dir + '/results.html', 'w')
+    reportwriter.write_initial_html(fh)
+    reportwriter.write_closing_html(fh)
+    fh.close()
+    
 
     
 def merge_log_files(dir):
     merged_file = []    
-    for filename in glob.glob(dir + r'/*'):
+    for filename in glob.glob(dir + r'/*.psv'):
         fh = open(filename, 'rb')
         merged_file += fh.readlines()
         fh.close()
@@ -60,6 +67,9 @@ def merge_log_files(dir):
 
 
 def list_timings(merged_log):
+    #print merged_log
+    for foo in merged_log:
+        print foo
     # create a list of tuples with our timing data sorted by epoch
     epoch_timings = []
     for line in merged_log:
