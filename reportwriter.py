@@ -18,7 +18,7 @@ def write_initial_html(file_handle):
         body {
             background-color: #FFFFFF;
             color: #000000;
-            font-family: Arial, Verdana, Helvetica, sans-serif;
+            font-family: Trebuchet MS, Verdana, sans-serif;
             font-size: 12px;
             padding: 10px;
             }
@@ -30,15 +30,15 @@ def write_initial_html(file_handle):
             padding-top: 2px;
             }
         h2 {
-            font-size: 14px;
-            margin-bottom: 0.5em;
-            }
-        h3 {
             font-size: 13px;
             margin-bottom: 2em;
             background: #F0F0F0;
             margin-top: 3em;
             margin-bottom: 1em;
+            }
+        h3 {
+            font-size: 11px;
+            margin-bottom: 0.5em;
             }
         h4 {
             font-size: 11px;
@@ -77,14 +77,15 @@ def write_initial_html(file_handle):
     </style>
 </head>
 <body>
-<h1>Pylot - Web Performance Results</h1>
 """)
     
     cur_datetime = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
-    file_handle.write('<h2>Generated: %s</h2>\n' % cur_datetime)
-    file_handle.write('<h3>Response Time</h3>\n')
+    
+    file_handle.write('<h1>Pylot - Web Performance Results</h1>\n')
+    file_handle.write('<p>Generated: %s</p>\n' % cur_datetime)
+    file_handle.write('<h2>Response Time</h2>\n')
     file_handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
-    file_handle.write('<h3>Throughput</h3>\n')
+    file_handle.write('<h2>Throughput</h2>\n')
     file_handle.write('<img src="throughput_graph.png" alt="throughput graph">\n')
     
     
