@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-15 -*-
 
 
 def write_initial_html(file_handle):
