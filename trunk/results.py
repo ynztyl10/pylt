@@ -67,9 +67,6 @@ def merge_log_files(dir):
 
 
 def list_timings(merged_log):
-    #print merged_log
-    for foo in merged_log:
-        print foo
     # create a list of tuples with our timing data sorted by epoch
     epoch_timings = []
     for line in merged_log:

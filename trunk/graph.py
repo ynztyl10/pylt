@@ -13,7 +13,7 @@
 #
 
 
-from pylab import *
+from pylab import *  # Matplotlib
 
 
 def resp_graph(nested_resp_list, graph_title='', dir='./', output_name='response_time_graph.png'):
