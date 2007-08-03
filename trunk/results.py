@@ -26,52 +26,27 @@ def generate_results(dir):
     
     # throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
-    tps = calc_throughputs(epochs) # dict of secs and throughputs
-    graph.tp_graph(tps, dir=dir + '/')
-    
+    throughputs = calc_throughputs(epochs) # dict of secs and throughputs
+    graph.tp_graph(throughputs, dir=dir + '/')
+    throughput_stats = corestats.Stats(throughputs.values())
+
     # response times
     # subtract start times so we have resp times by elapsed time starting at zero
     start_epoch = epoch_timings[0][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
     graph.resp_graph(based_timings, dir=dir + '/')
-    
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
-    stats = corestats.Stats(resp_data_set)
+    response_stats = corestats.Stats(resp_data_set)
     
     # calc the stats and load up a dictionary with the results
-    stat_dict = {}
-    stat_dict['count'] = stats.count()
-    stat_dict['avg'] = stats.avg()
-    stat_dict['stdev'] = stats.stdev()
-    stat_dict['min'] = stats.min()
-    stat_dict['max'] = stats.max()
-    stat_dict['50pct'] = stats.percentile(50)
-    stat_dict['80pct'] = stats.percentile(80)
-    stat_dict['90pct'] = stats.percentile(90)
-    stat_dict['95pct'] = stats.percentile(95)
-    stat_dict['99pct'] = stats.percentile(99)
-    
+    stats_dict = calc_stats(response_stats, throughput_stats)
+    print "calced stats"
 
-    
-    
-    print 'count:', stats.count()
-    print 'avg:', stats.avg()
-    print 'stdev:', stats.stdev()
-    print 'min:', stats.min()
-    print 'max:', stats.max()
-    print '50 pct:', stats.percentile(50)
-    print '80 pct:', stats.percentile(80)
-    print '90 pct:', stats.percentile(90)
-    print '95 pct:', stats.percentile(95)
-    print '99 pct:', stats.percentile(99)
-    
-    
-
-    
-    
+    # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
     reportwriter.write_starting_content(fh)
+    reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_closing_html(fh)
     fh.close()
@@ -109,6 +84,31 @@ def calc_throughputs(epochs):
         count = epochs.count(epoch)       
         throughputs[epoch - start_sec] = count
     return throughputs
+    
+
+def calc_stats(response_stats, throughput_stats):
+    stats_dict = {}
+    stats_dict['response_count'] = response_stats.count()
+    stats_dict['response_avg'] = response_stats.avg()
+    stats_dict['response_stdev'] = response_stats.stdev()
+    stats_dict['response_min'] = response_stats.min()
+    stats_dict['response_max'] = response_stats.max()
+    stats_dict['response_50pct'] = response_stats.percentile(50)
+    stats_dict['response_80pct'] = response_stats.percentile(80)
+    stats_dict['response_90pct'] = response_stats.percentile(90)
+    stats_dict['response_95pct'] = response_stats.percentile(95)
+    stats_dict['response_99pct'] = response_stats.percentile(99)
+    stats_dict['throughput_avg'] = throughput_stats.avg()
+    stats_dict['throughput_stdev'] = throughput_stats.stdev()
+    stats_dict['throughput_min'] = throughput_stats.min()
+    stats_dict['throughput_max'] = throughput_stats.max()
+    stats_dict['throughput_50pct'] = throughput_stats.percentile(50)
+    stats_dict['throughput_80pct'] = throughput_stats.percentile(80)
+    stats_dict['throughput_90pct'] = throughput_stats.percentile(90)
+    stats_dict['throughput_95pct'] = throughput_stats.percentile(95)
+    stats_dict['throughput_99pct'] = throughput_stats.percentile(99)
+    return stats_dict 
+    
 
 
 
