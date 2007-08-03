@@ -17,6 +17,7 @@ import glob
 import corestats
 import graph
 import reportwriter
+import time
 
 
 
@@ -33,6 +34,7 @@ def generate_results(dir):
     # response times
     # subtract start times so we have resp times by elapsed time starting at zero
     start_epoch = epoch_timings[0][0]
+    end_epoch = epoch_timings[-1][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
     graph.resp_graph(based_timings, dir=dir + '/')
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
@@ -40,12 +42,22 @@ def generate_results(dir):
     
     # calc the stats and load up a dictionary with the results
     stats_dict = calc_stats(response_stats, throughput_stats)
-    print "calced stats"
-
+    
+    cur_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
+    start_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
+    end_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
+    duration = int(end_epoch - start_epoch) + 1 # add 1 to round up
+    num_agents =  len([psv_file for psv_file in glob.glob(dir + r'/*.psv')]) # count psv files to get number of agents that were run
+        
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
     reportwriter.write_starting_content(fh)
+    reportwriter.write_paragraph(fh, '<b>results generated:</b> &nbsp;%s' % cur_time)
+    reportwriter.write_paragraph(fh, '<b>test start:</b> &nbsp;%s' % start_time)
+    reportwriter.write_paragraph(fh, '<b>test finish:</b> &nbsp;%s' % end_time)
+    reportwriter.write_paragraph(fh, '<b>test duration:</b> &nbsp;%d secs' % duration)
+    reportwriter.write_paragraph(fh, '<b>agents:</b> &nbsp;%d' % num_agents)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_closing_html(fh)
@@ -73,7 +85,7 @@ def list_timings(merged_log):
     epoch_timings.sort()
     return epoch_timings
     
-    
+
 def calc_throughputs(epochs):
     # load up a dictionary with epochs as keys and counts as values   
     # need start and end times
