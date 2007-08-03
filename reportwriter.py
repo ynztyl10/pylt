@@ -7,7 +7,10 @@ import time
 
 def write_starting_content(file_handle):
     file_handle.write('<h1>Pylot - Web Performance Results</h1>\n')
-    file_handle.write('<p>Generated: %s</p>\n' % time.strftime('%m/%d/%Y %H:%M:%S', time.localtime()))
+
+
+def write_paragraph(file_handle, txt):
+    file_handle.write('<p>%s</p>\n' % txt)
     
     
 def write_images(file_handle):
@@ -15,20 +18,16 @@ def write_images(file_handle):
     file_handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
     file_handle.write('<h2>Throughput</h2>\n')
     file_handle.write('<img src="throughput_graph.png" alt="throughput graph">\n')
-    
+
     
 def write_stats_tables(file_handle, stats_dict):
-    file_handle.write('<p>%s: %d</p>\n' % ('Requests', stats_dict['response_count']))
-    
+    file_handle.write('<p><b>%s:</b> &nbsp;%d</p>\n' % ('requests', stats_dict['response_count']))
+    file_handle.write('<p><br /></p>')
     file_handle.write('<table>\n')
     file_handle.write('<th>Response Time</th><th>Throughput</th>\n')
     file_handle.write('<tr>\n')
-    file_handle.write('<td>\n')
-    
+    file_handle.write('<td>\n')   
     file_handle.write('<table>\n')
-    
-    
-    
     file_handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('avg', stats_dict['response_avg']))
     file_handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('stdev', stats_dict['response_stdev']))
     file_handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('min', stats_dict['response_min']))
@@ -55,12 +54,6 @@ def write_stats_tables(file_handle, stats_dict):
     file_handle.write('</td>\n')
     file_handle.write('</tr>\n')
     file_handle.write('</table>\n')
-    
-
-    
-    
-    
-    
     
 
 def write_head_html(file_handle):
@@ -102,6 +95,10 @@ def write_head_html(file_handle):
             font-size: 11px;
             margin-bottom: 0.5em;
         }
+        p {
+            margin: 0;
+            padding: 0;
+        }
         table {
             margin-bottom: 0;
         }
@@ -125,7 +122,6 @@ def write_head_html(file_handle):
 <body>
 """)
   
-    
 
 def write_closing_html(file_handle):
     file_handle.write("""\
