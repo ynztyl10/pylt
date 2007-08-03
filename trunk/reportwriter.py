@@ -24,7 +24,7 @@ def write_stats_tables(file_handle, stats_dict):
     file_handle.write('<p><b>%s:</b> &nbsp;%d</p>\n' % ('requests', stats_dict['response_count']))
     file_handle.write('<p><br /></p>')
     file_handle.write('<table>\n')
-    file_handle.write('<th>Response Time</th><th>Throughput</th>\n')
+    file_handle.write('<th>Response Time (sec)</th><th>Throughput (req/sec)</th>\n')
     file_handle.write('<tr>\n')
     file_handle.write('<td>\n')   
     file_handle.write('<table>\n')
