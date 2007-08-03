@@ -4,7 +4,24 @@
 import time
 
 
-def write_initial_html(file_handle):
+
+def write_starting_content(file_handle):
+    file_handle.write('<h1>Pylot - Web Performance Results</h1>\n')
+    file_handle.write('<p>Generated: %s</p>\n' % time.strftime('%m/%d/%Y %H:%M:%S', time.localtime()))
+    
+    
+def write_images(file_handle):
+    file_handle.write('<h2>Response Time</h2>\n')
+    file_handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
+    file_handle.write('<h2>Throughput</h2>\n')
+    file_handle.write('<img src="throughput_graph.png" alt="throughput graph">\n')
+    
+    
+    
+    
+    
+
+def write_head_html(file_handle):
     file_handle.write("""\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -77,16 +94,7 @@ def write_initial_html(file_handle):
 </head>
 <body>
 """)
-    
-    cur_datetime = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
-    
-    file_handle.write('<h1>Pylot - Web Performance Results</h1>\n')
-    file_handle.write('<p>Generated: %s</p>\n' % cur_datetime)
-    file_handle.write('<h2>Response Time</h2>\n')
-    file_handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
-    file_handle.write('<h2>Throughput</h2>\n')
-    file_handle.write('<img src="throughput_graph.png" alt="throughput graph">\n')
-    
+  
     
 
 def write_closing_html(file_handle):
