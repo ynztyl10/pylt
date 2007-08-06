@@ -24,23 +24,13 @@ import time
 def generate_results(dir):
     merged_log = merge_log_files(dir)
     merged_error_log = merge_error_files(dir)
-    
     epoch_timings = list_timings(merged_log)
-    
-    # error count
-    err_count = len(merged_error_log)
     
     # request throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     throughputs = calc_throughputs(epochs) # dict of secs and throughputs
     graph.tp_graph(throughputs, dir=dir + '/')
     throughput_stats = corestats.Stats(throughputs.values())
-    
-    # request count
-    req_count = len(epochs)
-    
-    # bytes received
-    bytes_received = calc_bytes(merged_log)
 
     # response times
     # subtract start times so we have resp times by elapsed time starting at zero
@@ -54,25 +44,22 @@ def generate_results(dir):
     # calc the stats and load up a dictionary with the results
     stats_dict = get_stats(response_stats, throughput_stats)
     
-    cur_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
-    start_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
-    end_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
-    duration = int(end_epoch - start_epoch) + 1 # add 1 to round up
-    num_agents =  len([psv_file for psv_file in glob.glob(dir + r'/*.psv')]) # count psv files to get number of agents that ran
-        
+    # get the summary stats and load up a dictionary with the results   
+    summary_dict = {}
+    summary_dict['cur_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
+    summary_dict['start_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
+    summary_dict['end_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
+    summary_dict['duration'] = int(end_epoch - start_epoch) + 1 # add 1 to round up
+    summary_dict['num_agents'] =  len([psv_file for psv_file in glob.glob(dir + r'/*.psv')]) # count psv files to get number of agents that ran
+    summary_dict['req_count'] = len(epochs)
+    summary_dict['err_count'] = len(merged_error_log)
+    summary_dict['bytes_received'] = calc_bytes(merged_log)
+   
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
     reportwriter.write_starting_content(fh)
-    reportwriter.write_paragraph(fh, '<b>report generated:</b> &nbsp;%s' % cur_time)
-    reportwriter.write_paragraph(fh, '<b>test start:</b> &nbsp;%s' % start_time)
-    reportwriter.write_paragraph(fh, '<b>test finish:</b> &nbsp;%s' % end_time)
-    reportwriter.write_paragraph(fh, '<h2>Summary</h2>')
-    reportwriter.write_paragraph(fh, '<b>test duration:</b> &nbsp;%d secs' % duration)
-    reportwriter.write_paragraph(fh, '<b>agents:</b> &nbsp;%d' % num_agents)
-    reportwriter.write_paragraph(fh, '<b>requests:</b> &nbsp;%d' % req_count)
-    reportwriter.write_paragraph(fh, '<b>errors:</b> &nbsp;%d' % err_count)
-    reportwriter.write_paragraph(fh, '<b>data received:</b> &nbsp;%d bytes' % bytes_received)
+    reportwriter.write_summary_results(fh, summary_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_closing_html(fh)
@@ -153,12 +140,5 @@ def get_stats(response_stats, throughput_stats):
     stats_dict['throughput_95pct'] = throughput_stats.percentile(95)
     stats_dict['throughput_99pct'] = throughput_stats.percentile(99)
     return stats_dict 
-    
-
-
-
-    
-    
-    
     
     
