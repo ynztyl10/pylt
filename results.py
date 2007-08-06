@@ -19,6 +19,7 @@ import graph
 import reportwriter
 import time
 import pickle
+from threading import Thread
 
 
 
@@ -79,7 +80,6 @@ def load_agent_detail(dir):
     fh.close()
     return runtime_stats
         
-    
     
 def merge_log_files(dir):
     merged_file = []    
@@ -155,4 +155,12 @@ def get_stats(response_stats, throughput_stats):
     stats_dict['throughput_99pct'] = throughput_stats.percentile(99)
     return stats_dict 
     
-    
+
+
+class ResultsGenerator(Thread):  # generate results in a new thread so we don't block the UI   
+    def __init__(self, dir):
+        Thread.__init__(self)
+        self.dir = dir
+        
+    def run(self):
+        generate_results(self.dir)
