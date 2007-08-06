@@ -46,7 +46,11 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         for agent in self.agent_refs:
             agent.stop()
         self.store_agent_detail(self.output_dir, self.runtime_stats)  # store stats as pickled dictionary for results processing
-        results.generate_results(self.output_dir)  # generate results when test is stopped
+        
+        # auto-generate results when test is stopped
+        results_gen = results.ResultsGenerator(self.output_dir)
+        results_gen.setDaemon(True)
+        results_gen.start()
         
     
     def run(self):
