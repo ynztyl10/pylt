@@ -69,6 +69,18 @@ def write_summary_results(handle, summary_dict):
     handle.write('</table>\n')
     
 
+def write_agent_detail_table(handle, runtime_stats_dict):
+    for i in range(len(runtime_stats_dict)):
+        agent_num = i + 1
+        count = runtime_stats_dict[i].count
+        error_count = runtime_stats_dict[i].error_count
+        total_bytes = runtime_stats_dict[i].total_bytes
+        avg_latency = runtime_stats_dict[i].avg_latency
+        # we store a psv file of some overall runtime stats so we have it for results processing
+        handle.write('%d|%d|%d|%d|%.2f\n' % (agent_num, count, error_count, total_bytes, avg_latency))
+
+    
+    
 def write_head_html(handle):
     handle.write("""\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

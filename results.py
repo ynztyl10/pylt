@@ -50,7 +50,7 @@ def generate_results(dir):
     summary_dict['start_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
     summary_dict['end_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
     summary_dict['duration'] = int(end_epoch - start_epoch) + 1 # add 1 to round up
-    summary_dict['num_agents'] =  len([psv_file for psv_file in glob.glob(dir + r'/*.psv')]) # count psv files to get number of agents that ran
+    summary_dict['num_agents'] =  len([psv_file for psv_file in glob.glob(dir + r'/*stats.psv')]) # count psv files to get number of agents that ran
     summary_dict['req_count'] = len(epochs)
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
@@ -78,7 +78,7 @@ def merge_error_files(dir):
     
 def merge_log_files(dir):
     merged_file = []    
-    for filename in glob.glob(dir + r'/*.psv'):
+    for filename in glob.glob(dir + r'/*stats.psv'):
         fh = open(filename, 'rb')
         merged_file += fh.readlines()
         fh.close()
