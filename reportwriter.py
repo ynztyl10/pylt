@@ -21,7 +21,6 @@ def write_images(file_handle):
 
     
 def write_stats_tables(file_handle, stats_dict):
-    file_handle.write('<p><b>%s:</b> &nbsp;%d</p>\n' % ('requests', stats_dict['response_count']))
     file_handle.write('<p><br /></p>')
     file_handle.write('<table>\n')
     file_handle.write('<th>Response Time (secs)</th><th>Throughput (req/sec)</th>\n')

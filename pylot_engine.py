@@ -131,7 +131,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
-                total_bytes += len(content)
+                resp_bytes = len(content)
+                total_bytes += resp_bytes
                 latency = end_time - start_time
                 total_latency += latency
                 
@@ -140,7 +141,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 
                 # log response stats/info
                 if self.stat_logging:
-                    self.log_stat('%s|%s|%s|%s|%d|%s|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, latency))
+                    self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                 
                 # log response content
                 if self.trace_logging:
