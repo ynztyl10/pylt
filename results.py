@@ -23,7 +23,12 @@ import time
 
 def generate_results(dir):
     merged_log = merge_log_files(dir)
+    merged_error_log = merge_error_files(dir)
+    
     epoch_timings = list_timings(merged_log)
+    
+    # error count
+    err_count = len(merged_error_log)
     
     # request throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
@@ -59,12 +64,14 @@ def generate_results(dir):
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
     reportwriter.write_starting_content(fh)
-    reportwriter.write_paragraph(fh, '<b>results generated:</b> &nbsp;%s' % cur_time)
+    reportwriter.write_paragraph(fh, '<b>report generated:</b> &nbsp;%s' % cur_time)
     reportwriter.write_paragraph(fh, '<b>test start:</b> &nbsp;%s' % start_time)
     reportwriter.write_paragraph(fh, '<b>test finish:</b> &nbsp;%s' % end_time)
+    reportwriter.write_paragraph(fh, '<h2>Summary</h2>')
     reportwriter.write_paragraph(fh, '<b>test duration:</b> &nbsp;%d secs' % duration)
     reportwriter.write_paragraph(fh, '<b>agents:</b> &nbsp;%d' % num_agents)
     reportwriter.write_paragraph(fh, '<b>requests:</b> &nbsp;%d' % req_count)
+    reportwriter.write_paragraph(fh, '<b>errors:</b> &nbsp;%d' % err_count)
     reportwriter.write_paragraph(fh, '<b>data received:</b> &nbsp;%d bytes' % bytes_received)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
@@ -72,6 +79,15 @@ def generate_results(dir):
     fh.close()
     
 
+
+def merge_error_files(dir):
+    merged_file = []    
+    for filename in glob.glob(dir + r'/*errors.log'):
+        fh = open(filename, 'rb')
+        merged_file += fh.readlines()
+        fh.close()
+    return merged_file
+    
     
 def merge_log_files(dir):
     merged_file = []    
