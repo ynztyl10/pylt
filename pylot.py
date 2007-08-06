@@ -40,13 +40,17 @@ class Application(wx.Frame):
         self.CreateStatusBar()
         
         # menus
-        menuBar = wx.MenuBar()
         file_menu = wx.Menu()
         file_menu.Append(101, '&About', 'About Pylot')
-        file_menu.Append(102, '&Exit', 'Exit Pylot')
         wx.EVT_MENU(self, 101, self.on_about)
+        file_menu.Append(102, '&Exit', 'Exit Pylot')
         wx.EVT_MENU(self, 102, self.on_exit)
+        tools_menu = wx.Menu()
+        tools_menu.Append(103, '&Regenerate Results', 'Regenerate Results')
+        wx.EVT_MENU(self, 103, self.on_results)
+        menuBar = wx.MenuBar()
         menuBar.Append(file_menu, '&File')
+        menuBar.Append(tools_menu, '&Tools')
         self.SetMenuBar(menuBar)
 
         # main panel
@@ -120,11 +124,9 @@ class Application(wx.Frame):
         self.error_list.SetOwnForegroundColour(wx.RED)
         self.pause_btn = wx.Button(panel, -1, 'Pause Monitoring')
         self.resume_btn = wx.Button(panel, -1, 'Resume Monitoring')
-        self.results_btn = wx.Button(panel, -1, 'Generate Results')
         pause_resume_sizer = wx.BoxSizer(wx.HORIZONTAL)
         pause_resume_sizer.Add(self.pause_btn, 0, wx.ALL, 3)
         pause_resume_sizer.Add(self.resume_btn, 0, wx.ALL, 3)
-        pause_resume_sizer.Add(self.results_btn, 0, wx.ALL, 3)
         monitor_sizer = wx.BoxSizer(wx.VERTICAL)
         monitor_sizer.Add(summary_monitor_text, 0, wx.ALL, 3)
         monitor_sizer.Add(self.total_statlist, 0, wx.EXPAND, 0)
@@ -145,7 +147,6 @@ class Application(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_stop, self.stop_btn)
         self.Bind(wx.EVT_BUTTON, self.on_pause, self.pause_btn)
         self.Bind(wx.EVT_BUTTON, self.on_resume, self.resume_btn)
-        self.Bind(wx.EVT_BUTTON, self.on_results, self.results_btn)
         self.Bind(wx.EVT_TIMER, self.timer_handler)
                 
         self.switch_status(False)
@@ -167,6 +168,7 @@ class Application(wx.Frame):
         self.rt_mon.stop()
         self.rt_mon.refresh()
         self.stopper.stop()
+        results.generate_results(self.lm.output_dir)
         self.switch_status(False)
 
 
@@ -253,13 +255,9 @@ class Application(wx.Frame):
         dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
         if dir_dlg.ShowModal() == wx.ID_OK:
             dirname = dir_dlg.GetPath()
-
             results_gen = ResultsGenerator(dirname)
             results_gen.setDaemon(True)
             results_gen.start()
-            
-            
-            
             msg = 'Generating HTML report in:\n%s' % dirname
             gen_dlg = wx.MessageDialog(None, msg, 'Info', wx.OK)
             gen_dlg.ShowModal()
@@ -325,10 +323,8 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         self.start_time = time.time()
         self.running = True
         
-    
     def stop(self):
         self.running = False        
-        
         
     def run(self):
         while (time.time() < self.start_time + self.duration) and self.running:
@@ -339,11 +335,10 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
 
 
 
-class ResultsGenerator(Thread):  # generate results in a new thread so we don't block the UI   
+class ResultsGenerator(Thread):  # regenerate results in a new thread so we don't block the UI   
     def __init__(self, dir):
         Thread.__init__(self)
         self.dir = dir
-       
         
     def run(self):
         results.generate_results(self.dir)
