@@ -17,6 +17,7 @@ import os
 import time
 import httplib2
 from threading import Thread
+import reportwriter
 
 
 
@@ -25,7 +26,6 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         Thread.__init__(self)
         
         self.running = True
-        
         self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
@@ -44,6 +44,7 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
+        self.report_agent_detail()  # create report of stats per agent
         
         
     def run(self):
@@ -68,8 +69,15 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
 
     def add_req(self, req):
         self.msg_queue.append(req)
-      
         
+    
+    def report_agent_detail(self):
+        fh = open('%s/agent_detail.psv' % self.output_dir, 'a')
+        reportwriter.write_agent_detail_table(fh, self.runtime_stats)  # standard result txt file
+        fh.flush()
+        fh.close()
+      
+
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
@@ -77,7 +85,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         Thread.__init__(self)
         
         self.running = True
-        
         self.id = id
         self.interval = interval
         self.log_resps = log_resps
@@ -124,11 +131,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 if resp.status >= 400:
                     self.error_count += 1
                     # put an error message on the queue
-                    error_string = 'Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
+                    error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
                     self.error_queue.append(error_string)
                     # log the error
                     self.log_error(error_string)
-                    self.error_queue.append('Agent %s :  %s - %d %s,  url : %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
+                    self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
                 self.count += 1
                 
                 resp_bytes = len(content)
@@ -203,8 +210,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.trace_log.close()
         self.trace_logging = False
         
-        
-
+            
 
 
 class Request():

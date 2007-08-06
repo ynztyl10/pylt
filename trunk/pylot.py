@@ -168,7 +168,6 @@ class Application(wx.Frame):
         self.rt_mon.stop()
         self.rt_mon.refresh()
         self.stopper.stop()
-        results.generate_results(self.lm.output_dir)  # generate results on test stop
         self.switch_status(False)
 
 
