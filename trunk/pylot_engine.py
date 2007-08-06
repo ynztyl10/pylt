@@ -17,7 +17,8 @@ import os
 import time
 import httplib2
 from threading import Thread
-import reportwriter
+import pickle
+import results
 
 
 
@@ -44,9 +45,10 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
-        self.report_agent_detail()  # create report of stats per agent
+        self.store_agent_detail(self.output_dir, self.runtime_stats)  # store stats as pickled dictionary for results processing
+        results.generate_results(self.output_dir)  # generate results when test is stopped
         
-        
+    
     def run(self):
         self.running = True
         os.mkdir(self.output_dir)
@@ -71,12 +73,10 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.msg_queue.append(req)
         
     
-    def report_agent_detail(self):
-        fh = open('%s/agent_detail.psv' % self.output_dir, 'a')
-        reportwriter.write_agent_detail_table(fh, self.runtime_stats)  # standard result txt file
-        fh.flush()
-        fh.close()
-      
+    def store_agent_detail(self, dir, runtime_stats):
+        fh = open(dir + '/agent_detail.dat', 'w')
+        pickle.dump(runtime_stats, fh)
+        fh.close()      
 
 
 

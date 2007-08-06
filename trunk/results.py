@@ -18,6 +18,7 @@ import corestats
 import graph
 import reportwriter
 import time
+import pickle
 
 
 
@@ -55,6 +56,9 @@ def generate_results(dir):
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
    
+    # get the pickled stats dictionary we saved
+    runtime_stats_dict = load_agent_detail(dir)
+        
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
@@ -62,18 +66,19 @@ def generate_results(dir):
     reportwriter.write_summary_results(fh, summary_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
+    reportwriter.write_agent_detail_table(fh, runtime_stats_dict)
     reportwriter.write_closing_html(fh)
     fh.close()
-    
+
+        
 
 
-def merge_error_files(dir):
-    merged_file = []    
-    for filename in glob.glob(dir + r'/*errors.log'):
-        fh = open(filename, 'rb')
-        merged_file += fh.readlines()
-        fh.close()
-    return merged_file
+def load_agent_detail(dir):
+    fh = open(dir + '/agent_detail.dat', 'r')
+    runtime_stats = pickle.load(fh)
+    fh.close()
+    return runtime_stats
+        
     
     
 def merge_log_files(dir):
@@ -85,6 +90,15 @@ def merge_log_files(dir):
     return merged_file
 
 
+def merge_error_files(dir):
+    merged_file = []    
+    for filename in glob.glob(dir + r'/*errors.log'):
+        fh = open(filename, 'rb')
+        merged_file += fh.readlines()
+        fh.close()
+    return merged_file
+    
+    
 def list_timings(merged_log):
     # create a list of tuples with our timing data sorted by epoch
     epoch_timings = []
