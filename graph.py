@@ -18,7 +18,7 @@ from pylab import *  # Matplotlib
 
 
 # response time graph
-def resp_graph(nested_resp_list, graph_title='', dir='./', output_name='response_time_graph.png'):
+def resp_graph(nested_resp_list, dir='./'):
     fig = figure(figsize=(8, 3))  # image dimensions  
     ax = fig.add_subplot(111)
     ax.set_xlabel('Elapsed Time In Test (secs)', size='x-small')
@@ -28,13 +28,15 @@ def resp_graph(nested_resp_list, graph_title='', dir='./', output_name='response
     yticks(size='x-small')
     x_seq = [item[0] for item in nested_resp_list] 
     y_seq = [item[1] for item in nested_resp_list] 
-    ax.plot(x_seq, y_seq, color='blue', linestyle='-', linewidth=1.0, marker='o', markeredgecolor='blue', markerfacecolor='yellow', markersize=2.0)
-    savefig(dir + output_name) 
+    ax.plot(x_seq, y_seq, 
+        color='blue', linestyle='-', linewidth=1.0, marker='o', 
+        markeredgecolor='blue', markerfacecolor='yellow', markersize=2.0)
+    savefig(dir + 'response_time_graph.png') 
     
     
 
 # throughput graph
-def tp_graph(throughputs_dict, graph_title='', dir='./', output_name='throughput_graph.png'):
+def tp_graph(throughputs_dict, dir='./'):
     fig = figure(figsize=(8, 3))  # image dimensions  
     ax = fig.add_subplot(111)
     ax.set_xlabel('Elapsed Time In Test (secs)', size='x-small')
@@ -49,6 +51,8 @@ def tp_graph(throughputs_dict, graph_title='', dir='./', output_name='throughput
         values.append(throughputs_dict[key])
     x_seq = keys
     y_seq = values
-    ax.plot(x_seq, y_seq, color='red', linestyle='-', linewidth=1.0, marker='o', markeredgecolor='red', markerfacecolor='yellow', markersize=2.0)
-    savefig(dir + output_name) 
+    ax.plot(x_seq, y_seq, 
+        color='red', linestyle='-', linewidth=1.0, marker='o', 
+        markeredgecolor='red', markerfacecolor='yellow', markersize=2.0)
+    savefig(dir + 'throughput_graph.png') 
     
