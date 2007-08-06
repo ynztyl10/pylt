@@ -21,7 +21,6 @@ from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 from threading import Thread
 import xml.etree.ElementTree as etree
 from pylot_engine import *
-import results
 
  
 
