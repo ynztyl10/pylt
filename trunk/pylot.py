@@ -170,11 +170,6 @@ class Application(wx.Frame):
         self.stopper.stop()
         self.switch_status(False)
 
-
-    def refresh_monitor(self):
-        self.rt_mon = RTMonitor(self.start_time, self.runtime_stats, self.error_queue, self.agents_statlist, self.total_statlist, self.error_list)
-        self.rt_mon.stop()
-
         
     def on_exit(self, evt):    
         sys.exit(0)
