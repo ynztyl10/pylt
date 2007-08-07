@@ -166,7 +166,6 @@ class Application(wx.Frame):
     def stop(self):
         self.lm.stop()
         self.rt_mon.stop()
-        self.rt_mon.refresh()
         self.stopper.stop()
         self.switch_status(False)
 
@@ -423,6 +422,9 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         
         
     def stop(self):
+        self.refresh()
+        for id in self.runtime_stats.keys():
+            self.agents_statlist.SetStringItem(id, 1, 'stopped')
         self.running = False
         
     
