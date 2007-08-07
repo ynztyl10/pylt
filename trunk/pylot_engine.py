@@ -14,6 +14,7 @@
 
 
 import os
+import re
 import time
 import httplib2
 from threading import Thread
@@ -45,7 +46,7 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
-        self.store_agent_detail(self.output_dir, self.runtime_stats)  # store stats as pickled dictionary for results processing
+        self.store_agent_detail(self.output_dir, self.runtime_stats)  # store stats as pickled dictionary for results post-processing
         
         # auto-generate results when test is stopped
         results_gen = results.ResultsGenerator(self.output_dir)
@@ -132,7 +133,15 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                 cur_date = time.strftime('%d %b %Y', tmp_time)
                 cur_time = time.strftime('%H:%M:%S', tmp_time)
                 
-                if resp.status >= 400:
+                # check verifications and status code for errors
+                is_error = False
+                if resp.status >= 400: is_error = True
+                if not req.verify == '':
+                    if not re.search(req.verify, content, re.DOTALL): is_error = True
+                if not req.verify_negative == '':
+                    if re.search(req.verify_negative, content, re.DOTALL): is_error = True
+                
+                if is_error:                    
                     self.error_count += 1
                     # put an error message on the queue
                     error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
@@ -223,6 +232,10 @@ class Request():
         self.method = method
         self.body = body
         self.headers = headers
+        
+        # verification strings or regexen
+        self.verify = ''
+        self.verify_negative = ''
             
     
     def add_header(self, header_name, value):
