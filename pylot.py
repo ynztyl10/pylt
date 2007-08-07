@@ -277,11 +277,16 @@ class Application(wx.Frame):
                         req.method = element.text
                     if element.tag == 'body': 
                         req.body = element.text
+                    if element.tag == 'verify': 
+                        req.verify = element.text
+                    if element.tag == 'verify_negative': 
+                        req.verify_negative = element.text
                     if element.tag == 'add_header':
                         splat = element.text.split(':')
                         req.add_header(splat[0].strip(), splat[1].strip())
                 if 'ontent-type' not in req.headers:
-                    req.add_header('Content-type', 'application/x-www-form-urlencoded')  # default if no type specified
+                    req.add_header('Content-type', 'text/xml')  # default if no type specified
+                    #req.add_header('Content-type', 'application/x-www-form-urlencoded')  # default if no type specified
                 cases.append(req)
         return cases
    
