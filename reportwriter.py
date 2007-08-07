@@ -7,11 +7,7 @@ import time
 
 def write_starting_content(handle):
     handle.write('<h1>Pylot - Web Performance Results</h1>\n')
-
-
-def write_paragraph(handle, txt):
-    handle.write('<p>%s</p>\n' % txt)
-    
+   
     
 def write_images(handle):
     handle.write('<h2>Response Time</h2>\n')
@@ -70,16 +66,21 @@ def write_summary_results(handle, summary_dict):
     
 
 def write_agent_detail_table(handle, runtime_stats_dict):
+    handle.write('<p><br /><br /></p>')
+    handle.write('<h2>Agent Details</h2>\n')
+    handle.write('<p><br /><br /></p>')
+    handle.write('<table>\n')
+    handle.write('<th>Agent</th><th>Requests</th><th>Errors</th><th>Bytes Received</th><th>Avg. Response Time</th>\n')
     for i in range(len(runtime_stats_dict)):
         agent_num = i + 1
         count = runtime_stats_dict[i].count
         error_count = runtime_stats_dict[i].error_count
         total_bytes = runtime_stats_dict[i].total_bytes
         avg_latency = runtime_stats_dict[i].avg_latency
-        # we store a psv file of some overall runtime stats so we have it for results processing
-        handle.write('%d|%d|%d|%d|%.2f\n' % (agent_num, count, error_count, total_bytes, avg_latency))
+        handle.write('<tr><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%.2f</td></tr>\n' % 
+            (agent_num, count, error_count, total_bytes, avg_latency))
+    handle.write('</table>\n')
 
-    
     
 def write_head_html(handle):
     handle.write("""\
@@ -132,6 +133,7 @@ def write_head_html(handle):
             color: #000000;
             background: #FFFFFF;
             padding-left: 10px;
+            padding-right: 8px;
             padding-bottom: 0px;
         }
         th {
@@ -150,6 +152,8 @@ def write_head_html(handle):
 
 def write_closing_html(handle):
     handle.write("""\
+<p><br /></p>
+<hr />
 </body>
 </html>
     """)
