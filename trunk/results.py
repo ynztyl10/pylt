@@ -57,28 +57,29 @@ def generate_results(dir):
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
    
-    # get the pickled stats dictionary we saved
-    runtime_stats_dict = load_agent_detail(dir)
-        
+    # get the pickled stats dictionaries we saved
+    runtime_stats_dict, workload_dict = load_dat_detail(dir)
+    
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
     reportwriter.write_starting_content(fh)
-    reportwriter.write_summary_results(fh, summary_dict)
+    reportwriter.write_summary_results(fh, summary_dict, workload_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_agent_detail_table(fh, runtime_stats_dict)
     reportwriter.write_closing_html(fh)
     fh.close()
 
-        
 
-
-def load_agent_detail(dir):
+def load_dat_detail(dir):
     fh = open(dir + '/agent_detail.dat', 'r')
     runtime_stats = pickle.load(fh)
     fh.close()
-    return runtime_stats
+    fh = open(dir + '/workload_detail.dat', 'r')
+    workload = pickle.load(fh)
+    fh.close()
+    return (runtime_stats, workload)
         
     
 def merge_log_files(dir):
