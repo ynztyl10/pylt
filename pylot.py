@@ -24,11 +24,11 @@ from pylot_engine import *
 import results
 
  
-
+version = '.01_alpha'
     
 class Application(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  version .01alpha', size=(680, 710))
+        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + version, size=(680, 710))
     
         self.runtime_stats = {}  # shared dictionary for storing runtime stats
         self.error_queue = []  # shared list for storing errors
@@ -185,7 +185,7 @@ class Application(wx.Frame):
         
         # get values from UI controls
         num_agents = self.num_agents_spin.GetValue()
-        interval = self.interval_spin.GetValue() / 1000.0  # converted from millisecs to secs
+        interval = self.interval_spin.GetValue() / 1000.0  # convert from millisecs to secs
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         log_resps = self.logresp_checkbox.GetValue()

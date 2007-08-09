@@ -36,6 +36,7 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.output_dir = time.strftime('results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
+        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
         self.error_queue = error_queue
         
         self.agent_refs = []
@@ -46,7 +47,7 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
-        self.store_agent_detail(self.output_dir, self.runtime_stats)  # store stats as pickled dictionary for results post-processing
+        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
         
         # auto-generate results when test is stopped
         results_gen = results.ResultsGenerator(self.output_dir)
@@ -78,10 +79,13 @@ class LoadManager(Thread):  # separate thread to decouple from its caller
         self.msg_queue.append(req)
         
     
-    def store_agent_detail(self, dir, runtime_stats):
+    def store_for_post_processing(self, dir, runtime_stats, workload):
         fh = open(dir + '/agent_detail.dat', 'w')
         pickle.dump(runtime_stats, fh)
-        fh.close()      
+        fh.close()
+        fh = open(dir + '/workload_detail.dat', 'w')
+        pickle.dump(workload, fh)
+        fh.close()         
 
 
 
