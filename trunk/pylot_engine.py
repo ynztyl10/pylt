@@ -237,7 +237,7 @@ class Request():
         self.body = body
         self.headers = headers
         
-        # verification strings or regexes
+        # verification string or regexe
         self.verify = ''
         self.verify_negative = ''
             
