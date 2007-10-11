@@ -23,7 +23,7 @@ import results
 
 
 
-class LoadManager(Thread):  # separate thread to decouple from its caller
+class LoadManager(Thread):  # separate thread to decouple
     def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue):
         Thread.__init__(self)
         
@@ -237,7 +237,7 @@ class Request():
         self.body = body
         self.headers = headers
         
-        # verification strings or regexen
+        # verification strings or regexes
         self.verify = ''
         self.verify_negative = ''
             
