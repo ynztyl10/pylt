@@ -13,6 +13,8 @@
 #
 
 
+version = '.02_beta'
+
 
 import time
 import sys
@@ -22,9 +24,8 @@ from threading import Thread
 import xml.etree.ElementTree as etree
 from pylot_engine import *
 import results
-
- 
-version = '.01_alpha'
+    
+    
     
 class Application(wx.Frame):
     def __init__(self, parent):
@@ -313,7 +314,7 @@ class Application(wx.Frame):
 
 
 
-class Stopper(Thread):  # timer thread for stopping execution once duration lapses      
+class Stopper(Thread):  # timer thread for stopping execution once duration lapses
     def __init__(self, root, duration):
         Thread.__init__(self)
         self.root = root
@@ -341,7 +342,7 @@ class AutoWidthListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 
 
-class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events      
+class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don't block UI events 
     def __init__(self, start_time, runtime_stats, error_queue, agents_statlist, total_statlist, error_list):
         Thread.__init__(self)
         
