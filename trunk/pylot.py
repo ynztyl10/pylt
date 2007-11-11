@@ -159,7 +159,7 @@ class Application(wx.Frame):
     def on_about(self, evt):
         info = wx.AboutDialogInfo()
         info.SetName('Pylot')
-        info.SetCopyright('Copyright %s 2007 Corey Goldberg' % u'\u00A9')
+        info.SetCopyright('Copyright %s 2007 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
         info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPL')
         wx.AboutBox(info)
 
