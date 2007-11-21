@@ -31,8 +31,8 @@ class Application(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + version, size=(680, 710))
     
-        self.runtime_stats = {}  # shared dictionary for storing runtime stats
-        self.error_queue = []  # shared list for storing errors
+        self.runtime_stats = {}  # shared runtime stats dictionary
+        self.error_queue = []  # shared error list
         
         # set window icon
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
