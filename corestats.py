@@ -85,7 +85,6 @@ class Stats:
         if self.use_fastselect:
             # get fastselect here: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/466330
             import fastselect
-            
         if len(self.sequence) < 1: 
             value = None
         elif (percentile >= 100):
