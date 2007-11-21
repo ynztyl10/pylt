@@ -77,7 +77,7 @@ class Stats:
         else:
             avg = self.avg()
             sdsq = sum([(i - avg) ** 2 for i in self.sequence])
-            stdev = (sdsq / (len(self.sequence) - 1 or 1)) ** .5
+            stdev = (sdsq / (len(self.sequence) - 1)) ** .5
             return stdev
     
     
