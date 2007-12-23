@@ -17,9 +17,9 @@ import os
 import re
 import time
 import httplib2
-from threading import Thread
 import pickle
 import results
+from threading import Thread
 
 
 
