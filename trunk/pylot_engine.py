@@ -101,7 +101,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         # log options
         self.stat_logging = True
-        self.enable_stat_logging()
         self.trace_logging = False
         if self.log_resps:
             self.enable_trace_logging()
@@ -116,8 +115,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     def stop(self):
         self.running = False
-        if self.stat_logging:
-            self.disable_stat_logging()
         if self.trace_logging:
             self.disable_trace_logging()
         
@@ -192,9 +189,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     
     def log_stat(self, txt):
-        self.stat_log.write('%s\n' % txt)
-        self.stat_log.flush()  # flush write buffer so we always log in real-time
-    
+        stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
+        stat_log.write('%s\n' % txt)
+        stat_log.flush()  # flush write buffer so we always log in real-time
+        stat_log.close()
+        
     
     def log_error(self, txt):
         error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
@@ -208,19 +207,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.trace_log.flush()
             
             
-    def enable_stat_logging(self):
-        self.stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'w')
-        self.stat_logging = True
-        
-            
     def enable_trace_logging(self):
         self.trace_log = open('%s/agent_%d.log' % (self.output_dir, self.id + 1), 'w')
         self.trace_logging = True
-        
-        
-    def disable_stat_logging(self):
-        self.stat_log.close()
-        self.stat_logging = False
         
         
     def disable_trace_logging(self):
