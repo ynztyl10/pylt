@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#    Copyright (c) 2007 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -462,7 +462,7 @@ class AboutFrame(wx.Frame):
         
         content = """\
 Pylot - Web Performance
-Copyright (c) 2007 Corey Goldberg
+Copyright (c) 2007-2008 Corey Goldberg
 Pylot is Free Open Source Software
 License:  GNU GPL
         """

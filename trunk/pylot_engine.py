@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#    Copyright (c) 2007 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -171,7 +171,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         for key in resp:
                             self.log_trace('%s: %s' % (key, resp[key]))
                         self.log_trace('\n\n%s' % content)
-                        self.log_trace('\n\n*************** LOG SEPARATOR ***************\n\n')
+                        self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
                         
                     expire_time = (self.interval - latency)
                     if expire_time > 0:
