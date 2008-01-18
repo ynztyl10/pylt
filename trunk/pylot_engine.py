@@ -124,8 +124,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         total_bytes = 0
         while self.running:
             for req in self.msg_queue:
-                for num_requests in range(req.repeat):
-            
+                for repeat in range(req.repeat):
+    
                     # timed msg send
                     start_time = time.time()
                     resp, content = self.send(req)
