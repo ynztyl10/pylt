@@ -34,11 +34,8 @@ class Application(wx.Frame):
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
         
-        # set window icon
-        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
-        
-        # enable bottom status bar
-        self.CreateStatusBar()
+        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))  # set window icon
+        self.CreateStatusBar()  # enable bottom status bar
         
         # menus
         file_menu = wx.Menu()
@@ -200,7 +197,7 @@ class Application(wx.Frame):
             for req in cases:
                 self.lm.add_req(req)
         except:
-            # there was a problem getting cases from the xml file
+            # if there was a problem getting cases from the xml file
             dial = wx.MessageDialog(None, 'invalid testcase file', 'Error', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             cases = None
@@ -265,6 +262,13 @@ class Application(wx.Frame):
         for child in dom.getiterator():
             if child.tag != dom.getroot().tag and child.tag == 'case':
                 req = Request()
+                repeat = child.attrib.get('repeat')
+                if repeat:
+                    req.repeat = int(repeat)
+                else:
+                    repeat = 1
+                int(req.repeat)
+                #print int()
                 for element in child:
                     if element.tag == 'url':
                         req.url = element.text
