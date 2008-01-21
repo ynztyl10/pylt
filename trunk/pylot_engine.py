@@ -125,58 +125,59 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         while self.running:
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
+                    while self.running:
     
-                    # timed msg send
-                    start_time = time.time()
-                    resp, content = self.send(req)
-                    end_time = time.time()  # epoch
-                    
-                    # get times for logging and error display
-                    tmp_time = time.localtime()
-                    cur_date = time.strftime('%d %b %Y', tmp_time)
-                    cur_time = time.strftime('%H:%M:%S', tmp_time)
-                    
-                    # check verifications and status code for errors
-                    is_error = False
-                    if resp.status >= 400: is_error = True
-                    if not req.verify == '':
-                        if not re.search(req.verify, content, re.DOTALL): is_error = True
-                    if not req.verify_negative == '':
-                        if re.search(req.verify_negative, content, re.DOTALL): is_error = True
-                    
-                    if is_error:                    
-                        self.error_count += 1
-                        # put an error message on the queue
-                        error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
-                        self.error_queue.append(error_string)
-                        # log the error
-                        self.log_error(error_string)
-                        self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
-                    self.count += 1
-                    
-                    resp_bytes = len(content)
-                    total_bytes += resp_bytes
-                    latency = end_time - start_time
-                    total_latency += latency
-                    
-                    # update shared stats dictionary
-                    self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
-                    
-                    # log response stats/info
-                    if self.stat_logging:
-                        self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
-                    
-                    # log response content
-                    if self.trace_logging:
-                        for key in resp:
-                            self.log_trace('%s: %s' % (key, resp[key]))
-                        self.log_trace('\n\n%s' % content)
-                        self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
+                        # timed msg send
+                        start_time = time.time()
+                        resp, content = self.send(req)
+                        end_time = time.time()  # epoch
                         
-                    expire_time = (self.interval - latency)
-                    if expire_time > 0:
-                        time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
-            
+                        # get times for logging and error display
+                        tmp_time = time.localtime()
+                        cur_date = time.strftime('%d %b %Y', tmp_time)
+                        cur_time = time.strftime('%H:%M:%S', tmp_time)
+                        
+                        # check verifications and status code for errors
+                        is_error = False
+                        if resp.status >= 400: is_error = True
+                        if not req.verify == '':
+                            if not re.search(req.verify, content, re.DOTALL): is_error = True
+                        if not req.verify_negative == '':
+                            if re.search(req.verify_negative, content, re.DOTALL): is_error = True
+                        
+                        if is_error:                    
+                            self.error_count += 1
+                            # put an error message on the queue
+                            error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
+                            self.error_queue.append(error_string)
+                            # log the error
+                            self.log_error(error_string)
+                            self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
+                        self.count += 1
+                        
+                        resp_bytes = len(content)
+                        total_bytes += resp_bytes
+                        latency = end_time - start_time
+                        total_latency += latency
+                        
+                        # update shared stats dictionary
+                        self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
+                        
+                        # log response stats/info
+                        if self.stat_logging:
+                            self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
+                        
+                        # log response content
+                        if self.trace_logging:
+                            for key in resp:
+                                self.log_trace('%s: %s' % (key, resp[key]))
+                            self.log_trace('\n\n%s' % content)
+                            self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
+                            
+                        expire_time = (self.interval - latency)
+                        if expire_time > 0:
+                            time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
+                
         
     def send(self, req):
         h = httplib2.Http()
