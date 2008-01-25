@@ -177,7 +177,10 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         expire_time = (self.interval - latency)
                         if expire_time > 0:
                             time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
-                
+                    
+                    else:  # don't go through the entire range if stop has been called
+                        break
+        
         
     def send(self, req):
         h = httplib2.Http()
