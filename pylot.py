@@ -202,7 +202,7 @@ class Application(wx.Frame):
             dial.ShowModal()
             cases = None
         
-        if cases != None:  # only run if we have valid cases
+        if cases is not None:  # only run if we have valid cases
             self.start_time = time.time()    
             
             # start the load manager
