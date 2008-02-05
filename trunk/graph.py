@@ -44,6 +44,7 @@ def tp_graph(throughputs_dict, dir='./'):
     ax.grid(True, color='#666666')
     xticks(size='x-small')
     yticks(size='x-small')
+    axis(xmin=0)
     keys = throughputs_dict.keys()
     keys.sort()
     values = []
