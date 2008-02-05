@@ -26,6 +26,7 @@ def resp_graph(nested_resp_list, dir='./'):
     ax.grid(True, color='#666666')
     xticks(size='x-small')
     yticks(size='x-small')
+    axis(xmin=0)
     x_seq = [item[0] for item in nested_resp_list] 
     y_seq = [item[1] for item in nested_resp_list] 
     ax.plot(x_seq, y_seq, 
