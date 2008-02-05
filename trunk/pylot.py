@@ -434,7 +434,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         
     
     def humanize_time(self, secs):
-        # convert secs (int) into a human readable time string:  hh:mm:ss
+        # convert secs (int) into a human readable time string:  HH:MM:SS
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         if hours < 10:
