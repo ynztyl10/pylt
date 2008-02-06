@@ -431,25 +431,13 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         for id in self.runtime_stats.keys():
             self.agents_statlist.SetStringItem(id, 1, 'stopped')
         self.running = False
-        
-    
+
+
     def humanize_time(self, secs):
         # convert secs (int) into a human readable time string:  HH:MM:SS
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
-        if hours < 10:
-            hours = '0%d' % hours
-        else:
-            hours = str(hours)
-        if mins < 10:
-            mins = '0%d' % mins
-        else:
-            mins = str(mins)
-        if secs < 10:
-            secs = '0%d' % secs
-        else:
-            secs = str(secs)
-        return '%s:%s:%s' % (hours, mins, secs)
+        return '%02d:%02d:%02d' % (hours, mins, secs)
             
         
         
