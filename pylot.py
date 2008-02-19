@@ -447,7 +447,6 @@ class AboutFrame(wx.Frame):
         wx.Frame.__init__(self, parent, -1, title, pos=(0, 0), size=(320, 240))
         self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
         panel = wx.Panel(self, -1)
-        
         content = """\
 Pylot - Web Performance
 Copyright (c) 2007-2008 Corey Goldberg
