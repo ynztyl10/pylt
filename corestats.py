@@ -22,13 +22,6 @@ class Stats:
         # sequence of numbers we will process
         # convert all items to floats for numerical processing        
         self.sequence = [float(item) for item in sequence]
-        self.use_fastselect = False  # switch the algorithm used for percentiles
-    
-    
-    def print_sequence(self):
-        # print the sequence (newline delimited)
-        for item in self.sequence:
-            print item
     
     
     def sum(self):
@@ -82,9 +75,6 @@ class Stats:
     
     
     def percentile(self, percentile):
-        if self.use_fastselect:
-            # get fastselect here: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/466330
-            import fastselect
         if len(self.sequence) < 1: 
             value = None
         elif (percentile >= 100):
@@ -92,10 +82,6 @@ class Stats:
             value = None
         else:
             element_idx = int(len(self.sequence) * (percentile / 100.0))
-            if self.use_fastselect:            
-                # fastselect algorithm.  see fastselect for performance details
-                value = fastselect.select(element_idx, self.sequence)
-            else:
-                self.sequence.sort()
-                value = self.sequence[element_idx]
+            self.sequence.sort()
+            value = self.sequence[element_idx]
         return value
