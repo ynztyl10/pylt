@@ -31,7 +31,9 @@ def generate_results(dir):
     # request throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     throughputs = calc_throughputs(epochs) # dict of secs and throughputs
-    graph.tp_graph(throughputs, dir=dir + '/')
+    try:  # graphing only works on systems with Matplotlib installed
+        graph.tp_graph(throughputs, dir=dir + '/')
+    except: pass
     throughput_stats = corestats.Stats(throughputs.values())
 
     # response times
@@ -39,7 +41,9 @@ def generate_results(dir):
     start_epoch = epoch_timings[0][0]
     end_epoch = epoch_timings[-1][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
-    graph.resp_graph(based_timings, dir=dir + '/')
+    try:  # graphing only works on systems with Matplotlib installed
+        graph.resp_graph(based_timings, dir=dir + '/')
+    except: pass
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
     response_stats = corestats.Stats(resp_data_set)
     
