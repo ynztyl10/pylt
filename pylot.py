@@ -156,7 +156,7 @@ class Application(wx.Frame):
     def on_about(self, evt):
         info = wx.AboutDialogInfo()
         info.SetName('Pylot')
-        info.SetCopyright('Copyright %s 2007 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
+        info.SetCopyright('Copyright %s 2007-2008 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
         info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPL')
         wx.AboutBox(info)
 
@@ -439,24 +439,8 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         hours, mins = divmod(mins, 60)
         return '%02d:%02d:%02d' % (hours, mins, secs)
             
-        
-        
-        
-class AboutFrame(wx.Frame):
-    def __init__(self, parent, ID, title):
-        wx.Frame.__init__(self, parent, -1, title, pos=(0, 0), size=(320, 240))
-        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))
-        panel = wx.Panel(self, -1)
-        content = """\
-Pylot - Web Performance
-Copyright (c) 2007-2008 Corey Goldberg
-Pylot is Free Open Source Software
-License:  GNU GPL
-        """
-        text = wx.StaticText(panel, -1, content, wx.Point(10, 10))
-        text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
-            
+
+
 
 
 def main():
