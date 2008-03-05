@@ -13,7 +13,9 @@
 #
 
 
-from pylab import *  # Matplotlib
+try:
+    from pylab import *  # Matplotlib for graphing.  Only works on systems that have it installed
+except: pass
 
 
 
