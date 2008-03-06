@@ -13,9 +13,10 @@
 #
 
 
-try:
-    from pylab import *  # Matplotlib for graphing.  Only works on systems that have it installed
-except: pass
+try: 
+    from pylab import *  # Matplotlib for graphing.  Only enable on systems that have it installed.
+except: 
+    pass
 
 
 
