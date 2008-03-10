@@ -31,6 +31,7 @@ class ProgressBar:
         self.amount = 0  # When amount == max, we are 100% done
         self.update_amount(0)  # Build progress bar string
     
+    
     def update_amount(self, new_amount = 0):
         if new_amount < self.min: new_amount = self.min
         if new_amount > self.max: new_amount = self.max
@@ -57,9 +58,11 @@ class ProgressBar:
         # slice the percentage into the bar
         self.prog_bar = self.prog_bar[0:percent_place] + (percent_string + self.prog_bar[percent_place + len(percent_string):])
                     
+    
     def update_time(self, new_time):
         self.update_amount((new_time / self.duration) * 100)
 
+    
     def __str__(self):
         return str(self.prog_bar)
 
