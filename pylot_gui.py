@@ -195,8 +195,8 @@ class Application(wx.Frame):
         
         # load the test cases
         try:
-            #CHECK needed to push the load_xml_cases method in a separate module
-            #since I needed it in pylot_shell
+            # needed to push the load_xml_cases method in a separate module
+            # since I needed it in pylot_shell
             cases = xmlparse.load_xml_cases()
             for req in cases:
                 self.lm.add_req(req)
