@@ -82,7 +82,7 @@ def start(num_agents, rampup, interval, duration, log_resps):
         for req in cases:
             lm.add_req(req)
     except:  # if there was a problem getting cases from the xml file
-        sys.stderr.write("Error opening testcase file.\n")
+        sys.stderr.write('Error opening testcase file.\n')
         sys.exit(1)
     
     start_time = time.time()
