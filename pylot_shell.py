@@ -21,7 +21,7 @@ from pylot_engine import LoadManager
 
 
 class ProgressBar:
-    def __init__(self, duration, min_value = 0, max_value=100, total_width=40):
+    def __init__(self, duration, min_value=0, max_value=100, total_width=40):
         self.prog_bar = '[]'  # This holds the progress bar string
         self.duration = duration
         self.min = min_value
