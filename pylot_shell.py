@@ -32,7 +32,7 @@ class ProgressBar:
         self.update_amount(0)  # Build progress bar string
     
     
-    def update_amount(self, new_amount = 0):
+    def update_amount(self, new_amount=0):
         if new_amount < self.min: new_amount = self.min
         if new_amount > self.max: new_amount = self.max
         self.amount = new_amount
