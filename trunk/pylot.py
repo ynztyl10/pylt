@@ -17,7 +17,7 @@
   usage: %prog [options] args
   -a, --agents=NUM_AGENTS:   number of agents
   -r, --rampup=RAMPUP:       rampup in seconds
-  -i, --interval=INTERVAL:   interval in miliseconds
+  -i, --interval=INTERVAL:   interval in milliseconds
   -d, --duration=DURATION:   test duration in seconds
   -l, --logresp:             log responses
   -g, --gui:                 start GUI
