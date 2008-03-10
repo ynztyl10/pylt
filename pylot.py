@@ -63,6 +63,6 @@ if gui:  # when user tries to start gui
     except:
         sys.stderr.write('Pylot was not able to start the GUI, check if wxPython is installed properly.')
         sys.exit(1)
-else:  # when it's started in console mode 
+else:  # when started in console mode 
     import pylot_shell
     pylot_shell.start(agents, rampup, interval, duration, logresp)
