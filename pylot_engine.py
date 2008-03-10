@@ -50,13 +50,14 @@ class LoadManager(Thread):
         self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
         
         # auto-generate results when test is stopped
-        results_gen = results.ResultsGenerator(self.output_dir)
-        results_gen.setDaemon(True)
-        results_gen.start()
+        self.results_gen = results.ResultsGenerator(self.output_dir)
+        self.results_gen.setDaemon(True)
+        self.results_gen.start()
         
     
     def run(self):
         self.running = True
+        self.agents_started = False
         os.mkdir(self.output_dir)
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
@@ -67,6 +68,8 @@ class LoadManager(Thread):
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'started agent ' + str(i + 1)
+        self.agents_started = True
+        
     
     
     def init_runtime_stats(self, runtime_stats):
@@ -112,6 +115,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.count = 0
         self.error_count = 0
         
+        # Create the http object here and reuse it for every fetch
+        # httplib2 seems to be a bit buggy, so this is a workaround for a problem
+        # it's causing in longer running tests with lots of agents (90+)
+        self.http = httplib2.Http()
+        
 
     def stop(self):
         self.running = False
@@ -126,7 +134,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
-    
                         # timed msg send
                         start_time = time.time()
                         resp, content = self.send(req)
@@ -183,14 +190,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         
     def send(self, req):
-        h = httplib2.Http()
         headers = {}
         body = ''
         if req.headers:
             headers = req.headers
         if req.body:
             body = req.body
-        resp, content = h.request(req.url, method=req.method, body=body, headers=headers)
+        resp, content = self.http.request(req.url, method=req.method, body=body, headers=headers)
         return (resp, content)
 
     
