@@ -15,12 +15,14 @@
 
 """
   usage: %prog [options] args
-  -a, --agents=NUM_AGENTS:   number of agents
-  -r, --rampup=RAMPUP:       rampup in seconds
-  -i, --interval=INTERVAL:   interval in milliseconds
-  -d, --duration=DURATION:   test duration in seconds
-  -l, --logresp:             log responses
-  -g, --gui:                 start GUI
+  
+  -a, --agents=NUM_AGENTS  :  number of agents
+  -r, --rampup=RAMPUP      :  rampup in seconds
+  -i, --interval=INTERVAL  :  interval in milliseconds
+  -d, --duration=DURATION  :  test duration in seconds
+  -l, --logresp            :  log responses
+  -g, --gui                :  start GUI
+  
 """
 
 import optionparse
@@ -28,7 +30,7 @@ import optionparse
 
 # default parameters
 agents = 1
-rampup =0
+rampup = 0
 interval = 1000
 duration = 60
 logresp = False
@@ -36,7 +38,7 @@ gui = False
 
 
 # parse the command line arguments
-# in case of wrong arguments quit and print the usage message
+# in case of wrong arguments, quit and print the usage message
 opt, args = optionparse.parse(__doc__)
 if not opt and not args:
     optionparse.exit()
