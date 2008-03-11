@@ -67,7 +67,7 @@ class LoadManager(Thread):
                 agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
-                print 'started agent ' + str(i + 1)
+                print 'Started agent ' + str(i + 1)
         self.agents_started = True
         
     
@@ -136,7 +136,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     if self.running:
                         # timed msg send
                         start_time = time.time()
-                        resp, content = self.send(req)
+                        
+                        # TODO
+                        # a connection error may occur (and does often in certain parts of the world)
+                        # probably good to log that one too
+                        sock_err = False
+                        try:
+                            resp, content = self.send(req)
+                        except:
+                            sock_err = True
+                            
                         end_time = time.time()  # epoch
                         
                         # get times for logging and error display
@@ -144,14 +153,29 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         cur_date = time.strftime('%d %b %Y', tmp_time)
                         cur_time = time.strftime('%H:%M:%S', tmp_time)
                         
-                        # check verifications and status code for errors
-                        is_error = False
-                        if resp.status >= 400: is_error = True
-                        if not req.verify == '':
-                            if not re.search(req.verify, content, re.DOTALL): is_error = True
-                        if not req.verify_negative == '':
-                            if re.search(req.verify_negative, content, re.DOTALL): is_error = True
-                        
+                        if not sock_err:
+                            # check verifications and status code for errors
+                            is_error = False
+                            if resp.status >= 400:
+                                is_error = True
+                            if not req.verify == '':
+                                if not re.search(req.verify, content, re.DOTALL): 
+                                    is_error = True
+                            if not req.verify_negative == '':
+                                if re.search(req.verify_negative, content, re.DOTALL):
+                                    is_error = True
+                        else:                           
+                            is_error = True
+                            # TODO
+                            # if a connection error occurs use the resp attrubutes for error info
+                            # for clarity this should be changed in the future
+                            class ErrResponse(dict):
+                                pass
+                            resp = ErrResponse()
+                            resp.status = 0
+                            resp.reason = 'Connection error'
+                            resp['status'] = resp.status
+                            resp['reason'] = resp.reason
                         if is_error:                    
                             self.error_count += 1
                             # put an error message on the queue
@@ -160,8 +184,10 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             # log the error
                             self.log_error(error_string)
                             self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
+                        if sock_err: 
+                            content = ''
                         self.count += 1
-                        
+                            
                         resp_bytes = len(content)
                         total_bytes += resp_bytes
                         latency = end_time - start_time

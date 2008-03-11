@@ -18,8 +18,14 @@ version = '.03_beta'
 
 import time
 import sys
-import wx
-from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
+
+# quit if wx is not installed
+try:
+    import wx
+    from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
+except:
+    sys.stderr.write('Pylot was not able to start the GUI, check if wxPython is installed properly.')
+    sys.exit(1)
 from threading import Thread
 import xml.etree.ElementTree as etree
 from pylot_engine import *

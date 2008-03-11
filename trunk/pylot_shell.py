@@ -18,32 +18,33 @@ import xmlparse
 from threading import Thread
 from pylot_engine import LoadManager
 
-
+# flag is set if the script is run on windows
+is_windows = sys.platform.startswith('win')
 
 class ProgressBar:
-    def __init__(self, duration, min_value=0, max_value=100, total_width=40):
-        self.prog_bar = '[]'  # This holds the progress bar string
+    def __init__(self, duration, min_value = 0, max_value=100, total_width=40):
+        self.prog_bar = '[]'  # holds the progress bar string
         self.duration = duration
         self.min = min_value
         self.max = max_value
         self.span = max_value - min_value
         self.width = total_width
-        self.amount = 0  # When amount == max, we are 100% done
-        self.update_amount(0)  # Build progress bar string
+        self.amount = 0  # when amount == max, we are 100% done
+        self.update_amount(0)  # build progress bar string
     
     
-    def update_amount(self, new_amount=0):
+    def update_amount(self, new_amount = 0):
         if new_amount < self.min: new_amount = self.min
         if new_amount > self.max: new_amount = self.max
         self.amount = new_amount
         
-        # Figure out the new percent done, round to an integer
+        # figure out the new percent done, round to an integer
         diff_from_min = float(self.amount - self.min)
         percent_done = (diff_from_min / float(self.span)) * 100.0
         percent_done = round(percent_done)
         percent_done = int(percent_done)
         
-        # Figure out how many hash bars the percentage should be
+        # figure out how many hash bars the percentage should be
         all_full = self.width - 2
         num_hashes = (percent_done / 100.0) * all_full
         num_hashes = int(round(num_hashes))
@@ -59,10 +60,21 @@ class ProgressBar:
         self.prog_bar = self.prog_bar[0:percent_place] + (percent_string + self.prog_bar[percent_place + len(percent_string):])
                     
     
-    def update_time(self, new_time):
-        self.update_amount((new_time / self.duration) * 100)
-
-    
+    def update_time(self, time_running):
+        self.time_running = time.time()
+        self.update_amount((time_running / self.duration) * 100)
+        self.prog_bar += '  %ss/%ss'%(int(time_running), self.duration)
+        
+        if is_windows:    
+        # this is for the Windows cmd prompt        
+            sys.stdout.write(chr(0x08) * len(self.prog_bar) + self.prog_bar)
+        else:
+        # on POSIX terminals we need to work with ascii control sequences
+            sys.stdout.write(chr(27) + '[G')
+            sys.stdout.write(self.prog_bar)
+            sys.stdout.flush()
+        
+        
     def __str__(self):
         return str(self.prog_bar)
 
@@ -93,15 +105,16 @@ def start(num_agents, rampup, interval, duration, log_resps):
     
     pb = ProgressBar(duration)
     while (time.time() < start_time + duration):         
-        time.sleep(.75)
+        time.sleep(1)
+        # when all agents are started start displaying the progress bar
         if lm.agents_started: 
             pb.update_time(time.time() - start_time)
-            # ideally this will be refreshed on one line
-            # still haven't figured out a platform independent way to do that
-            print pb
+            
+    sys.stdout.write('\n')
     lm.stop()
-    print 'generating results...'
+    print 'Generating results...'
+    # wait until the result generator is finished
     while lm.results_gen.isAlive():
         time.sleep(.05)
-    print 'done.'
+    print 'Done.'
     
