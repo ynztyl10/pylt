@@ -15,7 +15,6 @@
 
 """
   usage: %prog [options] args
-  
   -a, --agents=NUM_AGENTS  :  number of agents
   -r, --rampup=RAMPUP      :  rampup in seconds
   -i, --interval=INTERVAL  :  interval in milliseconds
@@ -59,11 +58,17 @@ except:
     optionparse.exit()
 
 if gui:  # when user tries to start gui
-
     import pylot_gui
     pylot_gui.main(agents, rampup, interval, duration, logresp)
-
-
 else:  # when started in console mode 
     import pylot_shell
+    print '\n'
+    print 'Test parameters:'
+    print '  number of agents:          %s' % agents
+    print '  rampup in seconds:         %s' % rampup
+    print '  interval in milliseconds:  %s' % interval
+    print '  test duration in seconds:  %s' % duration
+    print '  log responses:             %s' % logresp
+    print '\n'     
     pylot_shell.start(agents, rampup, interval, duration, logresp)
+    
