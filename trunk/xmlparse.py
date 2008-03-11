@@ -12,8 +12,10 @@
 #    for more details.
 #
 
+
 import xml.etree.ElementTree as etree
 from pylot_engine import Request
+
 
 def load_xml_cases():
     # parse xml and load request queue
