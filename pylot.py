@@ -35,7 +35,7 @@ logresp = False
 gui = False
 
 
-# parse the commad line arguments
+# parse the command line arguments
 # in case of wrong arguments quit and print the usage message
 opt, args = optionparse.parse(__doc__)
 if not opt and not args:
@@ -57,12 +57,11 @@ except:
     optionparse.exit()
 
 if gui:  # when user tries to start gui
-    try:
-        import pylot_gui
-        pylot_gui.main(agents, rampup, interval, duration, logresp)
-    except:
-        sys.stderr.write('Pylot was not able to start the GUI, check if wxPython is installed properly.')
-        sys.exit(1)
+
+    import pylot_gui
+    pylot_gui.main(agents, rampup, interval, duration, logresp)
+
+
 else:  # when started in console mode 
     import pylot_shell
     pylot_shell.start(agents, rampup, interval, duration, logresp)
