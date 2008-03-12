@@ -65,7 +65,7 @@ class ProgressBar:
     def update_line(self, time_running, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput):
         self.time_running = time.time()
         self.update_amount((time_running / self.duration) * 100)
-        self.prog_bar += '  %ds/%ss   Reqs: %d  AvgResp: %.3f  Errs: %d  AvgTp:  %.2f  CurTp: %d' % (
+        self.prog_bar += '  %ds/%ss   Reqs: %d  AvgResp: %.3f  Errs: %d  AvgTp: %.2f  CurTp: %d' % (
             time_running, self.duration, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)
         # this is for the Windows cmd prompt    
         if is_windows:      
@@ -112,7 +112,7 @@ def start(num_agents, rampup, interval, duration, log_resps):
         refresh_rate = 1.0
         time.sleep(refresh_rate)
         
-        # when all agents are started start displaying the progress bar
+        # when all agents are started start displaying the progress bar and stats
         if lm.agents_started:
             elapsed_secs = time.time() - start_time
             ids = runtime_stats.keys()
