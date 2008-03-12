@@ -24,7 +24,7 @@ from pylot_engine import LoadManager
 is_windows = sys.platform.startswith('win')
 
 class ProgressBar:
-    def __init__(self, duration, min_value = 0, max_value=100, total_width=40):
+    def __init__(self, duration, min_value=0, max_value=100, total_width=40):
         self.prog_bar = '[]'  # holds the progress bar string
         self.duration = duration
         self.min = min_value
@@ -35,7 +35,7 @@ class ProgressBar:
         self.update_amount(0)  # build progress bar string
     
     
-    def update_amount(self, new_amount = 0):
+    def update_amount(self, new_amount=0):
         if new_amount < self.min: new_amount = self.min
         if new_amount > self.max: new_amount = self.max
         self.amount = new_amount
@@ -62,16 +62,16 @@ class ProgressBar:
         self.prog_bar = self.prog_bar[0:percent_place] + (percent_string + self.prog_bar[percent_place + len(percent_string):])
                     
     
-    def update_time(self, time_running):
+    def update_line(self, time_running, count):
         self.time_running = time.time()
         self.update_amount((time_running / self.duration) * 100)
-        self.prog_bar += '  %ss/%ss'%(int(time_running), self.duration)
+        self.prog_bar += '  %ss/%ss  reqs sent: %d' % (int(time_running), self.duration, count)
         
-        if is_windows:    
-        # this is for the Windows cmd prompt        
+        # this is for the Windows cmd prompt    
+        if is_windows:      
             sys.stdout.write(chr(0x08) * len(self.prog_bar) + self.prog_bar)
-        else:
         # on POSIX terminals we need to work with ascii control sequences
+        else:  
             sys.stdout.write(chr(27) + '[G')
             sys.stdout.write(self.prog_bar)
             sys.stdout.flush()
@@ -109,9 +109,10 @@ def start(num_agents, rampup, interval, duration, log_resps):
     while (time.time() < start_time + duration):         
         time.sleep(1)
         # when all agents are started start displaying the progress bar
-        if lm.agents_started: 
-            pb.update_time(time.time() - start_time)
-            
+        if lm.agents_started:
+            elapsed_time = time.time() - start_time
+            count = sum([runtime_stats[i].count for i in runtime_stats])
+            pb.update_line(elapsed_time, count)
     sys.stdout.write('\n')
     lm.stop()
     print 'Generating results...'
