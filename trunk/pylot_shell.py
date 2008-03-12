@@ -62,11 +62,11 @@ class ProgressBar:
         self.prog_bar = self.prog_bar[0:percent_place] + (percent_string + self.prog_bar[percent_place + len(percent_string):])
                     
     
-    def update_line(self, time_running, count):
+    def update_line(self, time_running, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput):
         self.time_running = time.time()
         self.update_amount((time_running / self.duration) * 100)
-        self.prog_bar += '  %ss/%ss  reqs sent: %d' % (int(time_running), self.duration, count)
-        
+        self.prog_bar += '  %ds/%ss   Reqs: %d  AvgResp: %.3f  Errs: %d  AvgTp:  %.2f  CurTp: %d' % (
+            time_running, self.duration, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)
         # this is for the Windows cmd prompt    
         if is_windows:      
             sys.stdout.write(chr(0x08) * len(self.prog_bar) + self.prog_bar)
@@ -106,13 +106,27 @@ def start(num_agents, rampup, interval, duration, log_resps):
     lm.start()
     
     pb = ProgressBar(duration)
+    last_count = 0 
     while (time.time() < start_time + duration):         
-        time.sleep(1)
+        
+        refresh_rate = 1.0
+        time.sleep(refresh_rate)
+        
         # when all agents are started start displaying the progress bar
         if lm.agents_started:
-            elapsed_time = time.time() - start_time
-            count = sum([runtime_stats[i].count for i in runtime_stats])
-            pb.update_line(elapsed_time, count)
+            elapsed_secs = time.time() - start_time
+            ids = runtime_stats.keys()
+            agg_count = sum([runtime_stats[id].count for id in ids])  # total req count
+            agg_total_latency = sum([runtime_stats[id].total_latency for id in ids])
+            agg_error_count = sum([runtime_stats[id].error_count for id in ids])
+            if agg_count > 0 and elapsed_secs > 0:
+                agg_avg = agg_total_latency / agg_count  # total avg response time
+                avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
+            
+                interval_count = agg_count - last_count  # requests since last refresh
+                cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
+                last_count = agg_count  # reset for next time
+                pb.update_line(elapsed_secs, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)       
     sys.stdout.write('\n')
     lm.stop()
     print 'Generating results...'
