@@ -72,7 +72,6 @@ class LoadManager(Thread):
         self.agents_started = True
         
     
-    
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.num_agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
