@@ -18,6 +18,8 @@ import xmlparse
 from threading import Thread
 from pylot_engine import LoadManager
 
+
+
 # flag is set if the script is run on windows
 is_windows = sys.platform.startswith('win')
 
