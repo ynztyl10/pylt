@@ -68,7 +68,7 @@ class LoadManager(Thread):
                 agent.start()
                 self.agent_refs.append(agent)
                 print 'Started agent ' + str(i + 1)
-        print '\n\n'
+        print 'All agents running...\n\n'
         self.agents_started = True
         
     
