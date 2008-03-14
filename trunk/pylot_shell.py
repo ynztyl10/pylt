@@ -105,26 +105,24 @@ class RuntimeReporter(object):
             
     def refresh(self, elapsed_secs, refresh_rate):
         ids = self.runtime_stats.keys()
-
+        
         agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
         agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
         agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
-        #total_bytes_received = sum([self.runtime_stats[id].total_bytes for id in ids])
+        total_bytes_received = sum([self.runtime_stats[id].total_bytes for id in ids])
+        
         if agg_count > 0 and elapsed_secs > 0:
             agg_avg = agg_total_latency / agg_count  # total avg response time
             avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
-            
             interval_count = agg_count - self.last_count 
             cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
             self.last_count = agg_count  # reset for next time
-        
             if self.refreshed_once:
-                # move the cursor up 6 times
-                self.move_up(6)
+                self.move_up(8)  # move the cursor up 9 times
             self.progress_bar.update_time(elapsed_secs)    
             print self.progress_bar
-            print 'Requests: %d\nAvg Response Time: %.3fs\nErrors: %d\nAvg Throughput: %.2f\nCurrent Throughput: %d' % (
-                agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)        
+            print '\nRequests:  %d\nErrors: %d\nAvg Response Time:  %.3fs\nAvg Throughput: %.2f\nCurrent Throughput:  %d\nBytes Received:  %d' % (
+                agg_count, agg_error_count, agg_avg, avg_throughput, cur_throughput, total_bytes_received)        
             self.refreshed_once = True
         
 
