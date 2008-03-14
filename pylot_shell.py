@@ -26,6 +26,15 @@ is_windows = sys.platform.startswith('win')
 #for positioning the cursor in the command prompt
 #since ANSI sequence support is disabled by default
 #on windows, more info: http://en.wikipedia.org/wiki/ANSI_escape_code
+
+#The _cpos.pyd file is just a renamed dll.  See the c++ source code
+#the library, it's built with Visual Studio, you can
+#distribute it with the whole app but also include the pyd file, so
+#users don't need to install VS or mingw and go through the pain of
+#building it.
+
+
+
 if is_windows: import _cpos
 
 class ProgressBar:
