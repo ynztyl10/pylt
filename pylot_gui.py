@@ -13,7 +13,7 @@
 #
 
 
-version = '.03_beta'
+version = '1.0'
 
 
 import time
