@@ -22,6 +22,11 @@ from pylot_engine import LoadManager
 
 # flag is set if the script is run on windows
 is_windows = sys.platform.startswith('win')
+#the _cpos c++ extension defines windows native functions
+#for positioning the cursor in the command prompt
+#since ANSI sequence support is disabled by default
+#on windows, more info: http://en.wikipedia.org/wiki/ANSI_escape_code
+if is_windows: import _cpos
 
 class ProgressBar:
     def __init__(self, duration, min_value=0, max_value=100, total_width=40):
@@ -62,25 +67,59 @@ class ProgressBar:
         self.prog_bar = self.prog_bar[0:percent_place] + (percent_string + self.prog_bar[percent_place + len(percent_string):])
                     
     
-    def update_line(self, time_running, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput):
-        self.time_running = time.time()
-        self.update_amount((time_running / self.duration) * 100)
-        self.prog_bar += '  %ds/%ss   Reqs: %d  AvgResp: %.3f  Errs: %d  AvgTp: %.2f  CurTp: %d' % (
-            time_running, self.duration, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)
-        # this is for the Windows cmd prompt    
-        if is_windows:      
-            sys.stdout.write(chr(0x08) * len(self.prog_bar) + self.prog_bar)
-        # on POSIX terminals we need to work with ascii control sequences
-        else:  
-            sys.stdout.write(chr(27) + '[G')
-            sys.stdout.write(self.prog_bar)
-            sys.stdout.flush()
+    def update_time(self, elapsed_secs):
+
+        self.update_amount((elapsed_secs / self.duration) * 100)
+        self.prog_bar += '  %ds/%ss' % (elapsed_secs, self.duration)
         
         
     def __str__(self):
         return str(self.prog_bar)
 
 
+
+class RuntimeReporter(object):
+    def __init__(self, duration, runtime_stats):
+        self.runtime_stats = runtime_stats
+        self.progress_bar = ProgressBar(duration)
+        self.last_count = 0  # requests since last refresh
+        self.refreshed_once = False  #j ust to know if we should move the cursor up
+        
+        
+    def move_up(self, times):
+        for i in range(times):
+            if is_windows:
+                x,y = _cpos.getpos()
+                _cpos.gotoxy(0, y-1)
+            else:
+                ESC = chr(27) #E scape key
+                sys.stdout.write(ESC + '[G' )
+                sys.stdout.write(ESC + '[A' )
+            
+            
+    def refresh(self, elapsed_secs, refresh_rate):
+        ids = self.runtime_stats.keys()
+
+        agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
+        agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
+        agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
+        if agg_count > 0 and elapsed_secs > 0:
+            agg_avg = agg_total_latency / agg_count  # total avg response time
+            avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
+            
+            interval_count = agg_count - self.last_count 
+            cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
+            self.last_count = agg_count  # reset for next time
+        
+            if self.refreshed_once:
+                #move the cursor up 6 times
+                self.move_up(6)
+            self.progress_bar.update_time(elapsed_secs)    
+            print self.progress_bar
+            print 'Requests: %d\nAvg. Response Time: %.3f\nErrors: %d\nAvg. Throughput: %.2f\nCur. Throughput: %d' % (
+                agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)        
+            self.refreshed_once = True
+        
 
 def start(num_agents, rampup, interval, duration, log_resps):
     runtime_stats = {}
@@ -105,28 +144,16 @@ def start(num_agents, rampup, interval, duration, log_resps):
     lm.setDaemon(True)
     lm.start()
     
-    pb = ProgressBar(duration)
-    last_count = 0 
+    reporter = RuntimeReporter(duration, runtime_stats)
     while (time.time() < start_time + duration):         
-        
         refresh_rate = 1.0
         time.sleep(refresh_rate)
         
         # when all agents are started start displaying the progress bar and stats
         if lm.agents_started:
             elapsed_secs = time.time() - start_time
-            ids = runtime_stats.keys()
-            agg_count = sum([runtime_stats[id].count for id in ids])  # total req count
-            agg_total_latency = sum([runtime_stats[id].total_latency for id in ids])
-            agg_error_count = sum([runtime_stats[id].error_count for id in ids])
-            if agg_count > 0 and elapsed_secs > 0:
-                agg_avg = agg_total_latency / agg_count  # total avg response time
-                avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
-            
-                interval_count = agg_count - last_count  # requests since last refresh
-                cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
-                last_count = agg_count  # reset for next time
-                pb.update_line(elapsed_secs, agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)       
+            reporter.refresh(elapsed_secs, refresh_rate)
+
     sys.stdout.write('\n')
     lm.stop()
     print 'Generating results...'
