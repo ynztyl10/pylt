@@ -69,6 +69,8 @@ else:  # when started in console mode
     print '  interval in milliseconds:  %s' % interval
     print '  test duration in seconds:  %s' % duration
     print '  log responses:             %s' % logresp
-    print '\n'     
-    pylot_shell.start(agents, rampup, interval, duration, logresp)
-    
+    print '\n'
+    try:    
+        pylot_shell.start(agents, rampup, interval, duration, logresp)
+    except KeyboardInterrupt:
+        pass
