@@ -75,7 +75,7 @@ void init_consolepos(void)
             "_consolepos",   // name of the module
             methods,  // name of the method table
             "C++ Console cursor postioning module",  // doc string for module
-            0,   // last two never change
+            0,  // last two never change
             PYTHON_API_VERSION);
     return;
 }
