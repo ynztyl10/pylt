@@ -30,7 +30,7 @@ import optionparse
 # default parameters
 agents = 1
 rampup = 0
-interval = 1000
+interval = 0
 duration = 60
 logresp = False
 gui = False
