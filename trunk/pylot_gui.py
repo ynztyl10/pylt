@@ -15,24 +15,21 @@
 
 version = '1.0'
 
-
 import time
 import sys
-
-# quit if wx is not installed
-try:
-    import wx
-    from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
-except:
-    sys.stderr.write('Pylot was not able to start the GUI, check if wxPython is installed properly.')
-    sys.exit(1)
 from threading import Thread
 import xml.etree.ElementTree as etree
 from pylot_engine import *
 import results
 import xmlparse
+try:  # quit if wx is not installed
+    import wx
+    from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
+except:
+    sys.stderr.write('Pylot was unable to start the GUI.  Check if wxPython is installed properly.')
+    sys.exit(1)
     
-    
+
     
 class Application(wx.Frame):
     def __init__(self, parent,agents,rampup,interval,duration,logresp):
@@ -165,7 +162,7 @@ class Application(wx.Frame):
         info = wx.AboutDialogInfo()
         info.SetName('Pylot')
         info.SetCopyright('Copyright %s 2007-2008 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
-        info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPL')
+        info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPLv3')
         wx.AboutBox(info)
 
 
@@ -395,12 +392,12 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
                 self.agents_statlist.SetStringItem(index, 5, '%d' % self.runtime_stats[id].total_bytes)
         self.agents_statlist.resizeLastColumn(80)  # avoid horizontal scrollbar
         
-        
         # refresh error monitor            
         for error in self.error_queue:
             # pop error strings off the queue and render them in the monitor
             self.error_list.AppendText('%s\n' % self.error_queue.pop(0))
         self.error_list.ShowPosition(self.error_list.GetLastPosition()) # scroll to end 
+        
         
         
     def stop(self):
