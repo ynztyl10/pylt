@@ -62,7 +62,7 @@ if gui:  # when user tries to start gui
     pylot_gui.main(agents, rampup, interval, duration, logresp)
 else:  # when started in console mode 
     import pylot_shell
-    print '\n-----------------------------------------------------'
+    print '\n--------------------------------------------------'
     print 'Test parameters:'
     print '  number of agents:          %s' % agents
     print '  rampup in seconds:         %s' % rampup
