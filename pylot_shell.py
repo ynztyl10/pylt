@@ -21,7 +21,6 @@ from pylot_engine import LoadManager
 
 # flag is set if the script is run on windows
 is_windows = sys.platform.startswith('win')
-
 # The _cpos C++ extension defines windows native functions
 # for positioning the cursor on the command prompt
 # since ANSI sequence support is disabled by default
@@ -96,7 +95,7 @@ class RuntimeReporter(object):
     def move_up(self, times):
         for i in range(times):
             if is_windows:
-                x,y = _cpos.getpos()
+                x, y = _cpos.getpos()
                 _cpos.gotoxy(0, y-1)
             else:
                 ESC = chr(27) # E scape key
@@ -110,6 +109,7 @@ class RuntimeReporter(object):
         agg_count = sum([self.runtime_stats[id].count for id in ids])  # total req count
         agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
         agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
+        #total_bytes_received = sum([self.runtime_stats[id].total_bytes for id in ids])
         if agg_count > 0 and elapsed_secs > 0:
             agg_avg = agg_total_latency / agg_count  # total avg response time
             avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
@@ -127,6 +127,7 @@ class RuntimeReporter(object):
                 agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)        
             self.refreshed_once = True
         
+
 
 def start(num_agents, rampup, interval, duration, log_resps):
     runtime_stats = {}
