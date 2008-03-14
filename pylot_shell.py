@@ -118,11 +118,13 @@ class RuntimeReporter(object):
             cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
             self.last_count = agg_count  # reset for next time
             if self.refreshed_once:
-                self.move_up(8)  # move the cursor up 9 times
+                self.move_up(10)  # move the cursor up x times
             self.progress_bar.update_time(elapsed_secs)    
             print self.progress_bar
-            print '\nRequests:  %d\nErrors: %d\nAvg Response Time:  %.3fs\nAvg Throughput: %.2f\nCurrent Throughput:  %d\nBytes Received:  %d' % (
-                agg_count, agg_error_count, agg_avg, avg_throughput, cur_throughput, total_bytes_received)        
+            print '\nRequests:  %d\nErrors: %d\nAvg Response Time:  %.3fs\nAvg Throughput: \
+                %.2f\nCurrent Throughput:  %d\nBytes Received:  %d\n%s' % (
+                agg_count, agg_error_count, agg_avg, avg_throughput, cur_throughput, total_bytes_received, 
+                '\n-----------------------------------------------------')        
             self.refreshed_once = True
         
 
