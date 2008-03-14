@@ -19,23 +19,21 @@ from threading import Thread
 from pylot_engine import LoadManager
 
 
-
 # flag is set if the script is run on windows
 is_windows = sys.platform.startswith('win')
-#the _cpos c++ extension defines windows native functions
-#for positioning the cursor in the command prompt
-#since ANSI sequence support is disabled by default
-#on windows, more info: http://en.wikipedia.org/wiki/ANSI_escape_code
 
-#The _cpos.pyd file is just a renamed dll.  See the c++ source code
-#the library, it's built with Visual Studio, you can
-#distribute it with the whole app but also include the pyd file, so
-#users don't need to install VS or mingw and go through the pain of
-#building it.
-
-
-
+# The _cpos C++ extension defines windows native functions
+# for positioning the cursor on the command prompt
+# since ANSI sequence support is disabled by default
+# on Windows.  More info: http://en.wikipedia.org/wiki/ANSI_escape_code
+#
+# The _cpos.pyd file is just a renamed dll.  See the C++ source code
+# for the library.  It is built with Visual Studio.  You must distribute
+# it with the whole app but also include the .pyd file, so users don't 
+# need to install VS or mingw and go through the pain of building it.
 if is_windows: import _cpos
+
+
 
 class ProgressBar:
     def __init__(self, duration, min_value=0, max_value=100, total_width=40):
@@ -92,7 +90,7 @@ class RuntimeReporter(object):
         self.runtime_stats = runtime_stats
         self.progress_bar = ProgressBar(duration)
         self.last_count = 0  # requests since last refresh
-        self.refreshed_once = False  #j ust to know if we should move the cursor up
+        self.refreshed_once = False  # just to know if we should move the cursor up
         
         
     def move_up(self, times):
@@ -101,7 +99,7 @@ class RuntimeReporter(object):
                 x,y = _cpos.getpos()
                 _cpos.gotoxy(0, y-1)
             else:
-                ESC = chr(27) #E scape key
+                ESC = chr(27) # E scape key
                 sys.stdout.write(ESC + '[G' )
                 sys.stdout.write(ESC + '[A' )
             
@@ -121,11 +119,11 @@ class RuntimeReporter(object):
             self.last_count = agg_count  # reset for next time
         
             if self.refreshed_once:
-                #move the cursor up 6 times
+                # move the cursor up 6 times
                 self.move_up(6)
             self.progress_bar.update_time(elapsed_secs)    
             print self.progress_bar
-            print 'Requests: %d\nAvg. Response Time: %.3f\nErrors: %d\nAvg. Throughput: %.2f\nCur. Throughput: %d' % (
+            print 'Requests: %d\nAvg Response Time: %.3fs\nErrors: %d\nAvg Throughput: %.2f\nCurrent Throughput: %d' % (
                 agg_count, agg_avg, agg_error_count, avg_throughput, cur_throughput)        
             self.refreshed_once = True
         
