@@ -123,7 +123,7 @@ class RuntimeReporter(object):
             print self.progress_bar
             print '\nRequests:  %d\nErrors: %d\nAvg Response Time:  %.3f\nAvg Throughput:  %.2f\nCurrent Throughput:  %d\nBytes Received:  %d\n%s' % (
                 agg_count, agg_error_count, agg_avg, avg_throughput, cur_throughput, total_bytes_received, 
-                '\n--------------------------------------------------')        
+                '\n-------------------------------------------------')        
             self.refreshed_once = True
         
 
