@@ -143,20 +143,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
-                        # timed msg send
-                        start_time = time.time()
                         
-               
+                        # timed msg send
                         sock_err = False
+                        start_time = time.time()
                         try:
                             resp, content = self.send(req)
                         except:
-                        # a connection error may occur 
-                        # It's good to log that one too, otherwise exceptions fro httplib2 will start to pop up
-                        
+                            # a connection error may occur 
+                            # It's good to log that one too, otherwise exceptions fro httplib2 will start to pop up
                             resp = SockErr()
-                            content =''
-                            
+                            content = ''
                         end_time = time.time()  # epoch
                         
                         # get times for logging and error display
