@@ -38,7 +38,7 @@ class Application(wx.Frame):
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
         
-        self.SetIcon(wx.Icon('ui/icon.ico', wx.BITMAP_TYPE_ICO))  # set window icon
+        self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))  # set window icon
         self.CreateStatusBar()  # enable bottom status bar
         
         # menus
