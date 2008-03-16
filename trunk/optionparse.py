@@ -1,6 +1,7 @@
-"""
-Really neat wrapper around optparse
-"""
+#    This file is part of Pylot.
+# optionparse is a wrapper around optparse
+# taken from ASPN Python Coockbook
+# http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/278844
 
 import optparse, re, sys
 
