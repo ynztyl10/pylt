@@ -92,6 +92,15 @@ class LoadManager(Thread):
 
 
 
+class SockErr(dict):
+    def __init__(self):
+        self['status'] = 0
+        self['reason'] = 'Connection error'
+        self.status = 0
+        self.reason = 'Connection error'
+
+
+
 class LoadAgent(Thread):  # each agent runs in its own thread
     def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue):
         Thread.__init__(self)
@@ -137,14 +146,16 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         # timed msg send
                         start_time = time.time()
                         
-                        # TODO
-                        # a connection error may occur (and does often in certain parts of the world)
-                        # probably good to log that one too
+               
                         sock_err = False
                         try:
                             resp, content = self.send(req)
                         except:
-                            sock_err = True
+                        # a connection error may occur 
+                        # It's good to log that one too, otherwise exceptions fro httplib2 will start to pop up
+                        
+                            resp = SockErr()
+                            content =''
                             
                         end_time = time.time()  # epoch
                         
@@ -153,29 +164,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         cur_date = time.strftime('%d %b %Y', tmp_time)
                         cur_time = time.strftime('%H:%M:%S', tmp_time)
                         
-                        if not sock_err:
-                            # check verifications and status code for errors
-                            is_error = False
-                            if resp.status >= 400:
-                                is_error = True
-                            if not req.verify == '':
-                                if not re.search(req.verify, content, re.DOTALL): 
-                                    is_error = True
-                            if not req.verify_negative == '':
-                                if re.search(req.verify_negative, content, re.DOTALL):
-                                    is_error = True
-                        else:                           
+                        # check verifications and status code for errors
+                        is_error = False
+                        if resp.status >= 400 or resp.status == 0:
                             is_error = True
-                            # TODO
-                            # if a connection error occurs use the resp attrubutes for error info
-                            # for clarity this should be changed in the future
-                            class ErrResponse(dict):
-                                pass
-                            resp = ErrResponse()
-                            resp.status = 0
-                            resp.reason = 'Connection error'
-                            resp['status'] = resp.status
-                            resp['reason'] = resp.reason
+                        if not req.verify == '':
+                            if not re.search(req.verify, content, re.DOTALL): 
+                                is_error = True
+                        if not req.verify_negative == '':
+                            if re.search(req.verify_negative, content, re.DOTALL):
+                                is_error = True
+                    
                         if is_error:                    
                             self.error_count += 1
                             # put an error message on the queue
@@ -184,8 +183,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             # log the error
                             self.log_error(error_string)
                             self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
-                        if sock_err: 
-                            content = ''
+
                         self.count += 1
                             
                         resp_bytes = len(content)
@@ -227,18 +225,28 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     
     def log_stat(self, txt):
-        stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
-        stat_log.write('%s\n' % txt)
-        stat_log.flush()  # flush write buffer so we always log in real-time
-        stat_log.close()
-        
+        # TODO
+        # catch exception if IOError occurs
+        # some systems have a limit of the number of files
+        # that can e open at the same time
+        try:
+            stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
+            stat_log.write('%s\n' % txt)
+            stat_log.flush()  # flush write buffer so we always log in real-time
+            stat_log.close()
+        except: pass
     
     def log_error(self, txt):
-        error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
-        error_log.write('%s\n' % txt)
-        error_log.flush()
-        error_log.close()
-        
+        # TODO
+        # catch exception if IOError occurs
+        # some systems have a limit of the number of files
+        # that can e open at the same time
+        try:
+            error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
+            error_log.write('%s\n' % txt)
+            error_log.flush()
+            error_log.close()
+        except: pass
     
     def log_trace(self, txt):
         self.trace_log.write('%s\n' % txt)
