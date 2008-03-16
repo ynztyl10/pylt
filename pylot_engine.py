@@ -16,8 +16,8 @@
 import os
 import re
 import time
-import lib.httplib2 as httplib2
 import pickle
+import lib.httplib2 as httplib2
 import results
 from threading import Thread
 
