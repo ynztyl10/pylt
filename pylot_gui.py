@@ -171,6 +171,7 @@ class Application(wx.Frame):
         self.rt_mon.stop()
         self.stopper.stop()
         self.switch_status(False)
+        print 'Test Stopped\n\n'
 
         
     def on_exit(self, evt):    
