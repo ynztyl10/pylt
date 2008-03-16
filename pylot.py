@@ -19,7 +19,7 @@
   -r, --rampup=RAMPUP      :  rampup in seconds
   -i, --interval=INTERVAL  :  interval in milliseconds
   -d, --duration=DURATION  :  test duration in seconds
-  -l, --logresp            :  log responses
+  -l, --log_responses      :  log responses
   -g, --gui                :  start GUI
   
 """
@@ -32,7 +32,7 @@ agents = 1
 rampup = 0
 interval = 0
 duration = 60
-logresp = False
+log_responses = False
 gui = False
 
 
@@ -50,8 +50,8 @@ try:
         interval =  int(opt.interval)
     if opt.duration:
         duration = int(opt.duration)
-    if opt.logresp: 
-        logresp = True
+    if opt.log_responses: 
+        log_responses = True
     if opt.gui:
         gui=True
 except:
@@ -59,7 +59,7 @@ except:
 
 if gui:  # when user tries to start gui
     import pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, logresp)
+    pylot_gui.main(agents, rampup, interval, duration, log_responses)
 else:  # when started in console mode 
     import pylot_shell
     print '\n-------------------------------------------------'
@@ -68,9 +68,9 @@ else:  # when started in console mode
     print '  rampup in seconds:         %s' % rampup
     print '  interval in milliseconds:  %s' % interval
     print '  test duration in seconds:  %s' % duration
-    print '  log responses:             %s' % logresp
+    print '  log responses:             %s' % log_responses
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, logresp)
+        pylot_shell.start(agents, rampup, interval, duration, log_responses)
     except KeyboardInterrupt:
         pass
