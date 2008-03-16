@@ -16,7 +16,7 @@
 import os
 import re
 import time
-import httplib2
+import lib.httplib2 as httplib2
 import pickle
 import results
 from threading import Thread
