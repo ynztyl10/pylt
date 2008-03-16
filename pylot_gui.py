@@ -205,7 +205,7 @@ class Application(wx.Frame):
                 self.lm.add_req(req)
         except:
             # if there was a problem getting cases from the xml file
-            dial = wx.MessageDialog(None, 'invalid testcase file', 'Error', wx.OK | wx.ICON_ERROR)
+            dial = wx.MessageDialog(None, 'Invalid testcase file', 'Error', wx.OK | wx.ICON_ERROR)
             dial.ShowModal()
             cases = None
         
