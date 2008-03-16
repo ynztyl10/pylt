@@ -225,7 +225,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     
     def log_stat(self, txt):
-        # TODO
+        # TODO:
         # catch exception if IOError occurs
         # some systems have a limit of the number of files
         # that can e open at the same time
@@ -234,10 +234,11 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             stat_log.write('%s\n' % txt)
             stat_log.flush()  # flush write buffer so we always log in real-time
             stat_log.close()
-        except: pass
+        except: 
+            pass
     
     def log_error(self, txt):
-        # TODO
+        # TODO:
         # catch exception if IOError occurs
         # some systems have a limit of the number of files
         # that can e open at the same time
