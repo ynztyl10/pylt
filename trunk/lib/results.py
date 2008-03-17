@@ -24,6 +24,7 @@ from threading import Thread
 
 
 def generate_results(dir):
+    print 'Generating Results...'
     merged_log = merge_log_files(dir)
     merged_error_log = merge_error_files(dir)
     epoch_timings = list_timings(merged_log)
