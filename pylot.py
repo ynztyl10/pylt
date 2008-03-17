@@ -24,7 +24,7 @@
   
 """
 
-import optionparse
+import lib.optionparse as optionparse
 
 
 # default parameters
@@ -58,10 +58,10 @@ except:
     optionparse.exit()
 
 if gui:  # when user tries to start gui
-    import pylot_gui
+    import lib.pylot_gui as pylot_gui
     pylot_gui.main(agents, rampup, interval, duration, log_responses)
 else:  # when started in console mode 
-    import pylot_shell
+    import lib.pylot_shell as pylot_shell
     print '\n-------------------------------------------------'
     print 'Test parameters:'
     print '  number of agents:          %s' % agents
