@@ -73,4 +73,4 @@ else:  # when started in console mode
     try:    
         pylot_shell.start(agents, rampup, interval, duration, log_responses)
     except KeyboardInterrupt:
-        pass
+        print '\nInterrupt'
