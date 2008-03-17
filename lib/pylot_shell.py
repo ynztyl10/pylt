@@ -164,9 +164,8 @@ def start(num_agents, rampup, interval, duration, log_resps):
 
     sys.stdout.write('\n')
     lm.stop()
-    print 'Generating results...'
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
-        time.sleep(.05)
+        time.sleep(.10)
     print 'Done.'
     
