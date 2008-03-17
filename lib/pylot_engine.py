@@ -33,7 +33,7 @@ class LoadManager(Thread):
         self.rampup = rampup
         self.log_resps = log_resps
         
-        self.output_dir = time.strftime('results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
+        self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
@@ -58,7 +58,11 @@ class LoadManager(Thread):
     def run(self):
         self.running = True
         self.agents_started = False
-        os.mkdir(self.output_dir)
+        try:
+            os.mkdir(self.output_dir)
+        except:
+            os.mkdir('results')
+            os.mkdir(self.output_dir)
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
             if i > 0:  # first agent starts right away
