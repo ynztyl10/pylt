@@ -26,7 +26,6 @@
 
 import lib.optionparse as optionparse
 
-
 # default parameters
 agents = 1
 rampup = 0
@@ -34,7 +33,6 @@ interval = 0
 duration = 60
 log_responses = False
 gui = False
-
 
 # parse the command line arguments
 # in case of wrong arguments, quit and print the usage message
