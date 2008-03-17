@@ -238,6 +238,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         except: 
             pass
     
+    
     def log_error(self, txt):
         # TODO:
         # catch exception if IOError occurs
@@ -248,7 +249,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             error_log.write('%s\n' % txt)
             error_log.flush()
             error_log.close()
-        except: pass
+        except: 
+            pass
+    
     
     def log_trace(self, txt):
         self.trace_log.write('%s\n' % txt)
