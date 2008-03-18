@@ -183,8 +183,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             self.error_queue.append(error_string)
                             # log the error
                             self.log_error(error_string)
-                            self.error_queue.append('Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url))
-
+                            
                         self.count += 1
                             
                         resp_bytes = len(content)
