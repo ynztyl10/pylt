@@ -96,14 +96,6 @@ class LoadManager(Thread):
 
 
 
-class SockErr(dict):
-    def __init__(self):
-        self['status'] = 0
-        self['reason'] = 'Connection error'
-        self.status = 0
-        self.reason = 'Connection error'
-
-
 
 class LoadAgent(Thread):  # each agent runs in its own thread
     def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue):
@@ -285,6 +277,16 @@ class Request():
     def add_header(self, header_name, value):
         self.headers[header_name] = value
         
+
+
+
+class SockErr(dict):
+    def __init__(self):
+        self['status'] = 0
+        self['reason'] = 'Connection error'
+        self.status = 0
+        self.reason = 'Connection error'
+
 
 
 
