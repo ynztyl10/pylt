@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
