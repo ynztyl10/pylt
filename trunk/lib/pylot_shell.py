@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #    Copyright (c) 2007-2008 Vasil Vangelovski (vvangelovski@gmail.com)
 #    License: GNU GPLv3

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 #    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
@@ -442,7 +441,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 
 
-def main(agents,rampup,interval,duration,logresp):
+def main(agents, rampup, interval, duration, logresp):
     app = wx.App(0)
     Application(None,agents,rampup,interval,duration,logresp)
     app.MainLoop()            
