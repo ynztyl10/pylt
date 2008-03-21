@@ -114,10 +114,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue
+        self.msg_queue = msg_queue # shared message/request queue
         
         self.count = 0
         self.error_count = 0
+        
+        
+        
         
         # create the http object here and reuse it for every fetch
         # httplib2 seems to be a bit buggy, so this is a workaround for a problem
