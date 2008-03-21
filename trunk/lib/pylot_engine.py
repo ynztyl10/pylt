@@ -215,32 +215,30 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         return (resp, content)
 
     
-    def log_stat(self, txt):
-        # TODO:
+    def log_stat(self, txt):\
         # catch exception if IOError occurs
         # some systems have a limit of the number of files
-        # that can e open at the same time
+        # that can be open at the same time
         try:
             stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
             stat_log.write('%s\n' % txt)
             stat_log.flush()  # flush write buffer so we always log in real-time
             stat_log.close()
         except: 
-            pass
+            print 'Error writing to stats file\n'
     
     
     def log_error(self, txt):
-        # TODO:
         # catch exception if IOError occurs
         # some systems have a limit of the number of files
-        # that can e open at the same time
+        # that can be open at the same time
         try:
             error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
             error_log.write('%s\n' % txt)
             error_log.flush()
             error_log.close()
         except: 
-            pass
+        print 'Error writing to log file\n'
     
     
     def log_trace(self, txt):
