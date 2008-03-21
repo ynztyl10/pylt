@@ -118,10 +118,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         self.count = 0
         self.error_count = 0
-        
-        
-        
-        
+  
         # create the http object here and reuse it for every fetch
         # httplib2 seems to be a bit buggy, so this is a workaround for a problem
         # it's causing in longer running tests with lots of agents (90+)
@@ -241,7 +238,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             error_log.flush()
             error_log.close()
         except: 
-        print 'Error writing to log file\n'
+            print 'Error writing to log file\n'
     
     
     def log_trace(self, txt):
