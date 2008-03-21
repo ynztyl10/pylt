@@ -138,8 +138,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
-                        sock_err = False
-                        
+
                         # timed msg send
                         start_time = time.time()
                         try:
