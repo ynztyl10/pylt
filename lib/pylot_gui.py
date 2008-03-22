@@ -405,7 +405,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         # it's either a bug in wxPython or in this code somewhere
         # as a result the GUI keeps on acting as if a test is in progress even
         # after the interval has elapsed
-        # test scenario: 90 agents, 120seconds  interval, other parameters on default,
+        # test scenario: 90 agents, 120 seconds interval, other parameters on default,
         # the requested page was on LAN
         #
         #       Exception in thread Thread-97:
