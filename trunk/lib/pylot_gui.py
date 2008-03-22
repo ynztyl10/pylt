@@ -32,7 +32,7 @@ except:
     
 class Application(wx.Frame):
     def __init__(self, parent,agents,rampup,interval,duration,logresp):
-        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + version, size=(680, 710))
+        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + version, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
@@ -102,12 +102,13 @@ class Application(wx.Frame):
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         self.total_statlist = AutoWidthListCtrl(panel, height=45)
         self.total_statlist.InsertColumn(0, 'Run Time', width=85)
-        self.total_statlist.InsertColumn(1, 'Agents', width=80)
+        self.total_statlist.InsertColumn(1, 'Agents', width=70)
         self.total_statlist.InsertColumn(2, 'Requests', width=75)
         self.total_statlist.InsertColumn(3, 'Errors', width=75)
         self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=95)
         self.total_statlist.InsertColumn(5, 'Avg Throughput', width=100)
-        self.total_statlist.InsertColumn(6, 'Cur Throughput', width=95) 
+        self.total_statlist.InsertColumn(6, 'Cur Throughput', width=100)
+        
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         
@@ -443,5 +444,5 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 def main(agents, rampup, interval, duration, logresp):
     app = wx.App(0)
-    Application(None, agents, rampup, interval, duration,l ogresp)
+    Application(None, agents, rampup, interval, duration, logresp)
     app.MainLoop()            
