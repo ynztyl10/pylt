@@ -82,13 +82,13 @@ class Application(wx.Frame):
         # run controls
         self.run_btn = wx.Button(panel, -1, 'Run')
         self.stop_btn = wx.Button(panel, -1, 'Stop')
-        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 12))
+        self.busy_gauge = wx.Gauge(panel, -1, 0, size=(60, 10))
         self.busy_timer = wx.Timer(self)  # timer for gauge pulsing
         runcontrols_sizer = wx.BoxSizer(wx.HORIZONTAL)
         runcontrols_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(controls_sizer, 0, wx.LEFT, 55)
-        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 50)
+        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 65)
         
         # run options
         runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -333,7 +333,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 3.0
+        self.refresh_rate = 2.0
         
         
     def run(self):
