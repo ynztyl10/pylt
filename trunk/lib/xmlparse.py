@@ -31,9 +31,7 @@ def load_xml_cases():
             if repeat:
                 req.repeat = int(repeat)
             else:
-                repeat = 1
-            int(req.repeat)
-            #print int()
+                req.repeat = int(repeat)
             for element in child:
                 if element.tag == 'url':
                     req.url = element.text
