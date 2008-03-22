@@ -106,7 +106,7 @@ class Application(wx.Frame):
         self.total_statlist.InsertColumn(2, 'Requests', width=75)
         self.total_statlist.InsertColumn(3, 'Errors', width=75)
         self.total_statlist.InsertColumn(4, 'Avg Resp Time', width=95)
-        self.total_statlist.InsertColumn(5, 'Avg Throughput', width=95)
+        self.total_statlist.InsertColumn(5, 'Avg Throughput', width=100)
         self.total_statlist.InsertColumn(6, 'Cur Throughput', width=95) 
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
@@ -443,5 +443,5 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 def main(agents, rampup, interval, duration, logresp):
     app = wx.App(0)
-    Application(None,agents,rampup,interval,duration,logresp)
+    Application(None, agents, rampup, interval, duration,l ogresp)
     app.MainLoop()            
