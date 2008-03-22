@@ -12,7 +12,11 @@
 #
 
 
-import xml.etree.ElementTree as etree
+try:
+    import xml.etree.ElementTree as etree
+except:
+    sys.stderr.write('Pylot was unable to find the XML parser.  Make sure you have Python 2.5+ installed.\n')
+    sys.exit(1)
 from pylot_engine import Request
 
 
