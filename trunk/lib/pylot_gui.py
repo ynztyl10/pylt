@@ -89,7 +89,7 @@ class Application(wx.Frame):
         runcontrols_sizer.Add(self.run_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(self.stop_btn, 0, wx.ALL, 3)
         runcontrols_sizer.Add(controls_sizer, 0, wx.LEFT, 55)
-        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 60)
+        runcontrols_sizer.Add(self.busy_gauge, 0, wx.LEFT, 50)
         
         # run options
         runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
