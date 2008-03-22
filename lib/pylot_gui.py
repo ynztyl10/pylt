@@ -17,7 +17,6 @@ version = '1.0'
 import time
 import sys
 from threading import Thread
-import xml.etree.ElementTree as etree
 from pylot_engine import *
 import results
 import xmlparse
@@ -100,7 +99,7 @@ class Application(wx.Frame):
         # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
         summary_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        self.total_statlist = AutoWidthListCtrl(panel, height=45)
+        self.total_statlist = AutoWidthListCtrl(panel, height=47)
         self.total_statlist.InsertColumn(0, 'Run Time', width=85)
         self.total_statlist.InsertColumn(1, 'Agents', width=70)
         self.total_statlist.InsertColumn(2, 'Requests', width=75)
@@ -111,7 +110,6 @@ class Application(wx.Frame):
         
         agent_monitor_text = wx.StaticText(panel, -1, 'Agent Monitor')
         agent_monitor_text.SetFont(wx.Font(8, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        
         self.agents_statlist = AutoWidthListCtrl(panel, height=300)
         self.agents_statlist.InsertColumn(0, 'Agent Num', width=80)
         self.agents_statlist.InsertColumn(1, 'Status', width=100)
