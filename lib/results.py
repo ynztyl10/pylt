@@ -164,7 +164,7 @@ def get_stats(response_stats, throughput_stats):
     
 
 
-class ResultsGenerator(Thread):  # generate results in a new thread so we don't block the UI   
+class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
     def __init__(self, dir):
         Thread.__init__(self)
         self.dir = dir
