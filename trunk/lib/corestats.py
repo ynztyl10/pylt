@@ -18,7 +18,7 @@ import sys
 class Stats:
         
     def __init__(self, sequence):
-        # sequence of numbers we will process
+        # sequence of numbers
         # convert all items to floats for numerical processing        
         self.sequence = [float(item) for item in sequence]
     
