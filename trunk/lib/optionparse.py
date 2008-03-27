@@ -24,7 +24,7 @@ optparse.Values.__nonzero__ = nonzero # dynamically fix optparse.Values
 class ParsingError(Exception): 
     pass
 
-optionstring=''
+optionstring = ''
 
 def exit(msg=''):
     raise SystemExit(msg or optionstring.replace('%prog', sys.argv[0]))
@@ -41,12 +41,12 @@ def parse(docstring, arglist=None):
             opt, help=line.split(':')[:2]
             short,long=opt.split(',')[:2]
             if '=' in opt:
-                action='store'
-                long=long.split('=')[0]
+                action = 'store'
+                long = long.split('=')[0]
             else:
-                action='store_true'
+                action = 'store_true'
             p.add_option(short.strip(), long.strip(),
                 action = action, help = help.strip())
-    except (IndexError,ValueError):
+    except (IndexError, ValueError):
         raise ParsingError('Cannot parse the option string correctly')
     return p.parse_args(arglist)
