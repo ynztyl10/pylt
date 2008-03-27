@@ -26,6 +26,7 @@
 
 VERSION = '1.10'
 
+import sys
 import lib.optionparse as optionparse
 
 
@@ -37,10 +38,12 @@ duration = 60
 log_responses = False
 gui = False
 
+
 # parse command line arguments
-# in case of wrong arguments, quit and print the usage message
 opt, args = optionparse.parse(__doc__)
+
 if not opt and not args:
+    print 'version: ' + VERSION
     optionparse.exit()
 try:
     if opt.agents:
@@ -55,8 +58,9 @@ try:
         log_responses = True
     if opt.gui:
         gui = True
-except:
-    optionparse.exit()
+except:  # quite if wrong args are used
+    sys.exit(1)
+
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
