@@ -65,6 +65,7 @@ except:  # quite if wrong args are used
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
     pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION)
+    
 else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
     print '\n-------------------------------------------------'
