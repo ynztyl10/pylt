@@ -24,7 +24,10 @@
   
 """
 
+VERSION = '1.10'
+
 import lib.optionparse as optionparse
+
 
 # default parameters
 agents = 1
@@ -34,7 +37,7 @@ duration = 60
 log_responses = False
 gui = False
 
-# parse the command line arguments
+# parse command line arguments
 # in case of wrong arguments, quit and print the usage message
 opt, args = optionparse.parse(__doc__)
 if not opt and not args:
@@ -51,14 +54,14 @@ try:
     if opt.log_responses: 
         log_responses = True
     if opt.gui:
-        gui=True
+        gui = True
 except:
     optionparse.exit()
 
-if gui:  # when user tries to start gui
+if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, log_responses)
-else:  # when started in console mode 
+    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION)
+else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
     print '\n-------------------------------------------------'
     print 'Test parameters:'
