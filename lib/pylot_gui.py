@@ -12,7 +12,6 @@
 #
 
 
-version = '1.01'
 
 import time
 import sys
@@ -30,8 +29,8 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent,agents,rampup,interval,duration,logresp):
-        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + version, size=(690, 710))
+    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION):
+        wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
@@ -440,7 +439,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 
 
-def main(agents, rampup, interval, duration, logresp):
+def main(agents, rampup, interval, duration, logresp, VERSION):
     app = wx.App(0)
-    Application(None, agents, rampup, interval, duration, logresp)
+    Application(None, agents, rampup, interval, duration, logresp, VERSION)
     app.MainLoop()            
