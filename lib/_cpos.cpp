@@ -63,7 +63,7 @@ static PyObject *wrap_getpos(PyObject *self, PyObject *args)
 
 PyMethodDef methods[] = {
   {"gotoxy", wrap_gotoxy, METH_VARARGS, "position the console cursor"},
-  {"getpos", wrap_getpos, METH_VARARGS , "get console cursor position"},
+  {"getpos", wrap_getpos, METH_VARARGS, "get console cursor position"},
   {NULL, NULL}
 };
 
