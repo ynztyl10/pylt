@@ -31,7 +31,7 @@ void gotoxy( short x, short y ) {
 COORD getpos(void) {
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hStdout,&csbi );
+    GetConsoleScreenBufferInfo(hStdout, &csbi );
     return csbi.dwCursorPosition;
 }
 
@@ -48,7 +48,7 @@ static PyObject *wrap_gotoxy(PyObject *self, PyObject *args)
 }
 
 // wrapper for getpos
-static PyObject *wrap_getpos(PyObject *self,PyObject *args)
+static PyObject *wrap_getpos(PyObject *self, PyObject *args)
 {
     int ok = PyArg_ParseTuple( args, "");
         if(!ok) return 0;
@@ -62,7 +62,7 @@ static PyObject *wrap_getpos(PyObject *self,PyObject *args)
 // standard code for python extensions
 
 PyMethodDef methods[] = {
-  {"gotoxy", wrap_gotoxy, METH_VARARGS,"position the console cursor"},
+  {"gotoxy", wrap_gotoxy, METH_VARARGS, "position the console cursor"},
   {"getpos", wrap_getpos, METH_VARARGS , "get console cursor position"},
   {NULL, NULL}
 };
