@@ -58,7 +58,7 @@ try:
         log_responses = True
     if opt.gui:
         gui = True
-except:  # quite if wrong args are used
+except:  # quit if wrong args are used
     sys.exit(1)
 
 
