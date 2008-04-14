@@ -15,11 +15,13 @@
 #
 #    Original code by David Solomon (dave.c.solomon@gmail.com)
 #
-
+#
 # Browser capture tool.  Builds Pylot test cases from a IE browsing session.
 # Only works on Windows
 # You must have need Win32 extensions for Python installed
 # http://sourceforge.net/projects/pywin32/
+
+
 
 from win32com.client import Dispatch, WithEvents
 import threading
