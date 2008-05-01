@@ -170,4 +170,9 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         self.dir = dir
         
     def run(self):
-        generate_results(self.dir)
+        try:
+            generate_results(self.dir)
+        except:
+            print 'Error: Unable to generate results'
+        
+            
