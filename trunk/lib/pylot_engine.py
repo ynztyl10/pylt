@@ -144,8 +144,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         try:
                             resp, content = self.send(req)
                         except:
-                            # a connection error may occur 
-                            # It's good to log this one too, otherwise exceptions from httplib2 will start to pop up
+                            # a connection error may occur and exceptions from httplib2 will be thrown
                             resp = SockErr()
                             content = ''
                         end_time = time.time()  # epoch
