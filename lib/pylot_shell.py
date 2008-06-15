@@ -74,7 +74,6 @@ class ProgressBar:
                     
     
     def update_time(self, elapsed_secs):
-
         self.update_amount((elapsed_secs / self.duration) * 100)
         self.prog_bar += '  %ds/%ss' % (elapsed_secs, self.duration)
         
