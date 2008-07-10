@@ -1,5 +1,7 @@
 #
-#    Copyright (c) 2007-2008 Vasil Vangelovski (vvangelovski@gmail.com)
+#    Original: Copyright (c) 2008 Vasil Vangelovski (vvangelovski@gmail.com)
+#    Additions: Copyright (c) 2008 Corey Goldberg (corey@goldb.org)
+#
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
