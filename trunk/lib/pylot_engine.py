@@ -114,7 +114,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue # shared message/request queue
+        self.msg_queue = msg_queue  # shared message/request queue
         
         self.count = 0
         self.error_count = 0
@@ -144,7 +144,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         try:
                             resp, content = self.send(req)
                         except:
-                            # a connection error may occur and exceptions from httplib2 will be thrown
+                            # connection error may occur and exceptions from httplib2 will be thrown
                             resp = SockErr()
                             content = ''
                         end_time = time.time()  # epoch
@@ -196,9 +196,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             
                         expire_time = (self.interval - latency)
                         if expire_time > 0:
-                            time.sleep(expire_time)  # sleep the remainder of the interval so we keep even pacing
+                            time.sleep(expire_time)  # sleep remainder of interval so we keep even pacing
                     
-                    else:  # don't go through the entire range if stop has been called
+                    else:  # don't go through entire range if stop has been called
                         break
         
         
@@ -213,10 +213,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         return (resp, content)
 
     
-    def log_stat(self, txt):\
+    def log_stat(self, txt):
         # catch exception if IOError occurs
-        # some systems have a limit of the number of files
-        # that can be open at the same time
+        # some systems have a limit on number of files open at the same time
         try:
             stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
             stat_log.write('%s\n' % txt)
@@ -228,8 +227,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     
     def log_error(self, txt):
         # catch exception if IOError occurs
-        # some systems have a limit of the number of files
-        # that can be open at the same time
+        # some systems have a limit on number of files open at the same time
         try:
             error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
             error_log.write('%s\n' % txt)
