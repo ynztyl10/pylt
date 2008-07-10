@@ -35,7 +35,7 @@ class Application(wx.Frame):
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
         
-        self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))  # set window icon
+        self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()  # enable bottom status bar
         
         # menus
@@ -196,8 +196,6 @@ class Application(wx.Frame):
         
         # load the test cases
         try:
-            # needed to push the load_xml_cases method in a separate module
-            # since I needed it in pylot_shell
             cases = xmlparse.load_xml_cases()
             for req in cases:
                 self.lm.add_req(req)
