@@ -397,31 +397,6 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         
         
     def stop(self):
-        # TODO:
-        # there's something wrong going on when this gets called after a longer test (2+ minutes)
-        # it's either a bug in wxPython or in this code somewhere
-        # as a result the GUI keeps on acting as if a test is in progress even
-        # after the interval has elapsed
-        # test scenario: 90 agents, 120 seconds interval, other parameters on default,
-        # the requested page was on LAN
-        #
-        #       Exception in thread Thread-97:
-        # Traceback (most recent call last):
-        #  File "C:\Python25\lib\threading.py", line 460, in __bootstrap
-        #   self.run()
-        #  File "C:\Documents and Settings\vasil\Desktop\pylot_0.2\pylot.py", line 336, in run
-        #   self.root.stop()
-        # File "C:\Documents and Settings\vasil\Desktop\pylot_0.2\pylot.py", line 166, in stop
-        #   self.rt_mon.stop()
-        # File "C:\Documents and Settings\vasil\Desktop\pylot_0.2\pylot.py", line 435, in stop
-        #   for id in self.runtime_stats.keys():
-        # File "C:\Documents and Settings\vasil\Desktop\pylot_0.2\pylot.py", line 418, in refresh
-        #   self.agents_statlist.SetStringItem(index, 5, '%d' % self.runtime_stats[id].total_bytes)
-        # File "C:\Python25\Lib\site-packages\wx-2.8-msw-unicode\wx\_controls.py", line 4533, in SetStringItem
-        #   return _controls_.ListCtrl_SetStringItem(*args, **kwargs)
-        # PyAssertionError: C++ assertion "id >= 0 && id < GetItemCount()" failed at ..\..\src\msw\listctrl.cpp(736) in 
-        #   wxListCtrl::SetItem(): invalid item index in SetItem
-
         self.refresh()
         for id in self.runtime_stats.keys():
             self.agents_statlist.SetStringItem(id, 1, 'stopped')
