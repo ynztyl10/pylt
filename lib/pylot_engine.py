@@ -14,6 +14,7 @@
 
 import os
 import re
+import sys
 import time
 import pickle
 import lib.httplib2 as httplib2
@@ -70,8 +71,10 @@ class LoadManager(Thread):
                 agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
                 agent.start()
                 self.agent_refs.append(agent)
-                print 'Started agent ' + str(i + 1)
-        print 'All agents running...\n\n'
+                agent_started_line = 'Started agent ' + str(i + 1)                
+                sys.stdout.write(chr(0x08) * len(agent_started_line))
+                sys.stdout.write(agent_started_line)
+        print '\nAll agents running...\n\n'
         self.agents_started = True
         
     
