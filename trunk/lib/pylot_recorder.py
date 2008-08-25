@@ -18,7 +18,7 @@
 #
 #  Browser capture tool.  Builds Pylot test cases from a IE browsing session.
 #  Only works on Windows
-#  You must have need Win32 extensions for Python installed
+#  You must have Win32 extensions for Python installed
 #  http://sourceforge.net/projects/pywin32/
 
 
