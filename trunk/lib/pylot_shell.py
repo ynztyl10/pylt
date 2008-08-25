@@ -99,9 +99,9 @@ class RuntimeReporter(object):
                 x, y = _cpos.getpos()
                 _cpos.gotoxy(0, y-1)
             else:
-                ESC = chr(27) # E scape key
-                sys.stdout.write(ESC + '[G' )
-                sys.stdout.write(ESC + '[A' )
+                esc = chr(27) # escape key
+                sys.stdout.write(esc + '[G' )
+                sys.stdout.write(esc + '[A' )
             
             
     def refresh(self, elapsed_secs, refresh_rate):
