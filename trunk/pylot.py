@@ -24,7 +24,7 @@
   
 """
 
-VERSION = '1.20'
+VERSION = '1.11'
 
 import sys
 import lib.optionparse as optionparse
