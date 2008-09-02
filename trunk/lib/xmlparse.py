@@ -44,9 +44,11 @@ def load_xml_cases():
                 if element.tag == 'verify_negative': 
                     req.verify_negative = element.text
                 if element.tag == 'add_header':
-                    splat = element.text.split(':')
-                    req.add_header(splat[0].strip(), splat[1].strip())
-            if 'Content-type' not in req.headers:
+                    colon_index = element.text.find(':')
+                    header_name = element.text[:colon_index].strip()
+                    header_content = element.text[colon_index + 1:].strip()
+                    req.add_header(header_name, header_content)
+            if 'Content-type' not in req.headers and 'Content-Type' not in req.headers:
                 req.add_header('Content-type', 'text/xml')  # default if no type specified
                 #req.add_header('Content-type', 'application/x-www-form-urlencoded') 
             cases.append(req)
