@@ -151,14 +151,14 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     if self.running:
 
                         # timed msg send
-                        start_time = time.time()
+                        start_time = time.clock()
                         try:
                             resp, content = self.send(req)
                         except:
                             # connection error may occur and exceptions from httplib2 will be thrown
                             resp = SockErr()
                             content = ''
-                        end_time = time.time()  # epoch
+                        end_time = time.clock()  # epoch
                         
                         # get times for logging and error display
                         tmp_time = time.localtime()
