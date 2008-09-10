@@ -158,7 +158,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             # connection error may occur and exceptions from httplib2 will be thrown
                             resp = SockErr()
                             content = ''
-                        end_time = time.clock()  # epoch
+                        end_time = time.clock()
                         
                         # get times for logging and error display
                         tmp_time = time.localtime()
