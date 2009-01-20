@@ -266,13 +266,17 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
 
 class Request():
-    def __init__(self, url='localhost', method='GET', body='', headers={}, repeat=1):
+    def __init__(self, url='localhost', method='GET', body='', headers=None, repeat=1):
         self.url = url
         self.method = method
         self.body = body
-        self.headers = headers
         self.repeat = repeat
         
+        if headers == None:
+            self.headers = {}
+        else:
+            self.headers = headers
+
         # verification string or regex
         self.verify = ''
         self.verify_negative = ''
