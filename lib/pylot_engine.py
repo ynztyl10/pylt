@@ -117,6 +117,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.log_resps = log_resps
         self.output_dir = output_dir
         
+        # choose timer to use
+        if sys.platform.startswith('win'):
+            self.default_timer = time.clock
+        else:
+            self.default_timer = time.time
+            
         # log options
         self.stat_logging = True
         self.trace_logging = False
@@ -151,14 +157,14 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     if self.running:
 
                         # timed msg send
-                        start_time = time.clock()
+                        start_time = self.default_timer()
                         try:
                             resp, content = self.send(req)
                         except:
                             # connection error may occur and exceptions from httplib2 will be thrown
                             resp = SockErr()
                             content = ''
-                        end_time = time.clock()
+                        end_time = self.default_timer()
                         
                         # get times for logging and error display
                         tmp_time = time.localtime()
