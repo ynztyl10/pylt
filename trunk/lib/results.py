@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2009 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -22,7 +22,7 @@ from threading import Thread
 
 
 
-def generate_results(dir):
+def generate_results(dir, name):
     print 'Generating Results...'
     merged_log = merge_log_files(dir)
     merged_error_log = merge_error_files(dir)
@@ -69,13 +69,16 @@ def generate_results(dir):
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
-    reportwriter.write_starting_content(fh)
+    reportwriter.write_starting_content(fh, name)
     reportwriter.write_summary_results(fh, summary_dict, workload_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_agent_detail_table(fh, runtime_stats_dict)
     reportwriter.write_closing_html(fh)
     fh.close()
+
+    print 'Results have been generated. You can view your test at:'
+    print '%s/results.html\n' % dir
 
 
 def load_dat_detail(dir):
@@ -165,13 +168,14 @@ def get_stats(response_stats, throughput_stats):
 
 
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
-    def __init__(self, dir):
+    def __init__(self, dir, name):
         Thread.__init__(self)
         self.dir = dir
+        self.test_name = name
         
     def run(self):
         try:
-            generate_results(self.dir)
+            generate_results(self.dir, self.test_name)
         except:
             print 'Error: Unable to generate results'
         

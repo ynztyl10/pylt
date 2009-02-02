@@ -1,6 +1,6 @@
 #
 #    Original: Copyright (c) 2008 Vasil Vangelovski (vvangelovski@gmail.com)
-#    Additions: Copyright (c) 2008 Corey Goldberg (corey@goldb.org)
+#    Additions: Copyright (c) 2008-2009 Corey Goldberg (corey@goldb.org)
 #
 #    License: GNU GPLv3
 #
@@ -129,13 +129,17 @@ class RuntimeReporter(object):
         
 
 
-def start(num_agents, rampup, interval, duration, log_resps):
+def start(num_agents, rampup, interval, duration, log_resps, output=None, name=None):
     runtime_stats = {}
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
-    
+   
+    if name is not None:
+        if output is not None:
+            output = output + '/' + name
+
     # create a load manager
-    lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue)
+    lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output, name)
     
     # load the test cases
     try:
@@ -143,7 +147,7 @@ def start(num_agents, rampup, interval, duration, log_resps):
         for req in cases:
             lm.add_req(req)
     except:  # if there was a problem getting cases from the xml file
-        sys.stderr.write('Error opening testcase file.\n')
+        print 'Error opening testcase file.\n'
         sys.exit(1)
     
     start_time = time.time()
@@ -162,7 +166,7 @@ def start(num_agents, rampup, interval, duration, log_resps):
             elapsed_secs = time.time() - start_time
             reporter.refresh(elapsed_secs, refresh_rate)
 
-    sys.stdout.write('\n')
+    print '\n'
     lm.stop()
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
