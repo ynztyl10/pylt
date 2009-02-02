@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2009 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -29,11 +29,14 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION):
+    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION, output=None, name=None):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
+        
+        self.name = name  # test name
+        self.output = output
         
         self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()  # enable bottom status bar
@@ -47,6 +50,8 @@ class Application(wx.Frame):
         tools_menu = wx.Menu()
         tools_menu.Append(103, '&Regenerate Results', 'Regenerate Results')
         wx.EVT_MENU(self, 103, self.on_results)
+        tools_menu.Append(104, 'Set Output Path', 'Output Path')
+        wx.EVT_MENU(self, 104, self.on_output)
         menuBar = wx.MenuBar()
         menuBar.Append(file_menu, '&File')
         menuBar.Append(tools_menu, '&Tools')
@@ -68,6 +73,11 @@ class Application(wx.Frame):
         self.duration_spin = wx.SpinCtrl(panel, -1, size=(75, -1))
         self.duration_spin.SetRange(1, 1000000)
         self.duration_spin.SetValue(duration)
+        self.name_textbox = wx.TextCtrl(panel, -1, 'Name of Test')
+        if name is None:
+            self.name_textbox.SetValue('Test Name')
+        else:
+            self.name_textbox.SetValue(name)
         controls_sizer = wx.GridSizer(0, 4, 0, 0)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
@@ -77,6 +87,7 @@ class Application(wx.Frame):
         controls_sizer.Add(self.rampup_spin, 0, wx.ALL, 2)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Duration (s)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.duration_spin, 0, wx.ALL, 2)
+        controls_sizer.Add(self.name_textbox, 0, wx.ALL, 2)
         
         # run controls
         self.run_btn = wx.Button(panel, -1, 'Run')
@@ -94,6 +105,7 @@ class Application(wx.Frame):
         self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
         self.logresp_checkbox.SetValue(logresp)
         runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
+        self.output_path = output
         
         # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
@@ -158,7 +170,7 @@ class Application(wx.Frame):
     def on_about(self, evt):
         info = wx.AboutDialogInfo()
         info.SetName('Pylot')
-        info.SetCopyright('Copyright %s 2007-2008 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
+        info.SetCopyright('Copyright %s 2007-2009 Corey Goldberg\ncorey@goldb.org' % u'\u00A9')
         info.SetDescription('\nPylot is Free Open Source Software\nLicense:  GNU GPLv3')
         wx.AboutBox(info)
 
@@ -190,9 +202,14 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         log_resps = self.logresp_checkbox.GetValue()
+        self.name = self.name_textbox.GetValue()
+        
+        if self.name is not None:
+            if self.output is not None:
+                self.output_path = self.output_path + '/' + self.name
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue)
+        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_path, self.name)
         
         # load the test cases
         try:
@@ -257,7 +274,11 @@ class Application(wx.Frame):
             gen_dlg.ShowModal()
         dir_dlg.Destroy()
             
-
+    def on_output(self, evt):
+	dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
+	if dir_dlg.ShowModal() == wx.ID_OK:
+	   dirname = dir_dlg.GetPath()
+	self.output_path = dirname	   
 
         
     def switch_status(self, is_on):
@@ -272,6 +293,7 @@ class Application(wx.Frame):
             self.rampup_spin.Disable()
             self.duration_spin.Disable()
             self.logresp_checkbox.Disable()
+            self.name_textbox.Disable()
             self.busy_timer.Start(75)
         else:
             self.run_btn.Enable()
@@ -283,6 +305,7 @@ class Application(wx.Frame):
             self.rampup_spin.Enable()
             self.duration_spin.Enable()
             self.logresp_checkbox.Enable()
+            self.name_textbox.Enable()
             self.busy_timer.Stop()
 
 
@@ -412,7 +435,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 
 
-def main(agents, rampup, interval, duration, logresp, VERSION):
+def main(agents, rampup, interval, duration, logresp, VERSION, output=None, name=None):
     app = wx.App(0)
-    Application(None, agents, rampup, interval, duration, logresp, VERSION)
+    Application(None, agents, rampup, interval, duration, logresp, VERSION, output, name)
     app.MainLoop()            

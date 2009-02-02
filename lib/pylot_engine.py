@@ -24,7 +24,7 @@ from threading import Thread
 
 
 class LoadManager(Thread):
-    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue):
+    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output=None, name=None):
         Thread.__init__(self)
         
         self.running = True
@@ -32,9 +32,13 @@ class LoadManager(Thread):
         self.interval = interval
         self.rampup = rampup
         self.log_resps = log_resps
+        self.test_name = name
         
-        self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
-        
+        if output == None:
+            self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+        else:
+            self.output_dir = output
+ 
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
         self.error_queue = error_queue
@@ -50,7 +54,7 @@ class LoadManager(Thread):
         self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
         
         # auto-generate results when test is stopped
-        self.results_gen = results.ResultsGenerator(self.output_dir)
+        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
         self.results_gen.setDaemon(True)
         self.results_gen.start()
         
@@ -59,10 +63,15 @@ class LoadManager(Thread):
         self.running = True
         self.agents_started = False
         try:
-            os.mkdir(self.output_dir)
-        except:
-            os.mkdir('results')
-            os.mkdir(self.output_dir)
+            os.makedirs(self.output_dir, 0755)
+        except OSError:
+            self.output_dir += time.strftime('/results/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+            try:
+               os.makedirs(self.output_dir, 0755)
+            except OSError:
+               print 'ERROR: Directory already exists'
+            stop()
+
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
             if i > 0:  # first agent starts right away

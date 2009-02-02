@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2009 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -16,8 +16,8 @@ import time
 
 
 
-def write_starting_content(handle):
-    handle.write('<h1>Pylot - Web Performance Results</h1>\n')
+def write_starting_content(handle, name):
+    handle.write('<h1>Pylot - %s Performance Results</h1>\n' % name)
    
     
 def write_images(handle):
