@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#    Copyright (c) 2007-2008 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2007-2009 Corey Goldberg (corey@goldb.org)
 #    License: GNU GPLv3
 #
 #    This file is part of Pylot.
@@ -21,10 +21,11 @@
   -d, --duration=DURATION  :  test duration in seconds
   -l, --log_responses      :  log responses
   -g, --gui                :  start GUI
-  
+  -o, --output=PATH        :  specify output
+  -n, --name=TESTNAME	   :  specify name of test  
 """
 
-VERSION = '1.11'
+VERSION = '1.12'
 
 import sys
 import lib.optionparse as optionparse
@@ -37,6 +38,8 @@ interval = 0
 duration = 60
 log_responses = False
 gui = False
+output = None
+name = None
 
 
 # parse command line arguments
@@ -58,6 +61,10 @@ try:
         log_responses = True
     if opt.gui:
         gui = True
+    if opt.output:
+        output = opt.output
+    if opt.name:
+        name = opt.name
 except:
    print 'Invalid Argument'
    sys.exit(1)
@@ -65,7 +72,7 @@ except:
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION)
+    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION, output, name)
     
 else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
@@ -78,6 +85,6 @@ else:  # shell/console mode
     print '  log responses:             %s' % log_responses
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, log_responses)
+        pylot_shell.start(agents, rampup, interval, duration, log_responses, output, name)
     except KeyboardInterrupt:
         print '\nInterrupt'
