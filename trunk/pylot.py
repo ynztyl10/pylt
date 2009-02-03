@@ -16,13 +16,13 @@
 """
   usage: %prog [options] args
   -a, --agents=NUM_AGENTS  :  number of agents
+  -d, --duration=DURATION  :  test duration in seconds
   -r, --rampup=RAMPUP      :  rampup in seconds
   -i, --interval=INTERVAL  :  interval in milliseconds
-  -d, --duration=DURATION  :  test duration in seconds
   -l, --log_responses      :  log responses
-  -g, --gui                :  start GUI
   -o, --output=PATH        :  specify output directory
-  -n, --name=TESTNAME	   :  specify name of test  
+  -n, --name=TESTNAME	   :  specify name of test
+  -g, --gui                :  start GUI  
 """
 
 VERSION = '1.12'
