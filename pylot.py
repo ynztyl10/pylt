@@ -21,7 +21,7 @@
   -d, --duration=DURATION  :  test duration in seconds
   -l, --log_responses      :  log responses
   -g, --gui                :  start GUI
-  -o, --output=PATH        :  specify output
+  -o, --output=PATH        :  specify output directory
   -n, --name=TESTNAME	   :  specify name of test  
 """
 
