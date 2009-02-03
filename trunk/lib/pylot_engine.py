@@ -65,12 +65,12 @@ class LoadManager(Thread):
         try:
             os.makedirs(self.output_dir, 0755)
         except OSError:
-            self.output_dir += time.strftime('/results/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+            self.output_dir += time.strftime('/results_%Y.%m.%d_%H.%M.%S', time.localtime())
             try:
                os.makedirs(self.output_dir, 0755)
             except OSError:
-               print 'ERROR: Directory already exists'
-            stop()
+                print 'ERROR: Can not create output directory'
+                sys.exit(1)
 
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
