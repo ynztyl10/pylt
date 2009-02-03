@@ -16,9 +16,9 @@ import time
 
 
 
-def write_starting_content(handle, name):
-    if name:
-        handle.write('<h1>Pylot - %s Performance Results</h1>\n' % name)
+def write_starting_content(handle, test_name):
+    if test_name:
+        handle.write('<h1>Pylot - %s Performance Results</h1>\n' % test_name)
     else:
         handle.write('<h1>Pylot - Performance Results</h1>\n')
     
