@@ -24,7 +24,7 @@ from threading import Thread
 
 
 class LoadManager(Thread):
-    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output=None, name=None):
+    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output=None, test_name=None):
         Thread.__init__(self)
         
         self.running = True
@@ -32,12 +32,16 @@ class LoadManager(Thread):
         self.interval = interval
         self.rampup = rampup
         self.log_resps = log_resps
-        self.test_name = name
+        self.test_name = test_name
         
-        if not output:
-            self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime())
-        else:
+        if output:
             self.output_dir = output
+        else:
+            if test_name:
+                self.output_dir = time.strftime('results/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
+            else:
+                self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
+            
  
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
