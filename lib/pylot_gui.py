@@ -29,13 +29,13 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION, output=None, name=None):
+    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION, output=None, test_name=None):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
         
-        self.name = name  # test name
+        self.test_name = test_name
         self.output = output
         
         self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
@@ -74,10 +74,10 @@ class Application(wx.Frame):
         self.duration_spin.SetRange(1, 1000000)
         self.duration_spin.SetValue(duration)
         self.name_textbox = wx.TextCtrl(panel, -1, 'Name of Test')
-        if not name:
+        if not test_name:
             self.name_textbox.SetValue('Test Name')
         else:
-            self.name_textbox.SetValue(name)
+            self.name_textbox.SetValue(test_name)
         controls_sizer = wx.GridSizer(0, 4, 0, 0)
         controls_sizer.Add(wx.StaticText(panel, -1, 'Agents (count)'), 0, wx.TOP|wx.LEFT, 8)
         controls_sizer.Add(self.num_agents_spin, 0, wx.ALL, 2)
