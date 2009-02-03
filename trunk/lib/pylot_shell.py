@@ -149,7 +149,7 @@ def start(num_agents, rampup, interval, duration, log_resps, output=None, test_n
         for req in cases:
             lm.add_req(req)
     except:  # if there was a problem getting cases from the xml file
-        print 'Error opening testcase file.\n'
+        print 'ERROR: can not parse testcase file.\n'
         sys.exit(1)
     
     start_time = time.time()
@@ -168,10 +168,9 @@ def start(num_agents, rampup, interval, duration, log_resps, output=None, test_n
             elapsed_secs = time.time() - start_time
             reporter.refresh(elapsed_secs, refresh_rate)
 
-    print '\n'
     lm.stop()
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
         time.sleep(.10)
-    print 'Done.'
+    print '\nDone.'
     
