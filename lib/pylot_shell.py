@@ -21,18 +21,20 @@ from threading import Thread
 from pylot_engine import LoadManager
 
 
-# flag is set if the script is run on windows
+
 is_windows = sys.platform.startswith('win')
-# The _cpos C++ extension defines windows native functions
-# for positioning the cursor on the command prompt
-# since ANSI sequence support is disabled by default
-# on Windows.  More info: http://en.wikipedia.org/wiki/ANSI_escape_code
+if is_windows:
+    import _cpos
+#  The _cpos C++ extension defines windows native functions
+#  for positioning the cursor on the command prompt
+#  since ANSI sequence support is disabled by default
+#  on Windows.  More info: http://en.wikipedia.org/wiki/ANSI_escape_code
 #
-# The _cpos.pyd file is just a renamed dll.  See the C++ source code
-# for the library.  It is built with Visual Studio.  You must distribute
-# it with the whole app but also include the .pyd file, so users don't 
-# need to install VS or mingw and go through the pain of building it.
-if is_windows: import _cpos
+#  The _cpos.pyd file is just a renamed dll.  See the C++ source code
+#  for the library.  It is built with Visual Studio.  You must distribute
+#  it with the whole app but also include the .pyd file, so users don't 
+#  need to install VS or mingw and go through the pain of building it.
+
 
 
 
