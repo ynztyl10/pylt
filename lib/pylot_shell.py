@@ -134,8 +134,8 @@ def start(num_agents, rampup, interval, duration, log_resps, output=None, name=N
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
    
-    if name is not None:
-        if output is not None:
+    if not name:
+        if not output:
             output = output + '/' + name
 
     # create a load manager
