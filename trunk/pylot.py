@@ -37,9 +37,9 @@ rampup = 0
 interval = 0
 duration = 60
 log_responses = False
-gui = False
 output = None
 name = None
+gui = False
 
 
 # parse command line arguments
@@ -59,12 +59,12 @@ try:
         duration = int(opt.duration)
     if opt.log_responses: 
         log_responses = True
-    if opt.gui:
-        gui = True
     if opt.output:
         output = opt.output
     if opt.name:
         name = opt.name
+    if opt.gui:
+        gui = True
 except:
    print 'Invalid Argument'
    sys.exit(1)
