@@ -137,7 +137,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             self.default_timer = time.time
             
         # log options
-        self.stat_logging = True
+        self.per_agent_stat_logging = True
         self.trace_logging = False
         if self.log_resps:
             self.enable_trace_logging()
@@ -214,7 +214,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # log response stats/info
-                        if self.stat_logging:
+                        if self.per_agent_stat_logging:
                             self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                         
                         # log response content
@@ -235,7 +235,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def send(self, req):
         headers = {}
         body = ''
-        method = ''
         if req.headers:
             headers = req.headers
         if req.body:
@@ -245,26 +244,22 @@ class LoadAgent(Thread):  # each agent runs in its own thread
 
     
     def log_stat(self, txt):
-        # catch exception if IOError occurs
-        # some systems have a limit on number of files open at the same time
         try:
             stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
             stat_log.write('%s\n' % txt)
             stat_log.flush()  # flush write buffer so we always log in real-time
             stat_log.close()
-        except: 
-            print 'ERROR: can notwrite to stats log file\n'
+        except IOError: 
+            print 'ERROR: can not write to stats log file\n'
     
     
     def log_error(self, txt):
-        # catch exception if IOError occurs
-        # some systems have a limit on number of files open at the same time
         try:
             error_log = open('%s/agent_%d_errors.log' % (self.output_dir, self.id + 1), 'a')
             error_log.write('%s\n' % txt)
             error_log.flush()
             error_log.close()
-        except: 
+        except IOError, e: 
             print 'ERROR: can not write to error log file\n'
     
     
@@ -279,6 +274,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         
         
     def disable_trace_logging(self):
+        self.trace_log.flush()
         self.trace_log.close()
         self.trace_logging = False
         
@@ -292,10 +288,10 @@ class Request():
         self.body = body
         self.repeat = repeat
         
-        if headers == None:
-            self.headers = {}
-        else:
+        if headers:
             self.headers = headers
+        else:
+            self.headers = {}
 
         # verification string or regex
         self.verify = ''
