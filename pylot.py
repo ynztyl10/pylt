@@ -62,7 +62,7 @@ try:
     if opt.output:
         output = opt.output
     if opt.name:
-        name = opt.name
+        test_name = opt.name
     if opt.gui:
         gui = True
 except:
@@ -72,7 +72,7 @@ except:
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION, output, name)
+    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION, output, test_name)
     
 else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
@@ -83,8 +83,12 @@ else:  # shell/console mode
     print '  interval in milliseconds:  %s' % interval
     print '  test duration in seconds:  %s' % duration
     print '  log responses:             %s' % log_responses
+    if test_name:
+        print '  test name:                 %s' % test_name
+    if output:
+        print '  output location:           %s' % output
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, log_responses, output, name)
+        pylot_shell.start(agents, rampup, interval, duration, log_responses, output, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
