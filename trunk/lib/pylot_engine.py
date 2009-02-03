@@ -34,7 +34,7 @@ class LoadManager(Thread):
         self.log_resps = log_resps
         self.test_name = name
         
-        if output == None:
+        if not output
             self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime())
         else:
             self.output_dir = output
