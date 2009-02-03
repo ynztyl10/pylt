@@ -74,7 +74,7 @@ class Application(wx.Frame):
         self.duration_spin.SetRange(1, 1000000)
         self.duration_spin.SetValue(duration)
         self.name_textbox = wx.TextCtrl(panel, -1, 'Name of Test')
-        if name is None:
+        if not name:
             self.name_textbox.SetValue('Test Name')
         else:
             self.name_textbox.SetValue(name)
@@ -204,8 +204,8 @@ class Application(wx.Frame):
         log_resps = self.logresp_checkbox.GetValue()
         self.name = self.name_textbox.GetValue()
         
-        if not self.name:
-            if not self.output:
+        if self.name:
+            if self.output:
                 self.output_path = self.output_path + '/' + self.name
         
         # create a load manager
@@ -275,12 +275,12 @@ class Application(wx.Frame):
         dir_dlg.Destroy()
             
     def on_output(self, evt):
-	dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
-	if dir_dlg.ShowModal() == wx.ID_OK:
-	   dirname = dir_dlg.GetPath()
-	self.output_path = dirname	   
+        dir_dlg = wx.DirDialog(self, message='Choose Results Directory', defaultPath=os.getcwd(), style=wx.DD_DIR_MUST_EXIST)
+        if dir_dlg.ShowModal() == wx.ID_OK:
+            dirname = dir_dlg.GetPath()
+            self.output_path = dirname
 
-        
+
     def switch_status(self, is_on):
         # change the status gauge and swap run/stop buttons, turn off workload controls
         if is_on:
