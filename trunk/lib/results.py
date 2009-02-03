@@ -22,7 +22,7 @@ from threading import Thread
 
 
 
-def generate_results(dir, name):
+def generate_results(dir, test_name):
     print 'Generating Results...'
     merged_log = merge_log_files(dir)
     merged_error_log = merge_error_files(dir)
@@ -69,7 +69,7 @@ def generate_results(dir, name):
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
-    reportwriter.write_starting_content(fh, name)
+    reportwriter.write_starting_content(fh, test_name)
     reportwriter.write_summary_results(fh, summary_dict, workload_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
@@ -77,7 +77,7 @@ def generate_results(dir, name):
     reportwriter.write_closing_html(fh)
     fh.close()
 
-    print 'Results have been generated. You can view your test at:'
+    print '\nResults have been generated. You can view your test at:'
     print '%s/results.html\n' % dir
 
 
@@ -168,10 +168,10 @@ def get_stats(response_stats, throughput_stats):
 
 
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
-    def __init__(self, dir, name):
+    def __init__(self, dir, test_name):
         Thread.__init__(self)
         self.dir = dir
-        self.test_name = name
+        self.test_name = test_name
         
     def run(self):
         try:
