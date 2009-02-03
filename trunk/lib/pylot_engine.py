@@ -235,6 +235,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
     def send(self, req):
         headers = {}
         body = ''
+        method = ''
         if req.headers:
             headers = req.headers
         if req.body:
@@ -252,7 +253,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             stat_log.flush()  # flush write buffer so we always log in real-time
             stat_log.close()
         except: 
-            print 'Error writing to stats file\n'
+            print 'ERROR: can notwrite to stats log file\n'
     
     
     def log_error(self, txt):
@@ -264,7 +265,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             error_log.flush()
             error_log.close()
         except: 
-            print 'Error writing to error log file\n'
+            print 'ERROR: can not write to error log file\n'
     
     
     def log_trace(self, txt):
