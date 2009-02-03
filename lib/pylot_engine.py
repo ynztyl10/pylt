@@ -17,6 +17,7 @@ import re
 import sys
 import time
 import pickle
+import Queue
 import lib.httplib2 as httplib2
 import results
 from threading import Thread
@@ -42,14 +43,14 @@ class LoadManager(Thread):
             else:
                 self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
             
- 
         self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
         self.error_queue = error_queue
         
+        self.results_queue = Queue.Queue()  # for storing results to be logged  
         self.agent_refs = []
         self.msg_queue = []
-            
+        
         
     def stop(self):
         self.running = False
@@ -75,13 +76,18 @@ class LoadManager(Thread):
             except OSError:
                 print 'ERROR: Can not create output directory'
                 sys.exit(1)
-
+        
+        # start the thread for reading and writing queued results
+        q = ResultWriter(self.results_queue, self.output_dir)
+        q.setDaemon(True)
+        q.start()
+        
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue)
+                agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue, self.results_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 agent_started_line = 'Started agent ' + str(i + 1) 
@@ -121,7 +127,7 @@ class LoadManager(Thread):
 
 
 class LoadAgent(Thread):  # each agent runs in its own thread
-    def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue):
+    def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue, results_queue):
         Thread.__init__(self)
         
         self.running = True
@@ -129,6 +135,14 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.interval = interval
         self.log_resps = log_resps
         self.output_dir = output_dir
+            
+        self.runtime_stats = runtime_stats  # shared stats dictionary
+        self.error_queue = error_queue  # shared error list
+        self.msg_queue = msg_queue  # shared message/request queue
+        self.results_queue = results_queue  # shared results quue
+        
+        self.count = 0
+        self.error_count = 0
         
         # choose timer to use
         if sys.platform.startswith('win'):
@@ -142,13 +156,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         if self.log_resps:
             self.enable_trace_logging()
             
-        self.runtime_stats = runtime_stats  # shared stats dictionary
-        self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue  # shared message/request queue
-        
-        self.count = 0
-        self.error_count = 0
-  
         # create the http object here and reuse it for every fetch.
         # httplib2 seems to be a bit buggy, so this is a workaround for a problem
         # it's causing in longer running tests with lots of agents (90+)
@@ -217,6 +224,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         if self.per_agent_stat_logging:
                             self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                         
+                        # put response stats/info on queue for reading by the consumer (ResultWriter) thread
+                        self.results_queue.put((self.id, cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
+
                         # log response content
                         if self.trace_logging:
                             for key in resp:
@@ -243,9 +253,9 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         return (resp, content)
 
     
-    def log_stat(self, txt):
+    def log_stat(self, txt):  # only used for per-agent logging
         try:
-            stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
+            stat_log = open('%s/agent__%d__stats.psv' % (self.output_dir, self.id + 1), 'a')
             stat_log.write('%s\n' % txt)
             stat_log.flush()  # flush write buffer so we always log in real-time
             stat_log.close()
@@ -297,7 +307,6 @@ class Request():
         self.verify = ''
         self.verify_negative = ''
             
-    
     def add_header(self, header_name, value):
         self.headers[header_name] = value
         
@@ -329,3 +338,30 @@ class StatCollection():
             self.avg_latency = 0
 
     
+
+
+class ResultWriter(Thread):
+    def __init__(self, results_queue, output_dir):
+        Thread.__init__(self)
+        self.results_queue = results_queue
+        self.output_dir = output_dir        
+
+    def run(self):
+        #stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
+        
+        f = open('%s/agents_stats.psv' % self.output_dir, 'a')     
+        while True:
+            try:
+                q_tuple = self.results_queue.get(False)
+                #trans_end_time, latency = q_tuple
+                #elapsed = (trans_end_time - self.start_time)
+                #f.write('%.3f,%.3f\n' % (elapsed, latency))
+
+                f.write('%s|%s|%s|%s|%s|%d|%s|%d|%f\n' % q_tuple)
+                #print q_tuple
+                f.flush()
+            except Queue.Empty:
+                # re-check queue for messages every x sec
+                time.sleep(.25)
+
+
