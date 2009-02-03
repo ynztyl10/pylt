@@ -204,8 +204,8 @@ class Application(wx.Frame):
         log_resps = self.logresp_checkbox.GetValue()
         self.name = self.name_textbox.GetValue()
         
-        if self.name is not None:
-            if self.output is not None:
+        if not self.name:
+            if not self.output:
                 self.output_path = self.output_path + '/' + self.name
         
         # create a load manager
