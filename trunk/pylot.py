@@ -38,7 +38,7 @@ interval = 0
 duration = 60
 log_responses = False
 output = None
-name = None
+test_name = None
 gui = False
 
 
