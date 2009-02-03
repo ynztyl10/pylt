@@ -77,7 +77,7 @@ class LoadManager(Thread):
                 print 'ERROR: Can not create output directory'
                 sys.exit(1)
         
-        # start the thread for reading and writing queued results
+        # start tthread for reading and writing queued results
         q = ResultWriter(self.results_queue, self.output_dir)
         q.setDaemon(True)
         q.start()
@@ -335,7 +335,7 @@ class StatCollection():
         if count > 0:
             self.avg_latency = total_latency / count
         else:
-            self.avg_latency = 0
+            self.avg_latency = 0.0
 
     
 
@@ -349,19 +349,14 @@ class ResultWriter(Thread):
     def run(self):
         #stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
         
-        f = open('%s/agents_stats.psv' % self.output_dir, 'a')     
+        f = open('%s/agent_stats.psv' % self.output_dir, 'a')     
         while True:
             try:
                 q_tuple = self.results_queue.get(False)
-                #trans_end_time, latency = q_tuple
-                #elapsed = (trans_end_time - self.start_time)
-                #f.write('%.3f,%.3f\n' % (elapsed, latency))
-
                 f.write('%s|%s|%s|%s|%s|%d|%s|%d|%f\n' % q_tuple)
-                #print q_tuple
                 f.flush()
             except Queue.Empty:
                 # re-check queue for messages every x sec
-                time.sleep(.25)
+                time.sleep(.05)
 
 
