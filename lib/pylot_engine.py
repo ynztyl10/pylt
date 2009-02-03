@@ -65,7 +65,7 @@ class LoadManager(Thread):
         try:
             os.makedirs(self.output_dir, 0755)
         except OSError:
-            self.output_dir += time.strftime('/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+            self.output_dir = self.output_dir + time.strftime('/results_%Y.%m.%d_%H.%M.%S', time.localtime())
             try:
                os.makedirs(self.output_dir, 0755)
             except OSError:
