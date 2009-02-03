@@ -20,12 +20,12 @@
   -r, --rampup=RAMPUP      :  rampup in seconds
   -i, --interval=INTERVAL  :  interval in milliseconds
   -l, --log_responses      :  log responses
-  -o, --output=PATH        :  specify output directory
-  -n, --name=TESTNAME	   :  specify name of test
+  -o, --output=PATH        :  output directory
+  -n, --name=TESTNAME	   :  name of test
   -g, --gui                :  start GUI  
 """
 
-VERSION = '1.12'
+VERSION = '1.20'
 
 import sys
 import lib.optionparse as optionparse
