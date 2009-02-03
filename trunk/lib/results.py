@@ -34,7 +34,7 @@ def generate_results(dir, name):
     try:  # graphing only works on systems with Matplotlib installed
         graph.tp_graph(throughputs, dir=dir + '/')
     except: 
-        print "Unable to generate graphs with Matplotlib."
+        print "ERROR: Unable to generate graphs with Matplotlib."
     throughput_stats = corestats.Stats(throughputs.values())
 
     # response times
@@ -177,6 +177,6 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         try:
             generate_results(self.dir, self.test_name)
         except:
-            print 'Error: Unable to generate results'
+            print 'ERROR: Unable to generate results'
         
             

@@ -17,8 +17,10 @@ import time
 
 
 def write_starting_content(handle, name):
-    handle.write('<h1>Pylot - %s Performance Results</h1>\n' % name)
-   
+    if name:
+        handle.write('<h1>Pylot - %s Performance Results</h1>\n' % name)
+    else:
+        handle.write('<h1>Pylot - Performance Results</h1>\n')
     
 def write_images(handle):
     handle.write('<h2>Response Time</h2>\n')
