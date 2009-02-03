@@ -214,8 +214,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # log response stats/info
-                        if self.stat_logging:
-                            self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
+        #                if self.stat_logging:
+        #                    self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                         
                         # log response content
                         if self.trace_logging:
@@ -264,7 +264,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             error_log.flush()
             error_log.close()
         except: 
-            print 'Error writing to log file\n'
+            print 'Error writing to error log file\n'
     
     
     def log_trace(self, txt):
