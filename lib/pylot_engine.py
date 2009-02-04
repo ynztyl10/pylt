@@ -47,7 +47,7 @@ class LoadManager(Thread):
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
         self.error_queue = error_queue
         
-        self.results_queue = Queue.Queue()  # for storing results to be logged  
+        self.results_queue = Queue.Queue()  # for storing result stats to be logged  
         self.agent_refs = []
         self.msg_queue = []
         
@@ -351,7 +351,9 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
-        f = open('%s/agent_stats.psv' % self.output_dir, 'a')     
+        # TODO: somewhere in here is what is causing the interpreter crash.
+        #       it has to do with holding a file handle open?
+        f = open('%s/agent_stats.psv' % self.output_dir, 'a') 
         while self.running:
             try:
                 q_tuple = self.results_queue.get(False)
@@ -359,7 +361,7 @@ class ResultWriter(Thread):
                 f.flush()
             except Queue.Empty:
                 # re-check queue for messages every x sec
-                time.sleep(.05)
+                time.sleep(.1)
                 
     def stop(self):
         self.running = False
