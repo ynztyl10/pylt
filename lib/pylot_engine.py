@@ -51,18 +51,6 @@ class LoadManager(Thread):
         self.agent_refs = []
         self.msg_queue = []
         
-        
-    def stop(self):
-        self.running = False
-        for agent in self.agent_refs:
-            agent.stop()
-        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
-        
-        # auto-generate results when test is stopped
-        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
-        self.results_gen.setDaemon(True)
-        self.results_gen.start()
-        
     
     def run(self):
         self.running = True
@@ -77,10 +65,10 @@ class LoadManager(Thread):
                 print 'ERROR: Can not create output directory'
                 sys.exit(1)
         
-        # start tthread for reading and writing queued results
-        q = ResultWriter(self.results_queue, self.output_dir)
-        q.setDaemon(True)
-        q.start()
+        # start thread for reading and writing queued results
+        self.results_writer = ResultWriter(self.results_queue, self.output_dir)
+        self.results_writer.setDaemon(True)
+        self.results_writer.start()
         
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
@@ -105,6 +93,20 @@ class LoadManager(Thread):
         self.agents_started = True
         
     
+    def stop(self):
+        self.running = False
+        for agent in self.agent_refs:
+            agent.stop()
+        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
+        
+        self.results_writer.stop()
+        
+        # auto-generate results when test is stopped
+        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
+        self.results_gen.setDaemon(True)
+        self.results_gen.start()
+        
+        
     def init_runtime_stats(self, runtime_stats):
         for i in range(self.num_agents):
             runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
@@ -139,7 +141,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
         self.msg_queue = msg_queue  # shared message/request queue
-        self.results_queue = results_queue  # shared results quue
+        self.results_queue = results_queue  # shared results queue
         
         self.count = 0
         self.error_count = 0
@@ -160,12 +162,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         # httplib2 seems to be a bit buggy, so this is a workaround for a problem
         # it's causing in longer running tests with lots of agents (90+)
         self.http = httplib2.Http()
-        
-
-    def stop(self):
-        self.running = False
-        if self.trace_logging:
-            self.disable_trace_logging()
         
         
     def run(self):
@@ -243,6 +239,12 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         break
         
         
+    def stop(self):
+        self.running = False
+        if self.trace_logging:
+            self.disable_trace_logging()
+            
+            
     def send(self, req):
         headers = {}
         body = ''
@@ -336,7 +338,7 @@ class StatCollection():
         if count > 0:
             self.avg_latency = total_latency / count
         else:
-            self.avg_latency = 0.0
+            self.avg_latency = 0
 
     
 
@@ -344,12 +346,13 @@ class StatCollection():
 class ResultWriter(Thread):
     def __init__(self, results_queue, output_dir):
         Thread.__init__(self)
+        self.running = True
         self.results_queue = results_queue
         self.output_dir = output_dir        
 
     def run(self):
         f = open('%s/agent_stats.psv' % self.output_dir, 'a')     
-        while True:
+        while self.running:
             try:
                 q_tuple = self.results_queue.get(False)
                 f.write('%s|%s|%s|%s|%s|%d|%s|%d|%f\n' % q_tuple)
@@ -357,5 +360,8 @@ class ResultWriter(Thread):
             except Queue.Empty:
                 # re-check queue for messages every x sec
                 time.sleep(.05)
+                
+    def stop(self):
+        self.running = False
 
 
