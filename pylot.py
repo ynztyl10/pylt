@@ -33,9 +33,9 @@ import lib.optionparse as optionparse
 
 # default parameters
 agents = 1
-rampup = 0
-interval = 0
-duration = 60
+rampup = 0  # secs
+interval = 0  # millisecs
+duration = 60  # secs
 log_responses = False
 output = None
 test_name = None
