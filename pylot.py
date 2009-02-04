@@ -83,9 +83,9 @@ else:  # shell/console mode
     print '\n-------------------------------------------------'
     print 'Test parameters:'
     print '  number of agents:          %s' % agents
+    print '  test duration in seconds:  %s' % duration
     print '  rampup in seconds:         %s' % rampup
     print '  interval in milliseconds:  %s' % interval
-    print '  test duration in seconds:  %s' % duration
     print '  test case xml:             %s' % tc_xml_filename
     print '  log responses:             %s' % log_responses
     if test_name:
