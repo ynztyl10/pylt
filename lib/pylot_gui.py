@@ -198,7 +198,7 @@ class Application(wx.Frame):
         
         # get values from UI controls
         num_agents = self.num_agents_spin.GetValue()
-        interval = self.interval_spin.GetValue() / 1000.0  # convert from millisecs to secs
+        interval = self.interval_spin.GetValue() / 1000.0  # convert millisecs to secs
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         log_resps = self.logresp_checkbox.GetValue()
@@ -353,7 +353,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 3.0
+        self.refresh_rate = 2.0
         
         
     def run(self):
