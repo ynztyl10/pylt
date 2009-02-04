@@ -39,10 +39,10 @@ class EventSink(object):
         post_data = args[4]
         headers = args[5]
         print '    <url>%s</url>' % url
-        if(post_data is not None):
+        if post_data:
             print '    <method>POST</method>'
             print '    <body><![CDATA[%s]]></body>' % post_data
-            if(headers is not None):
+            if headers:
                 print '    <add_header>%s</add_header>' % headers
         print "  </case>"
         stop_event.set()
