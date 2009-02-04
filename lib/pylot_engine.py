@@ -351,7 +351,7 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
-        # TODO: somewhere in here is what is causing the interpreter crash.
+        # TODO: somewhere in here is what is causing the interpreter crash on Ctrl-C keyboard interrupt
         #       it has to do with holding a file handle open?
         f = open('%s/agent_stats.psv' % self.output_dir, 'a') 
         while self.running:
