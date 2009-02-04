@@ -203,7 +203,8 @@ class Application(wx.Frame):
         duration = self.duration_spin.GetValue()
         log_resps = self.logresp_checkbox.GetValue()
         self.name = self.name_textbox.GetValue()
-        
+        if self.name == 'Test Name':  # user didn't enter a Test Name
+            self.name = None
         if self.name:
             if self.output:
                 self.output_path = self.output_path + '/' + self.name
