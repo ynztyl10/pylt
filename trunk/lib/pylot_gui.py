@@ -29,12 +29,13 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent, agents, rampup, interval, duration, logresp, VERSION, output=None, test_name=None):
+    def __init__(self, parent, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output=None, test_name=None):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
         self.error_queue = []  # shared error list
         
+        self.tc_xml_filename = tc_xml_filename
         self.test_name = test_name
         self.output = output
         
@@ -214,7 +215,7 @@ class Application(wx.Frame):
         
         # load the test cases
         try:
-            cases = xmlparse.load_xml_cases()
+            cases = xmlparse.load_xml_cases(tc_xml_filename)
             for req in cases:
                 self.lm.add_req(req)
         except:
@@ -436,7 +437,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 
 
-def main(agents, rampup, interval, duration, logresp, VERSION, output=None, name=None):
+def main(agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output=None, test_name=None):
     app = wx.App(0)
-    Application(None, agents, rampup, interval, duration, logresp, VERSION, output, name)
+    Application(None, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output, test_name=test_name)
     app.MainLoop()            

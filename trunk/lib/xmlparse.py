@@ -20,9 +20,9 @@ except:
 from pylot_engine import Request
 
 
-def load_xml_cases():
+def load_xml_cases(tc_xml_filename):
     # parse xml and load request queue
-    dom = etree.parse('testcases.xml')
+    dom = etree.parse(tc_xml_filename)
     cases = []
     for child in dom.getiterator():
         if child.tag != dom.getroot().tag and child.tag == 'case':
