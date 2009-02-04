@@ -153,7 +153,7 @@ class LoadAgent(Thread):  # each agent runs in its own thread
             self.default_timer = time.time
             
         # log options
-        self.per_agent_stat_logging = True
+        #self.per_agent_stat_logging = True
         self.trace_logging = False
         if self.log_resps:
             self.enable_trace_logging()
@@ -215,10 +215,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                         
                         # update shared stats dictionary
                         self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
-                        
-                        # log response stats/info
-                        if self.per_agent_stat_logging:
-                            self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
                         q_tuple = (self.id + 1, cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency)

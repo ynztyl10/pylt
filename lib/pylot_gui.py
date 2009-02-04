@@ -215,7 +215,7 @@ class Application(wx.Frame):
         
         # load the test cases
         try:
-            cases = xmlparse.load_xml_cases(tc_xml_filename)
+            cases = xmlparse.load_xml_cases(self.tc_xml_filename)
             for req in cases:
                 self.lm.add_req(req)
         except:
@@ -355,7 +355,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 2.0
+        self.refresh_rate = 3.0
         
         
     def run(self):
