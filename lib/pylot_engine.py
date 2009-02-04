@@ -252,15 +252,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         return (resp, content)
 
     
-    def log_stat(self, txt):  # only used for per-agent logging
-        try:
-            stat_log = open('%s/agent__%d__stats.psv' % (self.output_dir, self.id + 1), 'a')
-            stat_log.write('%s\n' % txt)
-            stat_log.flush()  # flush write buffer so we always log in real-time
-            stat_log.close()
-        except IOError: 
-            print 'ERROR: can not write to stats log file\n'
-    
     
     def log_error(self, txt):
         try:
