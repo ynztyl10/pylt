@@ -34,7 +34,7 @@ def generate_results(dir, test_name):
     try:  # graphing only works on systems with Matplotlib installed
         graph.tp_graph(throughputs, dir=dir + '/')
     except: 
-        print "ERROR: Unable to generate graphs with Matplotlib."
+        print "ERROR: Unable to generate graphs with Matplotlib"
     throughput_stats = corestats.Stats(throughputs.values())
 
     # response times

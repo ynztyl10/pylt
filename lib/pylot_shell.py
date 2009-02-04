@@ -131,7 +131,7 @@ class RuntimeReporter(object):
         
 
 
-def start(num_agents, rampup, interval, duration, log_resps, output=None, test_name=None):
+def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, output=None, test_name=None):
     runtime_stats = {}
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
@@ -145,11 +145,11 @@ def start(num_agents, rampup, interval, duration, log_resps, output=None, test_n
     
     # load the test cases
     try:
-        cases = xmlparse.load_xml_cases()
+        cases = xmlparse.load_xml_cases(tc_xml_filename)
         for req in cases:
             lm.add_req(req)
     except:  # if there was a problem getting cases from the xml file
-        print 'ERROR: can not parse testcase file.\n'
+        print 'ERROR: can not parse testcase file\n'
         sys.exit(1)
     
     start_time = time.time()
