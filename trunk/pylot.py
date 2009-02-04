@@ -15,14 +15,15 @@
 
 """
   usage: %prog [options] args
-  -a, --agents=NUM_AGENTS  :  number of agents
-  -d, --duration=DURATION  :  test duration in seconds
-  -r, --rampup=RAMPUP      :  rampup in seconds
-  -i, --interval=INTERVAL  :  interval in milliseconds
-  -l, --log_responses      :  log responses
-  -o, --output=PATH        :  output directory
-  -n, --name=TESTNAME	   :  name of test
-  -g, --gui                :  start GUI  
+  -a, --agents=NUM_AGENTS     :  number of agents
+  -d, --duration=DURATION     :  test duration in seconds
+  -r, --rampup=RAMPUP         :  rampup in seconds
+  -i, --interval=INTERVAL     :  interval in milliseconds
+  -x, --xmlfile=TEST_CASE_XML :  test case xml file
+  -o, --output=PATH           :  output directory
+  -n, --name=TESTNAME	      :  name of test
+  -l, --log_responses         :  log responses
+  -g, --gui                   :  start GUI  
 """
 
 VERSION = '1.20'
@@ -33,9 +34,10 @@ import lib.optionparse as optionparse
 
 # default parameters
 agents = 1
+duration = 60  # secs
 rampup = 0  # secs
 interval = 0  # millisecs
-duration = 60  # secs
+tc_xml_filename = 'testcases.xml'
 log_responses = False
 output = None
 test_name = None
@@ -51,12 +53,14 @@ if not opt and not args:
 try:
     if opt.agents:
         agents = int(opt.agents)
+    if opt.duration:
+        duration = int(opt.duration)
     if opt.rampup:
         rampup = int(opt.rampup)
     if opt.interval:
-        interval =  int(opt.interval)
-    if opt.duration:
-        duration = int(opt.duration)
+        interval = int(opt.interval)
+    if opt.xmlfile:
+        tc_xml_filename = opt.xmlfile
     if opt.log_responses: 
         log_responses = True
     if opt.output:
@@ -72,7 +76,7 @@ except:
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, log_responses, VERSION, output, test_name)
+    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output, test_name)
     
 else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
@@ -82,6 +86,7 @@ else:  # shell/console mode
     print '  rampup in seconds:         %s' % rampup
     print '  interval in milliseconds:  %s' % interval
     print '  test duration in seconds:  %s' % duration
+    print '  test case xml:             %s' % tc_xml_filename
     print '  log responses:             %s' % log_responses
     if test_name:
         print '  test name:                 %s' % test_name
@@ -89,6 +94,6 @@ else:  # shell/console mode
         print '  output location:           %s' % output
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, log_responses, output, test_name)
+        pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
