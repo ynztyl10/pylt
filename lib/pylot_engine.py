@@ -347,8 +347,6 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
-        #stat_log = open('%s/agent_%d_stats.psv' % (self.output_dir, self.id + 1), 'a')
-        
         f = open('%s/agent_stats.psv' % self.output_dir, 'a')     
         while True:
             try:
