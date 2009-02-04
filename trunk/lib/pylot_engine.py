@@ -225,7 +225,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                             self.log_stat('%s|%s|%s|%s|%d|%s|%d|%f' % (cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        self.results_queue.put((self.id, cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency))
+                        q_tuple = (self.id + 1, cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency)
+                        self.results_queue.put(q_tuple)
 
                         # log response content
                         if self.trace_logging:
