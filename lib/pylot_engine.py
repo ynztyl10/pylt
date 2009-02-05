@@ -152,8 +152,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         else:
             self.default_timer = time.time
             
-        # log options
-        #self.per_agent_stat_logging = True
         self.trace_logging = False
         if self.log_resps:
             self.enable_trace_logging()
