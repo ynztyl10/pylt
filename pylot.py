@@ -97,3 +97,5 @@ else:  # shell/console mode
         pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
+        sys.exit(1)
+
