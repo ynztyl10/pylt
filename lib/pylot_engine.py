@@ -33,6 +33,7 @@ class LoadManager(Thread):
         self.interval = interval
         self.rampup = rampup
         self.log_resps = log_resps
+        self.runtime_stats = runtime_stats
         self.test_name = test_name
         
         if output:
@@ -42,14 +43,17 @@ class LoadManager(Thread):
                 self.output_dir = time.strftime('results/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
             else:
                 self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
+        
+        # initialize the stats
+        for i in range(self.num_agents): 
+            self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
-        self.runtime_stats = self.init_runtime_stats(runtime_stats)
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
         self.error_queue = error_queue
         
-        self.results_queue = Queue.Queue()  # for storing result stats to be logged  
+        self.results_queue = Queue.Queue()  # result stats get queued up by agent threads
         self.agent_refs = []
-        self.msg_queue = []
+        self.msg_queue = []  # list of Request objects
         
     
     def run(self):
@@ -101,17 +105,11 @@ class LoadManager(Thread):
         
         self.results_writer.stop()
         
-        # auto-generate results when test is stopped
+        # auto-generate results from a new thread when the test is stopped
         self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
         self.results_gen.setDaemon(True)
         self.results_gen.start()
-        
-        
-    def init_runtime_stats(self, runtime_stats):
-        for i in range(self.num_agents):
-            runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
-        return runtime_stats
-    
+
 
     def add_req(self, req):
         self.msg_queue.append(req)
@@ -146,11 +144,13 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.count = 0
         self.error_count = 0
         
-        # choose timer to use
+        # choose timer to use:
+        
+        
         if sys.platform.startswith('win'):
-            self.default_timer = time.clock
+            self.default_timer = time.clock  # time.clock() is more precise on Windows systems
         else:
-            self.default_timer = time.time
+            self.default_timer = time.time  # time.time() is more precise on Linux/Unix and most other platforms 
             
         self.trace_logging = False
         if self.log_resps:
@@ -198,10 +198,8 @@ class LoadAgent(Thread):  # each agent runs in its own thread
                     
                         if is_error:                    
                             self.error_count += 1
-                            # put an error message on the queue
                             error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
                             self.error_queue.append(error_string)
-                            # log the error
                             self.log_error(error_string)
                             
                         self.count += 1
@@ -336,9 +334,12 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
-        # TODO: somewhere in here is what is causing the interpreter crash on Ctrl-C keyboard interrupt
-        #       it has to do with holding a file handle open?
-        #       this is a bug in the Python interpreter (tested on 2.5.2)
+        # TODO: Fix this:
+        #  somewhere in here is what is causing the interpreter crash on Ctrl-C keyboard interrupt
+        #  this is a bug in the Python interpreter
+        #  see:  http://bugs.python.org/issue5160
+        #  the workaround is to create the worker queues in the main thread.
+        #
         f = open('%s/agent_stats.psv' % self.output_dir, 'a') 
         while self.running:
             try:
