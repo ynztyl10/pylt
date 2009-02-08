@@ -327,6 +327,7 @@ class StatCollection():
 
 
 class ResultWriter(Thread):
+    #  this thread is for reading queued results and writing them to a log file.
     def __init__(self, results_queue, output_dir):
         Thread.__init__(self)
         self.running = True
