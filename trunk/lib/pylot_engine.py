@@ -24,6 +24,7 @@ from threading import Thread
 
 
 
+
 class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output=None, test_name=None):
         Thread.__init__(self)
@@ -145,8 +146,6 @@ class LoadAgent(Thread):  # each agent runs in its own thread
         self.error_count = 0
         
         # choose timer to use:
-        
-        
         if sys.platform.startswith('win'):
             self.default_timer = time.clock  # time.clock() is more precise on Windows systems
         else:
