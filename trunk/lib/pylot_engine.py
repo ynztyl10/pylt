@@ -18,8 +18,8 @@ import sys
 import time
 import pickle
 import Queue
-import results
 from threading import Thread
+import results
 import lib.httplib2 as httplib2
 
 
