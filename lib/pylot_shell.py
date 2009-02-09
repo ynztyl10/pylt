@@ -16,8 +16,8 @@
 
 import sys
 import time
-import xmlparse
 from threading import Thread
+import xmlparse
 from pylot_engine import LoadManager
 
 
