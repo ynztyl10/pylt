@@ -127,7 +127,7 @@ class LoadManager(Thread):
 
 
 
-class LoadAgent(Thread):  # each agent runs in its own thread
+class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue, results_queue):
         Thread.__init__(self)
         
@@ -334,18 +334,17 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
-        # TODO: Fix this:
-        #  somewhere in here is what is causing the interpreter crash on Ctrl-C keyboard interrupt
-        #  this is a bug in the Python interpreter
-        #  see:  http://bugs.python.org/issue5160
-        #  the workaround is to create the worker queues in the main thread.
-        #
-        f = open('%s/agent_stats.psv' % self.output_dir, 'a') 
+        # The file handle should really be opened once, but this is crashing the
+        # Python interpreter when you quit the console with ctrl-c.  
+        # This is a bug in Python: http://bugs.python.org/issue5160
+        # The workaround is to open/close the handle for each write operation.
         while self.running:
             try:
                 q_tuple = self.results_queue.get(False)
+                f = open('%s/agent_stats.psv' % self.output_dir, 'a')
                 f.write('%s|%s|%s|%s|%s|%d|%s|%d|%f\n' % q_tuple)
                 f.flush()
+                f.close()
             except Queue.Empty:
                 # re-check queue for messages every x sec
                 time.sleep(.1)
