@@ -19,8 +19,8 @@ import time
 import pickle
 import Queue
 from threading import Thread
-import results
 import lib.httplib2 as httplib2
+import results
 
 
 
@@ -49,7 +49,7 @@ class LoadManager(Thread):
         for i in range(self.num_agents): 
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
-        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval from secs to millisecs
+        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval to millisecs
         self.error_queue = error_queue
         
         self.results_queue = Queue.Queue()  # result stats get queued up by agent threads
@@ -212,7 +212,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, end_time, req.url, resp.status, resp.reason, resp_bytes, latency)
+                        q_tuple = (self.id + 1, cur_date, cur_time, end_time, req.url.replace(',', ''), resp.status, resp.reason, resp_bytes, latency)
                         self.results_queue.put(q_tuple)
 
                         # log response content
@@ -341,8 +341,8 @@ class ResultWriter(Thread):
         while self.running:
             try:
                 q_tuple = self.results_queue.get(False)
-                f = open('%s/agent_stats.psv' % self.output_dir, 'a')
-                f.write('%s|%s|%s|%s|%s|%d|%s|%d|%f\n' % q_tuple)
+                f = open('%s/agent_stats.csv' % self.output_dir, 'a')
+                f.write('%s,%s,%s,%s,%s,%d,%s,%d,%f\n' % q_tuple)  # write as csv
                 f.flush()
                 f.close()
             except Queue.Empty:

@@ -25,7 +25,7 @@ from threading import Thread
 def generate_results(dir, test_name):
     print 'Generating Results...'
     try:
-        merged_log = open(dir + '/agent_stats.psv', 'rb').readlines()
+        merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()
     except IOError:
         print 'Error: can not find your results stat file'
     merged_error_log = merge_error_files(dir)
@@ -116,7 +116,7 @@ def list_timings(merged_log):
     # create a list of tuples with our timing data sorted by epoch
     epoch_timings = []
     for line in merged_log:
-        splat = line.split('|')
+        splat = line.split(',')
         epoch = splat[3].strip()
         response_time = splat[-1].strip()
         epoch_timings.append((float(epoch), float(response_time)))
@@ -127,7 +127,7 @@ def calc_bytes(merged_log):
     # get total bytes received
     bytes_seq = []
     for line in merged_log:
-        bytes = int(line.split('|')[-2].strip())
+        bytes = int(line.split(',')[-2].strip())
         bytes_seq.append(bytes)
     total_bytes = sum(bytes_seq)
     return total_bytes
