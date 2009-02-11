@@ -22,14 +22,14 @@ __contributors__ = ["Thomas Broyer (t.broyer@ltgt.net)",
     "Sam Ruby",
     "Louis Nyffenegger"]
 __license__ = "MIT"
-__version__ = "$Rev: 259 $"
+__version__ = "$Rev$"
 
 import re 
 import sys 
-import md5
 import email
 import email.Utils
 import email.Message
+import email.FeedParser
 import StringIO
 import gzip
 import zlib
@@ -41,7 +41,14 @@ import copy
 import calendar
 import time
 import random
-import sha
+# remove depracated warning in python2.6
+try:
+    from hashlib import sha1 as _sha, md5 as _md5
+except ImportError:
+    import sha
+    import md5
+    _sha = sha.new
+    _md5 = md5.new
 import hmac
 from gettext import gettext as _
 import socket
@@ -51,11 +58,26 @@ try:
 except ImportError:
     socks = None
 
+# Build the appropriate socket wrapper for ssl
+try:
+    import ssl # python 2.6
+    _ssl_wrap_socket = ssl.wrap_socket
+except ImportError:
+    def _ssl_wrap_socket(sock, key_file, cert_file):
+        ssl_sock = socket.ssl(sock, key_file, cert_file)
+        return httplib.FakeSocket(sock, ssl_sock)
+
+
 if sys.version_info >= (2,3):
     from iri2uri import iri2uri
 else:
     def iri2uri(uri):
         return uri
+
+def has_timeout(timeout): # python 2.6
+    if hasattr(socket, '_GLOBAL_DEFAULT_TIMEOUT'):
+        return (timeout is not None and timeout is not socket._GLOBAL_DEFAULT_TIMEOUT)
+    return (timeout is not None)
 
 __all__ = ['Http', 'Response', 'ProxyInfo', 'HttpLib2Error',
   'RedirectMissingLocation', 'RedirectLimit', 'FailedToDecompressContent', 
@@ -65,6 +87,7 @@ __all__ = ['Http', 'Response', 'ProxyInfo', 'HttpLib2Error',
 
 # The httplib debug level, set to a non-zero value to get debug output
 debuglevel = 0
+
 
 # Python 2.3 support
 if sys.version_info < (2,4):
@@ -180,7 +203,7 @@ def safename(filename):
         pass
     if isinstance(filename,unicode):
         filename=filename.encode('utf-8')
-    filemd5 = md5.new(filename).hexdigest()
+    filemd5 = _md5(filename).hexdigest()
     filename = re_url_scheme.sub("", filename)
     filename = re_slash.sub(",", filename)
 
@@ -327,6 +350,8 @@ def _decompressContent(response, new_content):
             if encoding == 'deflate':
                 content = zlib.decompress(content)
             response['content-length'] = str(len(content))
+            # Record the historical presence of the encoding in a way the won't interfere.
+            response['-content-encoding'] = response['content-encoding']
             del response['content-encoding']
     except IOError:
         content = ""
@@ -359,11 +384,11 @@ def _updateCache(request_headers, response_headers, content, cache, cachekey):
             cache.set(cachekey, text)
 
 def _cnonce():
-    dig = md5.new("%s:%s" % (time.ctime(), ["0123456789"[random.randrange(0, 9)] for i in range(20)])).hexdigest()
+    dig = _md5("%s:%s" % (time.ctime(), ["0123456789"[random.randrange(0, 9)] for i in range(20)])).hexdigest()
     return dig[:16]
 
 def _wsse_username_token(cnonce, iso_now, password):
-    return base64.encodestring(sha.new("%s%s%s" % (cnonce, iso_now, password)).digest()).strip()
+    return base64.encodestring(_sha("%s%s%s" % (cnonce, iso_now, password)).digest()).strip()
 
 
 # For credentials we need two things, first 
@@ -425,11 +450,11 @@ class DigestAuthentication(Authentication):
         Authentication.__init__(self, credentials, host, request_uri, headers, response, content, http)
         challenge = _parse_www_authenticate(response, 'www-authenticate')
         self.challenge = challenge['digest']
-        qop = self.challenge.get('qop')
+        qop = self.challenge.get('qop', 'auth')
         self.challenge['qop'] = ('auth' in [x.strip() for x in qop.split()]) and 'auth' or None
         if self.challenge['qop'] is None:
             raise UnimplementedDigestAuthOptionError( _("Unsupported value for qop: %s." % qop))
-        self.challenge['algorithm'] = self.challenge.get('algorithm', 'MD5')
+        self.challenge['algorithm'] = self.challenge.get('algorithm', 'MD5').upper()
         if self.challenge['algorithm'] != 'MD5':
             raise UnimplementedDigestAuthOptionError( _("Unsupported value for algorithm: %s." % self.challenge['algorithm']))
         self.A1 = "".join([self.credentials[0], ":", self.challenge['realm'], ":", self.credentials[1]])   
@@ -437,7 +462,7 @@ class DigestAuthentication(Authentication):
 
     def request(self, method, request_uri, headers, content, cnonce = None):
         """Modify the request headers"""
-        H = lambda x: md5.new(x).hexdigest()
+        H = lambda x: _md5(x).hexdigest()
         KD = lambda s, d: H("%s:%s" % (s, d))
         A2 = "".join([method, ":", request_uri])
         self.challenge['cnonce'] = cnonce or _cnonce() 
@@ -497,13 +522,13 @@ class HmacDigestAuthentication(Authentication):
         if self.challenge['pw-algorithm'] not in ['SHA-1', 'MD5']:
             raise UnimplementedHmacDigestAuthOptionError( _("Unsupported value for pw-algorithm: %s." % self.challenge['pw-algorithm']))
         if self.challenge['algorithm'] == 'HMAC-MD5':
-            self.hashmod = md5
+            self.hashmod = _md5
         else:
-            self.hashmod = sha
+            self.hashmod = _sha
         if self.challenge['pw-algorithm'] == 'MD5':
-            self.pwhashmod = md5
+            self.pwhashmod = _md5
         else:
-            self.pwhashmod = sha
+            self.pwhashmod = _sha
         self.key = "".join([self.credentials[0], ":",
                     self.pwhashmod.new("".join([self.credentials[1], self.challenge['salt']])).hexdigest().lower(),
                     ":", self.challenge['realm']
@@ -600,9 +625,6 @@ AUTH_SCHEME_CLASSES = {
 
 AUTH_SCHEME_ORDER = ["hmacdigest", "googlelogin", "digest", "wsse", "basic"]
 
-def _md5(s):
-    return 
-
 class FileCache(object):
     """Uses a local directory as a store for cached files.
     Not really safe to use if multiple threads or processes are going to 
@@ -618,7 +640,7 @@ class FileCache(object):
         retval = None
         cacheFullPath = os.path.join(self.cache, self.safe(key))
         try:
-            f = file(cacheFullPath, "r")
+            f = file(cacheFullPath, "rb")
             retval = f.read()
             f.close()
         except IOError:
@@ -627,7 +649,7 @@ class FileCache(object):
 
     def set(self, key, value):
         cacheFullPath = os.path.join(self.cache, self.safe(key))
-        f = file(cacheFullPath, "w")
+        f = file(cacheFullPath, "wb")
         f.write(value)
         f.close()
 
@@ -697,11 +719,12 @@ class HTTPConnectionWithTimeout(httplib.HTTPConnection):
                 else:
                     self.sock = socket.socket(af, socktype, proto)
                 # Different from httplib: support timeouts.
-                if self.timeout is not None:
+                if has_timeout(self.timeout):
                     self.sock.settimeout(self.timeout)
                     # End of difference from httplib.
                 if self.debuglevel > 0:
                     print "connect: (%s, %s)" % (self.host, self.port)
+
                 self.sock.connect(sa)
             except socket.error, msg:
                 if self.debuglevel > 0:
@@ -732,11 +755,11 @@ class HTTPSConnectionWithTimeout(httplib.HTTPSConnection):
             sock.setproxy(*self.proxy_info.astuple())
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if self.timeout is not None:
+        
+        if has_timeout(self.timeout):
             sock.settimeout(self.timeout)
         sock.connect((self.host, self.port))
-        ssl = socket.ssl(sock, self.key_file, self.cert_file)
-        self.sock = httplib.FakeSocket(sock, ssl)
+        self.sock =_ssl_wrap_socket(sock, self.key_file, self.cert_file)
 
 
 
@@ -780,6 +803,10 @@ the same interface as FileCache."""
 
         # If set to False then no redirects are followed, even safe ones.
         self.follow_redirects = True
+        
+        # Which HTTP methods do we apply optimistic concurrency to, i.e.
+        # which methods get an "if-match:" etag header added to them.
+        self.optimistic_concurrency_methods = ["PUT"]
 
         # If 'follow_redirects' is True, and this is set to True then
         # all redirecs are followed, including unsafe ones.
@@ -825,7 +852,7 @@ the same interface as FileCache."""
             except socket.gaierror:
                 conn.close()
                 raise ServerNotFoundError("Unable to find the server at %s" % conn.host)
-            except httplib.HTTPException, e:
+            except (socket.error, httplib.HTTPException):
                 if i == 0:
                     conn.close()
                     conn.connect()
@@ -947,6 +974,10 @@ a string that contains the response entity body.
             uri = iri2uri(uri)
 
             (scheme, authority, request_uri, defrag_uri) = urlnorm(uri)
+            domain_port = authority.split(":")[0:2]
+            if len(domain_port) == 2 and domain_port[1] == '443' and scheme == 'http':
+                scheme = 'https'
+                authority = domain_port[0]
 
             conn_key = scheme+":"+authority
             if conn_key in self.connections:
@@ -962,8 +993,8 @@ a string that contains the response entity body.
                     conn = self.connections[conn_key] = connection_type(authority, timeout=self.timeout, proxy_info=self.proxy_info)
                 conn.set_debuglevel(debuglevel)
 
-            if method in ["GET", "HEAD"] and 'range' not in headers:
-                headers['accept-encoding'] = 'compress, gzip'
+            if method in ["GET", "HEAD"] and 'range' not in headers and 'accept-encoding' not in headers:
+                headers['accept-encoding'] = 'deflate, gzip'
 
             info = email.Message.Message()
             cached_value = None
@@ -971,9 +1002,17 @@ a string that contains the response entity body.
                 cachekey = defrag_uri
                 cached_value = self.cache.get(cachekey)
                 if cached_value:
-                    info = email.message_from_string(cached_value)
+                    # info = email.message_from_string(cached_value)
+                    #
+                    # Need to replace the line above with the kludge below
+                    # to fix the non-existent bug not fixed in this
+                    # bug report: http://mail.python.org/pipermail/python-bugs-list/2005-September/030289.html
                     try:
-                        content = cached_value.split('\r\n\r\n', 1)[1]
+                        info, content = cached_value.split('\r\n\r\n', 1)
+                        feedparser = email.FeedParser.FeedParser()
+                        feedparser.feed(info)
+                        info = feedparser.close()
+                        feedparser._parse = None
                     except IndexError:
                         self.cache.delete(cachekey)
                         cachekey = None
@@ -981,7 +1020,7 @@ a string that contains the response entity body.
             else:
                 cachekey = None
 
-            if method in ["PUT"] and self.cache and info.has_key('etag') and not self.ignore_etag and 'if-match' not in headers:
+            if method in self.optimistic_concurrency_methods and self.cache and info.has_key('etag') and not self.ignore_etag and 'if-match' not in headers:
                 # http://www.w3.org/1999/04/Editing/
                 headers['if-match'] = info['etag']
 
@@ -1101,7 +1140,7 @@ class Response(dict):
         # an httplib.HTTPResponse object.
         if isinstance(info, httplib.HTTPResponse):
             for key, value in info.getheaders(): 
-                self[key] = value 
+                self[key.lower()] = value 
             self.status = info.status
             self['status'] = str(self.status)
             self.reason = info.reason
