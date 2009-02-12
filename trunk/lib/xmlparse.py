@@ -33,25 +33,27 @@ def load_xml_cases(tc_xml_filename):
             else:
                 req.repeat = 1
             for element in child:
-                if element.tag == 'url':
+                if element.tag.lower() == 'url':
                     req.url = element.text
-                if element.tag == 'method': 
+                if element.tag.lower() == 'method': 
                     req.method = element.text
-                if element.tag == 'body': 
+                    if (req.method.lower() == 'post'):
+                        req.add_header('Content-Length', '0')    
+                if element.tag.lower() == 'body': 
                     req.body = element.text
-                if element.tag == 'verify': 
+                    req.add_header('Content-Length', str(len(req.body)))   
+                if element.tag.lower() == 'verify': 
                     req.verify = element.text
-                if element.tag == 'verify_negative': 
+                if element.tag.lower() == 'verify_negative': 
                     req.verify_negative = element.text
-                if element.tag == 'add_header':
-                    if element.tag == 'add_header':
-                        # this protects against headers that contain colons
-                        splat = element.text.split(':')
-                        x = splat[0].strip()
-                        del splat[0]
-                        req.add_header(x, ''.join(splat).strip())
+                if element.tag.lower() == 'add_header':
+                    # this protects against headers that contain colons
+                    splat = element.text.split(':')
+                    x = splat[0].strip()
+                    del splat[0]
+                    req.add_header(x, ''.join(splat).strip())
             if ('Content-type' not in req.headers) and ('Content-Type' not in req.headers):
-                req.add_header('Content-type', 'text/xml')  # default if no type specified
-                #req.add_header('Content-type', 'application/x-www-form-urlencoded') 
+                req.add_header('Content-Type', 'text/xml')  # default if no type specified
+                #req.add_header('Content-Type', 'application/x-www-form-urlencoded') 
             cases.append(req)
     return cases
