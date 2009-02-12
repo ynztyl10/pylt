@@ -27,7 +27,7 @@ def generate_results(dir, test_name):
     try:
         merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()
     except IOError:
-        print 'Error: can not find your results stat file'
+        print 'ERROR: Can not find your results stat file'
     merged_error_log = merge_error_files(dir)
     epoch_timings = list_timings(merged_log)
     
