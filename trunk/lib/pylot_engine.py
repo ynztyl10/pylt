@@ -168,17 +168,22 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
-
-                        # timed msg send
-                        start_time = self.default_timer()
+                        
+                        # send the request message
                         try:
-                            resp, content = self.send(req)
+                            resp, content, cookie, req_start_time, req_end_time = self.send(req)
                         except:
                             # connection error may occur and exceptions from httplib2 will be thrown
+                            # TODO:  do something better with error handling/reporting here
                             resp = SockErr()
                             content = ''
-                        end_time = self.default_timer()
+                            cookie = ''
                         
+                        # rudimentary cookie handling.  when we get a cookie in a response header, 
+                        # we just go back through the message queue and set the cookies on every request
+                        for request in self.msg_queue:
+                            request.cookie = cookie
+
                         # get times for logging and error display
                         tmp_time = time.localtime()
                         cur_date = time.strftime('%d %b %Y', tmp_time)
@@ -205,14 +210,14 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                             
                         resp_bytes = len(content)
                         total_bytes += resp_bytes
-                        latency = end_time - start_time
+                        latency = (req_end_time - req_start_time)
                         total_latency += latency
                         
                         # update shared stats dictionary
                         self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, end_time, req.url.replace(',', ''), resp.status, resp.reason, resp_bytes, latency)
+                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.status, resp.reason, resp_bytes, latency)
                         self.results_queue.put(q_tuple)
 
                         # log response content
@@ -239,14 +244,24 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def send(self, req):
         headers = {}
         body = ''
+        cookie = None
         if req.headers:
             headers = req.headers
         if req.body:
             body = req.body
+        if req.cookie:
+            headers['Cookie'] = req.cookie
+            
+        # timed msg send
+        req_start_time = self.default_timer()
         resp, content = self.http.request(req.url, method=req.method, body=body, headers=headers)
-        return (resp, content)
+        req_end_time = self.default_timer()
+        
+        for key in resp.keys():
+            if 'ookie' in key:  # look for a set-cookie header
+                cookie = resp[key]
+        return (resp, content, cookie, req_start_time, req_end_time)
 
-    
     
     def log_error(self, txt):
         try:
@@ -255,7 +270,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             error_log.flush()
             error_log.close()
         except IOError, e: 
-            print 'ERROR: can not write to error log file\n'
+            print 'ERROR: Can not write to error log file\n'
     
     
     def log_trace(self, txt):
@@ -281,6 +296,7 @@ class Request():
         self.url = url
         self.method = method
         self.body = body
+        self.cookie = None
         self.repeat = repeat
         
         if headers:
