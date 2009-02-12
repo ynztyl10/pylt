@@ -33,7 +33,7 @@ def parse(docstring, arglist=None):
     global optionstring
     optionstring = docstring
     match = USAGE.search(optionstring)
-    if not match: raise ParsingError('Cannot find the option string')
+    if not match: raise ParsingError('ERROR: Can not find the option string')
     optlines = match.group(1).splitlines()
     try:
         p = optparse.OptionParser(optlines[0])
@@ -48,5 +48,5 @@ def parse(docstring, arglist=None):
             p.add_option(short.strip(), long.strip(),
                 action = action, help = help.strip())
     except (IndexError, ValueError):
-        raise ParsingError('Cannot parse the option string correctly')
+        raise ParsingError('ERROR: Can not parse the option string correctly')
     return p.parse_args(arglist)
