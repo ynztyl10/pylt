@@ -36,21 +36,21 @@ def write_stats_tables(handle, stats_dict):
     handle.write('<tr>\n')
     handle.write('<td>\n')   
     handle.write('<table>\n')
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('avg', stats_dict['response_avg']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('stdev', stats_dict['response_stdev']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('min', stats_dict['response_min']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('50th %', stats_dict['response_50pct']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('80th %', stats_dict['response_80pct']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('90th %', stats_dict['response_90pct']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('95th %', stats_dict['response_95pct']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('99th %', stats_dict['response_99pct']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('max', stats_dict['response_max']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('avg', stats_dict['response_avg']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('stdev', stats_dict['response_stdev']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('min', stats_dict['response_min']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('50th %', stats_dict['response_50pct']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('80th %', stats_dict['response_80pct']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('90th %', stats_dict['response_90pct']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('95th %', stats_dict['response_95pct']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('99th %', stats_dict['response_99pct']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('max', stats_dict['response_max']))
     handle.write('</table>\n')
     handle.write('</td>\n')
     handle.write('<td>\n')
     handle.write('<table>\n')
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('avg', stats_dict['throughput_avg']))
-    handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % ('stdev', stats_dict['throughput_stdev']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('avg', stats_dict['throughput_avg']))
+    handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % ('stdev', stats_dict['throughput_stdev']))
     handle.write('<tr><td>%s</td><td>%d</td></tr>\n' % ('min', stats_dict['throughput_min']))
     handle.write('<tr><td>%s</td><td>%d</td></tr>\n' % ('50th %', stats_dict['throughput_50pct']))
     handle.write('<tr><td>%s</td><td>%d</td></tr>\n' % ('80th %', stats_dict['throughput_80pct']))
@@ -93,7 +93,7 @@ def write_agent_detail_table(handle, runtime_stats_dict):
         error_count = runtime_stats_dict[i].error_count
         total_bytes = runtime_stats_dict[i].total_bytes
         avg_latency = runtime_stats_dict[i].avg_latency
-        handle.write('<tr><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%.2f</td></tr>\n' % 
+        handle.write('<tr><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%.3f</td></tr>\n' % 
             (agent_num, count, error_count, total_bytes, avg_latency))
     handle.write('</table>\n')
 
@@ -105,7 +105,7 @@ def write_important_requests(handle, best_times, worst_times):
     handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
     for url in best_times:
         resp_time = best_times[url]
-        handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % (url, resp_time))
+        handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % (url, resp_time))
     handle.write('</table>\n')
     handle.write('<p><br /></p>')
     handle.write('<h2>Slowest Responding Requests</h2>\n')
@@ -113,7 +113,7 @@ def write_important_requests(handle, best_times, worst_times):
     handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
     for url in worst_times:
         resp_time = worst_times[url]
-        handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % (url, resp_time))
+        handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % (url, resp_time))
     handle.write('</table>\n')
     
     
