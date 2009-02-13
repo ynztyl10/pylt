@@ -84,11 +84,9 @@ def write_summary_results(handle, summary_dict, workload_dict):
     
 
 def write_agent_detail_table(handle, runtime_stats_dict):
-    handle.write('<p><br /><br /></p>')
     handle.write('<h2>Agent Details</h2>\n')
-    handle.write('<p><br /><br /></p>')
     handle.write('<table>\n')
-    handle.write('<th>Agent</th><th>Requests</th><th>Errors</th><th>Bytes Received</th><th>Avg. Response Time</th>\n')
+    handle.write('<th>Agent</th><th>Requests</th><th>Errors</th><th>Bytes Received</th><th>Avg Response Time (secs)</th>\n')
     for i in range(len(runtime_stats_dict)):
         agent_num = i + 1
         count = runtime_stats_dict[i].count
@@ -99,6 +97,25 @@ def write_agent_detail_table(handle, runtime_stats_dict):
             (agent_num, count, error_count, total_bytes, avg_latency))
     handle.write('</table>\n')
 
+
+def write_important_requests(handle, best_times, worst_times):
+    handle.write('<p><br /></p>')
+    handle.write('<h2>Fastest Responding Requests</h2>\n')
+    handle.write('<table>\n')
+    handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
+    for url in best_times:
+        resp_time = best_times[url]
+        handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % (url, resp_time))
+    handle.write('</table>\n')
+    handle.write('<p><br /></p>')
+    handle.write('<h2>Slowest Responding Requests</h2>\n')
+    handle.write('<table>\n')
+    handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
+    for url in worst_times:
+        resp_time = worst_times[url]
+        handle.write('<tr><td>%s</td><td>%.2f</td></tr>\n' % (url, resp_time))
+    handle.write('</table>\n')
+    
     
 def write_head_html(handle):
     handle.write("""\
@@ -144,7 +161,7 @@ def write_head_html(handle):
             padding: 0;
         }
         table {
-            margin-bottom: 0;
+            margin-left: 30px;
         }
         td {
             text-align: right;

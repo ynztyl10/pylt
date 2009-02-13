@@ -18,6 +18,7 @@ import graph
 import reportwriter
 import time
 import pickle
+import csv
 from threading import Thread
 
 
@@ -30,7 +31,8 @@ def generate_results(dir, test_name):
         print 'ERROR: Can not find your results stat file'
     merged_error_log = merge_error_files(dir)
     epoch_timings = list_timings(merged_log)
-    
+    best_times, worst_times = best_and_worst_requests(dir)
+
     # request throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     throughputs = calc_throughputs(epochs) # dict of secs and throughputs
@@ -41,7 +43,7 @@ def generate_results(dir, test_name):
     throughput_stats = corestats.Stats(throughputs.values())
 
     # response times
-    # subtract start times so we have resp times by elapsed time starting at zero
+    # subtract start times so we have response times by elapsed time starting at zero
     start_epoch = epoch_timings[0][0]
     end_epoch = epoch_timings[-1][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
@@ -77,6 +79,7 @@ def generate_results(dir, test_name):
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
     reportwriter.write_agent_detail_table(fh, runtime_stats_dict)
+    reportwriter.write_important_requests(fh, best_times, worst_times)
     reportwriter.write_closing_html(fh)
     fh.close()
 
@@ -93,15 +96,6 @@ def load_dat_detail(dir):
     fh.close()
     return (runtime_stats, workload)
         
-    
-def merge_log_files(dir):
-    merged_file = []    
-    for filename in glob.glob(dir + r'/*__stats.psv'):
-        fh = open(filename, 'rb')
-        merged_file += fh.readlines()
-        fh.close()
-    return merged_file
-
 
 def merge_error_files(dir):
     merged_file = []    
@@ -167,6 +161,44 @@ def get_stats(response_stats, throughput_stats):
     stats_dict['throughput_99pct'] = throughput_stats.percentile(99)
     return stats_dict 
     
+    
+def best_and_worst_requests(dir):  # get the best/worst times from the results csv file
+    stats_lists = []
+    try:
+        csv_reader = csv.reader(open(dir + '/agent_stats.csv', 'r'))
+        for stat_list in csv_reader:  # turn csv iterator into list
+            stats_lists.append(stat_list)
+    except csv.Error, e:
+        print 'ERROR: Can not parse result stats log file'
+
+    uniq_urls = list(set((stats_list[4] for stats_list in stats_lists)))
+    
+    url_times = {}
+    for url in uniq_urls:
+        total_time = 0.0
+        elapsed_times = []
+        for stats in stats_lists:
+            if url == stats[4]:
+                if stats[5] == '200':  # just concerned with valid responses
+                    elapsed_times.append(stats[8])
+        for elapsed_time in elapsed_times:
+            total_time += float(elapsed_time)
+            average_time = (total_time / len(elapsed_times))
+            url_times[url] = average_time
+        
+    raw_times = sorted(url_times.values())
+    
+    best_times = {}
+    worst_times = {}
+    for x in url_times:
+        if url_times[x] in raw_times[:3]:  # take the top 3
+           best_times[x] = url_times[x]
+    for x in url_times:
+        if url_times[x] in raw_times[-3:]:  # take the bottom 3
+           worst_times[x] = url_times[x]
+    
+    return (best_times, worst_times)
+
 
 
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
