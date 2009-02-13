@@ -180,7 +180,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                             cookie = ''
                         
                         # rudimentary cookie handling.  when we get a cookie in a response header, 
-                        # we just go back through the message queue and set the cookies on every request
+                        # we just go back through the message queue and set the cookies of every request
                         for request in self.msg_queue:
                             request.cookie = cookie
 
