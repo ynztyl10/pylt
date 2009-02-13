@@ -4,13 +4,14 @@
     <case>
         <url>http://www.example.com</url>
     </case>
+    
+    <!-- SAMPLE TEST CASE -->
+    <!--
     <case>
-        <url>http://www.example.com/foo</url>
+        <url>http://search.yahooapis.com/WebSearchService/V1/webSearch</url>
+        <method>POST</method>
+        <body><![CDATA[appid=YahooDemo&query=pylot]]></body>
+        <add_header>Content-type: application/x-www-form-urlencoded</add_header>
     </case>
-    <case>
-        <url>http://www.goldb.org</url>
-    </case>
-    <case>
-        <url>http://www.goldb.org</url>
-    </case>
+    -->
 </testcases>
