@@ -10,6 +10,9 @@
 #    (at your option) any later version.  See the GNU General Public License 
 #    for more details.
 #
+#
+#   This program positions the cursor for Pylot's shell/console mode on Windows.
+#   On Linux/Unix, this is done in pure Python instead. 
 */
 
 
