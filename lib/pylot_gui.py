@@ -355,7 +355,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 3.0
+        self.refresh_rate = 2.0
         
         
     def run(self):
