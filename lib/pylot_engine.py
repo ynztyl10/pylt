@@ -238,17 +238,14 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         headers = {}
         body = ''
         cookie = None
-        if req.headers:
-            headers = req.headers
-        if req.body:
-            body = req.body
+        
         if req.cookie:
             headers['Cookie'] = req.cookie
             
         # timed msg send
         req_start_time = self.default_timer()
         try:
-            resp, content = self.http.request(req.url, method=req.method, body=body, headers=headers)
+            resp, content = self.http.request(req.url, method=req.method, body=req.body, headers=req.headers)
         except httplib2.HttpLib2Error, e:
             resp = ErrorResponse()
             resp.reason = e
