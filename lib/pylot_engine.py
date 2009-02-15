@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import time
+import socket
 import pickle
 import Queue
 from threading import Thread
@@ -155,9 +156,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         if self.log_resps:
             self.enable_trace_logging()
             
-        # create the http object here and reuse it for every fetch.
-        # httplib2 seems to be a bit buggy, so this is a workaround for a problem
-        # it's causing in longer running tests with lots of agents (90+)
+        # create the http object here and reuse it for every request
         self.http = httplib2.Http()
         
         
@@ -170,19 +169,13 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                     if self.running:
                         
                         # send the request message
-                        try:
-                            resp, content, cookie, req_start_time, req_end_time = self.send(req)
-                        except:
-                            # connection error may occur and exceptions from httplib2 will be thrown
-                            # TODO:  do something better with error handling/reporting here
-                            resp = SockErr()
-                            content = ''
-                            cookie = ''
+                        resp, content, cookie, req_start_time, req_end_time = self.send(req)
                         
                         # rudimentary cookie handling.  when we get a cookie in a response header, 
                         # we just go back through the message queue and set the cookies of every request
-                        for request in self.msg_queue:
-                            request.cookie = cookie
+                        if cookie:
+                            for request in self.msg_queue:
+                                request.cookie = cookie
 
                         # get times for logging and error display
                         tmp_time = time.localtime()
@@ -254,12 +247,22 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         # timed msg send
         req_start_time = self.default_timer()
-        resp, content = self.http.request(req.url, method=req.method, body=body, headers=headers)
+        try:
+            resp, content = self.http.request(req.url, method=req.method, body=body, headers=headers)
+        except httplib2.HttpLib2Error, e:
+            resp = ErrorResponse()
+            resp.reason = e
+            content = ''
+        except socket.error, e:
+            resp = ErrorResponse()
+            resp.reason = e
+            content = ''
         req_end_time = self.default_timer()
         
-        for key in resp.keys():
+        for key in resp:
             if 'ookie' in key:  # look for a set-cookie header
                 cookie = resp[key]
+        
         return (resp, content, cookie, req_start_time, req_end_time)
 
     
@@ -314,7 +317,9 @@ class Request():
 
 
 
-class SockErr(dict):
+class ErrorResponse(dict):
+    #  httplib2.Response is a subclass of dict and instances of this class are returned from calls to Http.request
+    #  this is a dummy one that gets used as a response when we encounter socket or httplib2 errors.
     def __init__(self):
         self['status'] = 0
         self['reason'] = 'Connection error'
