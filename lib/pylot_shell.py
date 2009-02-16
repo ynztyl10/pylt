@@ -131,17 +131,17 @@ class RuntimeReporter(object):
         
 
 
-def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, output=None, test_name=None):
+def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, output_dir=None, test_name=None):
     runtime_stats = {}
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
    
     if test_name:
-        if output:
-            output = output + '/' + test_name
+        if output_dir:
+            output_dir = output_dir + '/' + test_name
 
     # create a load manager
-    lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output, test_name)
+    lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir, test_name)
     
     # load the test cases
     try:

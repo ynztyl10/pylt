@@ -27,7 +27,7 @@ import results
 
 
 class LoadManager(Thread):
-    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output=None, test_name=None):
+    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
         
         self.running = True
@@ -38,8 +38,8 @@ class LoadManager(Thread):
         self.runtime_stats = runtime_stats
         self.test_name = test_name
         
-        if output:
-            self.output_dir = output
+        if output_dir:
+            self.output_dir = output_dir
         else:
             if test_name:
                 self.output_dir = time.strftime('results/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
