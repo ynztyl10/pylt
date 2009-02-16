@@ -29,7 +29,7 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output=None, test_name=None):
+    def __init__(self, parent, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output_dir=None, test_name=None):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
@@ -37,7 +37,7 @@ class Application(wx.Frame):
         
         self.tc_xml_filename = tc_xml_filename
         self.test_name = test_name
-        self.output = output
+        self.output_dir = output_dir
         
         self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()  # enable bottom status bar
@@ -106,7 +106,7 @@ class Application(wx.Frame):
         self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
         self.logresp_checkbox.SetValue(logresp)
         runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
-        self.output_path = output
+        self.output_dir = output_dir
         
         # monitor
         summary_monitor_text = wx.StaticText(panel, -1, 'Summary')
@@ -207,11 +207,11 @@ class Application(wx.Frame):
         if self.name == 'Test Name':  # user didn't enter a Test Name
             self.name = None
         if self.name:
-            if self.output:
-                self.output_path = self.output_path + '/' + self.name
+            if self.output_dir:
+                self.output_dir = self.output_dir + '/' + self.name
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_path, self.name)
+        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_dir, self.name)
         
         # load the test cases
         try:
