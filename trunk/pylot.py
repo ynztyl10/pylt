@@ -26,7 +26,7 @@
   -g, --gui                   :  start GUI  
 """
 
-VERSION = '1.20'
+VERSION = '1.21'
 
 import sys
 import lib.optionparse as optionparse
@@ -39,7 +39,7 @@ rampup = 0  # secs
 interval = 0  # millisecs
 tc_xml_filename = 'testcases.xml'
 log_responses = False
-output = None
+output_dir = None
 test_name = None
 gui = False
 
@@ -64,7 +64,7 @@ try:
     if opt.log_responses: 
         log_responses = True
     if opt.output:
-        output = opt.output
+        output_dir = opt.output
     if opt.name:
         test_name = opt.name
     if opt.gui:
@@ -76,7 +76,7 @@ except:
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output, test_name)
+    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output_dir, test_name)
     
 else:  # shell/console mode 
     import lib.pylot_shell as pylot_shell
@@ -90,11 +90,11 @@ else:  # shell/console mode
     print '  log responses:             %s' % log_responses
     if test_name:
         print '  test name:                 %s' % test_name
-    if output:
-        print '  output location:           %s' % output
+    if output_dir:
+        print '  output location:           %s' % output_dir
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output, test_name)
+        pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
