@@ -31,9 +31,10 @@ if is_windows:
 #  on Windows.  More info: http://en.wikipedia.org/wiki/ANSI_escape_code
 #
 #  The _cpos.pyd file is just a renamed dll.  See the C++ source code
-#  for the library.  It is built with Visual Studio.  You must distribute
-#  it with the whole app but also include the .pyd file, so users don't 
-#  need to install VS or mingw and go through the pain of building it.
+#  for the library.  It is built with Visual Studio.  You should build it 
+#  for every version of Python and include the .pyd file when you 
+#  distribute it so users don't need to install VS or mingw and go 
+#  through the pain of building it.
 
 
 
