@@ -26,7 +26,7 @@ from threading import Thread
 def generate_results(dir, test_name):
     print 'Generating Results...'
     try:
-        merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()
+        merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
     except IOError:
         print 'ERROR: Can not find your results stat file'
     merged_error_log = merge_error_files(dir)
@@ -47,10 +47,12 @@ def generate_results(dir, test_name):
     start_epoch = epoch_timings[0][0]
     end_epoch = epoch_timings[-1][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
+    
     try:  # graphing only works on systems with Matplotlib installed
         graph.resp_graph(based_timings, dir=dir + '/')
     except: 
         pass
+
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
     response_stats = corestats.Stats(resp_data_set)
     
@@ -63,7 +65,7 @@ def generate_results(dir, test_name):
     summary_dict['start_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
     summary_dict['end_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
     summary_dict['duration'] = int(end_epoch - start_epoch) + 1 # add 1 to round up
-    summary_dict['num_agents'] =  len([psv_file for psv_file in glob.glob(dir + r'/*__stats.psv')]) # count psv files to get number of agents that ran
+    summary_dict['num_agents'] =  find_num_users(merged_log)
     summary_dict['req_count'] = len(epochs)
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
@@ -117,6 +119,18 @@ def list_timings(merged_log):
     return sorted(epoch_timings)
 
 
+def find_num_users(merged_log):
+    # find the number of users that ran 
+    user_nums = {}
+    for line in merged_log:
+        user_num = line[0]
+        try :
+            user_nums[user_num] = None
+        except:
+            pass
+    return len(user_nums.keys())
+    
+    
 def calc_bytes(merged_log):
     # get total bytes received
     bytes_seq = []
@@ -170,9 +184,7 @@ def best_and_worst_requests(dir):  # get the best/worst times from the results c
             stats_lists.append(stat_list)
     except csv.Error, e:
         print 'ERROR: Can not parse result stats log file'
-
     uniq_urls = list(set((stats_list[4] for stats_list in stats_lists)))
-    
     url_times = {}
     for url in uniq_urls:
         total_time = 0.0
@@ -185,9 +197,7 @@ def best_and_worst_requests(dir):  # get the best/worst times from the results c
             total_time += float(elapsed_time)
             average_time = (total_time / len(elapsed_times))
             url_times[url] = average_time
-        
     raw_times = sorted(url_times.values())
-    
     best_times = {}
     worst_times = {}
     for x in url_times:
@@ -196,7 +206,6 @@ def best_and_worst_requests(dir):  # get the best/worst times from the results c
     for x in url_times:
         if url_times[x] in raw_times[-3:]:  # take the bottom 3
            worst_times[x] = url_times[x]
-    
     return (best_times, worst_times)
 
 
@@ -212,5 +221,6 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
             generate_results(self.dir, self.test_name)
         except:
             print 'ERROR: Unable to generate results'
+        
         
             
