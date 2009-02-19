@@ -140,7 +140,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue  # shared message/request queue
+        self.msg_queue = msg_queue[:]  # copy the shared message/request queue, so each agent has a unique copy
         self.results_queue = results_queue  # shared results queue
         
         self.count = 0
@@ -156,7 +156,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         if self.log_resps:
             self.enable_trace_logging()
             
-        # create the http object here and reuse it for every request
+        # create the Http object here and reuse it for every request
         self.http = httplib2.Http()
         
         
