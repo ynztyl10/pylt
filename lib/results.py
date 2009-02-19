@@ -176,7 +176,7 @@ def get_stats(response_stats, throughput_stats):
     
 def best_and_worst_requests(dir):  # get the best/worst times from the results csv file
     stats_lists = []
-    try:
+    try:  # TODO - fix this:  no need to parse this file again
         csv_reader = csv.reader(open(dir + '/agent_stats.csv', 'r'))
         for stat_list in csv_reader:  # turn csv iterator into list
             stats_lists.append(stat_list)
