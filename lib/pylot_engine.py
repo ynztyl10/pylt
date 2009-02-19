@@ -235,13 +235,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
             
     def send(self, req):
-        headers = {}
-        body = ''
-        cookie = None
-        
-        if req.cookie:
-            headers['Cookie'] = req.cookie
-            
         # timed msg send
         req_start_time = self.default_timer()
         try:
@@ -256,10 +249,10 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             content = ''
         req_end_time = self.default_timer()
         
+        cookie = None
         for key in resp:
             if 'ookie' in key:  # look for a set-cookie header
                 cookie = resp[key]
-        
         return (resp, content, cookie, req_start_time, req_end_time)
 
     
@@ -356,6 +349,7 @@ class ResultWriter(Thread):
         # Python interpreter when you quit the console with ctrl-c.  
         # This is a bug in Python: http://bugs.python.org/issue5160
         # The workaround is to open/close the handle for each write operation.
+        # File handles are cheap, so don't worry
         while self.running:
             try:
                 q_tuple = self.results_queue.get(False)
