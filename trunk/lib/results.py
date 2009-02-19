@@ -31,7 +31,7 @@ def generate_results(dir, test_name):
         print 'ERROR: Can not find your results stat file'
     merged_error_log = merge_error_files(dir)
     epoch_timings = list_timings(merged_log)
-    best_times, worst_times = best_and_worst_requests(dir)
+    best_times, worst_times = best_and_worst_requests(merged_log)
 
     # request throughput
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
@@ -174,14 +174,8 @@ def get_stats(response_stats, throughput_stats):
     return stats_dict 
     
     
-def best_and_worst_requests(dir):  # get the best/worst times from the results csv file
-    stats_lists = []
-    try:  # TODO - fix this:  no need to parse this file again
-        csv_reader = csv.reader(open(dir + '/agent_stats.csv', 'r'))
-        for stat_list in csv_reader:  # turn csv iterator into list
-            stats_lists.append(stat_list)
-    except csv.Error, e:
-        print 'ERROR: Can not parse result stats log file'
+def best_and_worst_requests(merged_log):  # get the fastest/slowest urls
+    stats_lists = [line.split(',') for line in merged_log]
     uniq_urls = list(set((stats_list[4] for stats_list in stats_lists)))
     url_times = {}
     for url in uniq_urls:
@@ -215,10 +209,10 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         self.test_name = test_name
         
     def run(self):
-        try:
+        #try:
             generate_results(self.dir, self.test_name)
-        except:
-            print 'ERROR: Unable to generate results'
+        #except:
+        #    print 'ERROR: Unable to generate results'
         
         
             
