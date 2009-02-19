@@ -47,12 +47,10 @@ def generate_results(dir, test_name):
     start_epoch = epoch_timings[0][0]
     end_epoch = epoch_timings[-1][0]
     based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
-    
     try:  # graphing only works on systems with Matplotlib installed
         graph.resp_graph(based_timings, dir=dir + '/')
     except: 
         pass
-
     resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
     response_stats = corestats.Stats(resp_data_set)
     
