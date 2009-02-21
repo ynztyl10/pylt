@@ -235,6 +235,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
             
     def send(self, req):
+        if req.cookie:
+            req.add_header('Cookie', req.cookie)
+            
         # timed msg send
         req_start_time = self.default_timer()
         try:
