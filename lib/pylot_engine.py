@@ -140,7 +140,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue[:]  # copy the shared message/request queue, so each agent has a unique copy
+        self.msg_queue = msg_queue[:]  # copy of the shared message/request queue, so each agent has a unique copy
         self.results_queue = results_queue  # shared results queue
         
         self.count = 0
