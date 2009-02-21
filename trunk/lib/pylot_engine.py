@@ -175,8 +175,8 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         # we just go back through the message queue and set the cookies of every request
                         if cookie:
                             for request in self.msg_queue:
-                                request.cookie = cookie
-
+                                request.add_header('Cookie', cookie)
+                        
                         # get times for logging and error display
                         tmp_time = time.localtime()
                         cur_date = time.strftime('%d %b %Y', tmp_time)
@@ -235,9 +235,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
             
     def send(self, req):
-        if req.cookie:
-            req.add_header('Cookie', req.cookie)
-            
         # timed msg send
         req_start_time = self.default_timer()
         try:
@@ -292,7 +289,6 @@ class Request():
         self.url = url
         self.method = method
         self.body = body
-        self.cookie = None
         self.repeat = repeat
         
         if headers:
