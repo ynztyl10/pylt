@@ -24,7 +24,7 @@ from pylot_engine import LoadManager
 
 is_windows = sys.platform.startswith('win')
 if is_windows:
-    import _cpos
+    import lib.win.cpos as cpos
 #  The _cpos C++ extension defines windows native functions
 #  for positioning the cursor on the command prompt
 #  since ANSI sequence support is disabled by default
@@ -99,10 +99,10 @@ class RuntimeReporter(object):
     def move_up(self, times):
         for i in range(times):
             if is_windows:
-                x, y = _cpos.getpos()
-                _cpos.gotoxy(0, y-1)
+                x, y = cpos.getpos()
+                cpos.gotoxy(0, y-1)
             else:
-                esc = chr(27) # escape key
+                esc = chr(27)  # escape key
                 sys.stdout.write(esc + '[G' )
                 sys.stdout.write(esc + '[A' )
             
