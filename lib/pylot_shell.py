@@ -25,8 +25,8 @@ from pylot_engine import LoadManager
 is_windows = sys.platform.startswith('win')
 if is_windows:
     import lib.win.cpos as cpos  
-# see the README.txt file in lib/win/ for more info
-# the cpos.py module is used to load a C++ extentsion.
+# See the README.txt file in lib/win/ for more info.
+# The cpos.py module is used to load a C++ extentsion.
 # The C++ extension defines windows native functions for 
 # positioning the cursor on the command prompt since ANSI 
 # sequence support is disabled by default on Windows.
