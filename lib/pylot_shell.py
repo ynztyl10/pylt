@@ -24,18 +24,14 @@ from pylot_engine import LoadManager
 
 is_windows = sys.platform.startswith('win')
 if is_windows:
-    import lib.win.cpos as cpos
-#  The _cpos C++ extension defines windows native functions
-#  for positioning the cursor on the command prompt
-#  since ANSI sequence support is disabled by default
-#  on Windows.  More info: http://en.wikipedia.org/wiki/ANSI_escape_code
-#
-#  The _cpos.pyd file is just a renamed dll.  See the C++ source code
-#  for the library.  It is built with Visual Studio.  You should build it 
-#  for every version of Python and include the .pyd file when you 
-#  distribute it so users don't need to install VS or mingw and go 
-#  through the pain of building it.
-
+    import lib.win.cpos as cpos  
+# see the README.txt file in lib/win/ for more info
+# the cpos.py module is used to load a C++ extentsion.
+# The C++ extension defines windows native functions for 
+# positioning the cursor on the command prompt since ANSI 
+# sequence support is disabled by default on Windows.
+# On Linux/Unix, none of this is needed and it all runs in
+# pure Python.
 
 
 
