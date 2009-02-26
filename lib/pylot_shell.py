@@ -145,8 +145,8 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
         cases = xmlparse.load_xml_cases(tc_xml_filename)
         for req in cases:
             lm.add_req(req)
-    except:  # if there was a problem getting cases from the xml file
-        print 'ERROR: can not parse testcase file\n'
+    except Exception, e:
+        print 'ERROR: can not parse testcase file: %s' % e
         sys.exit(1)
     
     start_time = time.time()
