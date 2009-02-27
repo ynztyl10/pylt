@@ -112,7 +112,7 @@ class RuntimeReporter(object):
         total_bytes_received = sum([self.runtime_stats[id].total_bytes for id in ids])
         
         if agg_count > 0 and elapsed_secs > 0:
-            agg_avg = agg_total_latency / agg_count  # total avg response time
+            avg_resp_time = agg_total_latency / agg_count  # avg response time since start
             avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
             interval_count = agg_count - self.last_count 
             cur_throughput = float(interval_count) / refresh_rate  # throughput since last refresh
@@ -122,7 +122,7 @@ class RuntimeReporter(object):
             self.progress_bar.update_time(elapsed_secs)    
             print self.progress_bar
             print '\nRequests:  %d\nErrors: %d\nAvg Response Time:  %.3f\nAvg Throughput:  %.2f\nCurrent Throughput:  %d\nBytes Received:  %d\n%s' % (
-                agg_count, agg_error_count, agg_avg, avg_throughput, cur_throughput, total_bytes_received, 
+                agg_count, agg_error_count, avg_resp_time, avg_throughput, cur_throughput, total_bytes_received, 
                 '\n-------------------------------------------------')        
             self.refreshed_once = True
         
@@ -136,10 +136,10 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
     if test_name:
         if output_dir:
             output_dir = output_dir + '/' + test_name
-
+    
     # create a load manager
     lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir, test_name)
-    
+
     # load the test cases
     try:
         cases = xmlparse.load_xml_cases(tc_xml_filename)
@@ -160,12 +160,12 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
         refresh_rate = 1.0
         time.sleep(refresh_rate)
         
-        # when all agents are started start displaying the progress bar and stats
-        if lm.agents_started:
-            elapsed_secs = time.time() - start_time
-            reporter.refresh(elapsed_secs, refresh_rate)
+        # when all agents are started, start displaying the progress bar and stats
+        elapsed_secs = time.time() - start_time
+        reporter.refresh(elapsed_secs, refresh_rate)
 
     lm.stop()
+    
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
         time.sleep(.10)

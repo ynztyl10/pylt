@@ -37,7 +37,8 @@ class LoadManager(Thread):
         self.log_resps = log_resps
         self.runtime_stats = runtime_stats
         self.test_name = test_name
-        
+        self.blocking = False  # don't block i/o in modes where stats are displayed in real-time
+
         if output_dir:
             self.output_dir = output_dir
         else:
@@ -68,7 +69,8 @@ class LoadManager(Thread):
             try:
                os.makedirs(self.output_dir, 0755)
             except OSError:
-                print 'ERROR: Can not create output directory'
+                if not self.blocking:
+                    print 'ERROR: Can not create output directory'
                 sys.exit(1)
         
         # start thread for reading and writing queued results
@@ -84,18 +86,20 @@ class LoadManager(Thread):
                 agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue, self.results_queue)
                 agent.start()
                 self.agent_refs.append(agent)
-                agent_started_line = 'Started agent ' + str(i + 1) 
-                if sys.platform.startswith('win'):
-                    sys.stdout.write(chr(0x08) * len(agent_started_line))
-                    sys.stdout.write(agent_started_line)
-                else:
-                    esc = chr(27) # escape key
-                    sys.stdout.write(esc + '[G' )
-                    sys.stdout.write(esc + '[A' )
-                    sys.stdout.write(agent_started_line + '\n')
-        if sys.platform.startswith('win'):
-            sys.stdout.write('\n')
-        print '\nAll agents running...\n\n'
+                if not self.blocking:
+                    agent_started_line = 'Started agent ' + str(i + 1) 
+                    if sys.platform.startswith('win'):
+                        sys.stdout.write(chr(0x08) * len(agent_started_line))
+                        sys.stdout.write(agent_started_line)
+                    else:
+                        esc = chr(27) # escape key
+                        sys.stdout.write(esc + '[G' )
+                        sys.stdout.write(esc + '[A' )
+                        sys.stdout.write(agent_started_line + '\n')
+        if not self.blocking:
+            if sys.platform.startswith('win'):
+                sys.stdout.write('\n')
+            print '\nAll agents running...\n\n'
         self.agents_started = True
         
     
@@ -103,12 +107,13 @@ class LoadManager(Thread):
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
+            
         self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
         
         self.results_writer.stop()
         
         # auto-generate results from a new thread when the test is stopped
-        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
+        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name, self.blocking)
         self.results_gen.setDaemon(True)
         self.results_gen.start()
 
@@ -163,6 +168,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def run(self):
         total_latency = 0
         total_bytes = 0
+
         while self.running:
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
@@ -263,7 +269,8 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             error_log.flush()
             error_log.close()
         except IOError, e: 
-            print 'ERROR: Can not write to error log file\n'
+            if not self.blocking:
+                print 'ERROR: Can not write to error log file\n'
     
     
     def log_trace(self, txt):

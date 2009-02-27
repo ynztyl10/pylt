@@ -36,7 +36,6 @@ class Application(wx.Frame):
         self.error_queue = []  # shared error list
         
         self.tc_xml_filename = tc_xml_filename
-        self.test_name = test_name
         self.output_dir = output_dir
         
         self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
@@ -181,7 +180,7 @@ class Application(wx.Frame):
         self.rt_mon.stop()
         self.stopper.stop()
         self.switch_status(False)
-        print 'Test Stopped\n\n'
+        print 'Test Stopped\n'
 
         
     def on_exit(self, evt):    
@@ -203,16 +202,16 @@ class Application(wx.Frame):
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
         log_resps = self.logresp_checkbox.GetValue()
-        self.name = self.name_textbox.GetValue()
-        if self.name == 'Test Name':  # user didn't enter a Test Name
-            self.name = None
-        if self.name:
+        test_name = self.name_textbox.GetValue()
+        if test_name == 'Test Name':  # user didn't enter a Test Name
+            test_name = None
+        if test_name:
             if self.output_dir:
-                self.output_dir = self.output_dir + '/' + self.name
+                self.output_dir = self.output_dir + '/' + test_name
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_dir, self.name)
-        
+        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_dir, test_name)
+    
         # load the test cases
         try:
             cases = xmlparse.load_xml_cases(self.tc_xml_filename)
@@ -224,7 +223,7 @@ class Application(wx.Frame):
             dial.ShowModal()
             cases = None
         
-        if cases is not None:  # only run if we have valid cases
+        if cases:  # only run if we have valid cases
             self.start_time = time.time()    
             
             # start the load manager
@@ -377,13 +376,13 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         agg_total_latency = sum([self.runtime_stats[id].total_latency for id in ids])
         agg_error_count = sum([self.runtime_stats[id].error_count for id in ids])
         if agg_count > 0 and elapsed_secs > 0:
-            agg_avg = agg_total_latency / agg_count  # total avg response time
+            avg_resp_time = agg_total_latency / agg_count  # avg response time since start
             throughput = float(agg_count) / elapsed_secs  # avg throughput since start
             interval_count = agg_count - self.last_count  # requests since last refresh
             cur_throughput = float(interval_count) / self.refresh_rate  # throughput since last refresh
             self.last_count = agg_count  # reset for next time
         else: 
-            agg_avg = 0
+            avg_resp_time = 0
             throughput = 0
             cur_throughput = 0
         self.total_statlist.DeleteAllItems()       
@@ -391,7 +390,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.total_statlist.SetStringItem(index, 1, '%s' % agents_running)
         self.total_statlist.SetStringItem(index, 2, '%d' % agg_count)
         self.total_statlist.SetStringItem(index, 3, '%d' % agg_error_count)
-        self.total_statlist.SetStringItem(index, 4, '%.3f' % agg_avg)
+        self.total_statlist.SetStringItem(index, 4, '%.3f' % avg_resp_time)
         self.total_statlist.SetStringItem(index, 5, '%.3f' % throughput)
         self.total_statlist.SetStringItem(index, 6, '%.3f' % cur_throughput)
         

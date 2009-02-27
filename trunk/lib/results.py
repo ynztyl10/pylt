@@ -23,8 +23,9 @@ from threading import Thread
 
 
 
-def generate_results(dir, test_name):
-    print 'Generating Results...'
+def generate_results(dir, test_name, blocking):
+    if not blocking:  # flag to block i/o in modes where stats are not displayed in real-time
+        print 'Generating Results...'
     try:
         merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
     except IOError:
@@ -82,9 +83,10 @@ def generate_results(dir, test_name):
     reportwriter.write_important_requests(fh, best_times, worst_times)
     reportwriter.write_closing_html(fh)
     fh.close()
-
-    print '\nResults have been generated. You can view your test at:'
-    print '%s/results.html\n' % dir
+    
+    if not blocking:
+        print '\nDone generating results. You can view your test at:'
+        print '%s/results.html\n' % dir
 
 
 def load_dat_detail(dir):
@@ -203,16 +205,17 @@ def best_and_worst_requests(merged_log):  # get the fastest/slowest urls
 
 
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
-    def __init__(self, dir, test_name):
+    def __init__(self, dir, test_name, blocking):
         Thread.__init__(self)
         self.dir = dir
         self.test_name = test_name
+        self.blocking = blocking
         
     def run(self):
-        #try:
-            generate_results(self.dir, self.test_name)
-        #except:
-        #    print 'ERROR: Unable to generate results'
+        try:
+            generate_results(self.dir, self.test_name, self.blocking)
+        except Exception, e:
+            print 'ERROR: Unable to generate results: %s' % e
         
         
             
