@@ -20,9 +20,10 @@
   -r, --rampup=RAMPUP         :  rampup in seconds
   -i, --interval=INTERVAL     :  interval in milliseconds
   -x, --xmlfile=TEST_CASE_XML :  test case xml file
-  -o, --output=PATH           :  output directory
+  -o, --output_dir=PATH       :  output directory
   -n, --name=TESTNAME	      :  name of test
   -l, --log_responses         :  log responses
+  -b, --blocking              :  blocking mode
   -g, --gui                   :  start GUI  
 """
 
@@ -41,6 +42,7 @@ tc_xml_filename = 'testcases.xml'
 log_responses = False
 output_dir = None
 test_name = None
+blocking = False
 gui = False
 
 
@@ -48,7 +50,7 @@ gui = False
 opt, args = optionparse.parse(__doc__)
 
 if not opt and not args:
-    print 'version: ' + VERSION
+    print 'version: %s' % VERSION
     optionparse.exit()
 try:
     if opt.agents:
@@ -63,13 +65,15 @@ try:
         tc_xml_filename = opt.xmlfile
     if opt.log_responses: 
         log_responses = True
-    if opt.output:
-        output_dir = opt.output
+    if opt.output_dir:
+        output_dir = opt.output_dir
     if opt.name:
         test_name = opt.name
+    if opt.blocking:
+        blocking = True
     if opt.gui:
         gui = True
-except:
+except Exception, e:
    print 'Invalid Argument'
    sys.exit(1)
 
@@ -77,8 +81,18 @@ except:
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
     pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output_dir, test_name)
-    
-else:  # shell/console mode 
+
+
+elif blocking:  # blocked output mode (STDOUT blocked until test finishes, then result is returned)
+    import lib.pylot_blocking as pylot_blocking
+    try:    
+        pylot_blocking.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
+    except KeyboardInterrupt:
+        print '\nInterrupt'
+        sys.exit(1)
+        
+        
+else:  # shell/console mode
     import lib.pylot_shell as pylot_shell
     print '\n-------------------------------------------------'
     print 'Test parameters:'
@@ -98,4 +112,6 @@ else:  # shell/console mode
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
+    
+
 
