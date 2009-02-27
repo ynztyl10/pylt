@@ -81,10 +81,10 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
     for id in runtime_stats:
         print """  <agent-results>
     <agent-num>%d</agent-num>
-    <count>%d</count>
-    <error-count>%d</error-count>
+    <requests>%d</requests>
+    <errors>%d</errors>
     <avg-response-time>%.3f<avg-response-time>
-    <total-bytes>%i</total-bytes>
+    <bytes-received>%i</bytes-received>
   </agent-results>  """ % (id + 1, runtime_stats[id].count, runtime_stats[id].error_count, runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
     print '</results>'
             
