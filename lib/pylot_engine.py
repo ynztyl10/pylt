@@ -24,7 +24,7 @@ from threading import Thread
 import results
 
  
-HTTP_DEBUG = True  # display httplib debugging 
+HTTP_DEBUG = False  # display httplib debugging 
 
 
 
