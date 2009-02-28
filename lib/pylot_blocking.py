@@ -11,6 +11,9 @@
 #    for more details.
 #
 
+#  This function starts the engine in blocked output mode.  
+#  stdout is blocked until test finishes, then result is returned in XML
+
 
 import sys
 import time

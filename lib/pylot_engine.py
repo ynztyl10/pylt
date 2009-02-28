@@ -23,9 +23,8 @@ import Queue
 from threading import Thread
 import results
 
-
-# display httplib debugging  
-HTTP_DEBUG = False
+ 
+HTTP_DEBUG = False  # display httplib debugging 
 
 
 
@@ -241,7 +240,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         if req.method.lower() == 'post':
             request = urllib2.Request(req.url, req.body)
-        else:
+        else:  
             request = urllib2.Request(req.url)
         
         for header in req.headers:
@@ -364,7 +363,7 @@ class ResultWriter(Thread):
                 f.close()
             except Queue.Empty:
                 # re-check queue for messages every x sec
-                time.sleep(.1)
+                time.sleep(.10)
                 
     def stop(self):
         self.running = False
