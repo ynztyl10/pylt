@@ -23,8 +23,9 @@ import Queue
 from threading import Thread
 import results
 
- 
-HTTP_DEBUG = False  # display httplib debugging 
+
+# display httplib debugging 
+HTTP_DEBUG = False  
 
 
 
