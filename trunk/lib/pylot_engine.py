@@ -17,7 +17,6 @@ import re
 import sys
 import time
 import pickle
-import socket
 import urllib2
 import Queue
 from threading import Thread
