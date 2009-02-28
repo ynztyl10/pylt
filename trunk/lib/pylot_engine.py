@@ -18,12 +18,13 @@ import sys
 import time
 import pickle
 import urllib2
+import cookielib
 import Queue
 from threading import Thread
 import results
 
  
-HTTP_DEBUG = False  # display httplib debugging 
+HTTP_DEBUG = True  # display httplib debugging 
 
 
 
@@ -166,15 +167,16 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def run(self):
         total_latency = 0
         total_bytes = 0
-
+        self.cookie_jar = cookielib.CookieJar()
+        
         while self.running:
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
-                        
+
                         # send the request message
                         resp, content, req_start_time, req_end_time = self.send(req)
-                        
+
                         # get times for logging and error display
                         tmp_time = time.localtime()
                         cur_date = time.strftime('%d %b %Y', tmp_time)
@@ -233,10 +235,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
     def send(self, req):
         if HTTP_DEBUG:
-            opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=1))
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar), urllib2.HTTPHandler(debuglevel=1))
         else:
-            opener = urllib2.build_opener()
-            
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         if req.method.lower() == 'post':
             request = urllib2.Request(req.url, req.body)
         else:  
@@ -244,7 +245,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         
         for header in req.headers:
             opener.addheaders = [(header, req.headers[header])]
-            
+
         # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
         try:
@@ -340,7 +341,7 @@ class StatCollection():
 
 
 class ResultWriter(Thread):
-    #  this thread is for reading queued results and writing them to a log file.
+    # this thread is for reading queued results and writing them to a log file.
     def __init__(self, results_queue, output_dir):
         Thread.__init__(self)
         self.running = True
