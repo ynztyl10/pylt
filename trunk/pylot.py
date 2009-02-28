@@ -83,7 +83,7 @@ if gui:  # gui mode
     pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output_dir, test_name)
 
 
-elif blocking:  # blocked output mode (STDOUT blocked until test finishes, then result is returned)
+elif blocking:  # blocked output mode (stdout blocked until test finishes, then result is returned)
     import lib.pylot_blocking as pylot_blocking
     try:    
         pylot_blocking.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
