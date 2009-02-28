@@ -27,7 +27,7 @@ def generate_results(dir, test_name, blocking):
     if not blocking:  # flag to block i/o in modes where stats are not displayed in real-time
         print 'Generating Results...'
     try:
-        merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
+        merged_log = open(dir + '/agent_stats.csv', 'r').readlines()  # this log contains commingled results from all agents
     except IOError:
         print 'ERROR: Can not find your results log file'
     merged_error_log = merge_error_files(dir)
@@ -215,7 +215,7 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         try:
             generate_results(self.dir, self.test_name, self.blocking)
         except Exception, e:
-            print 'ERROR: Unable to generate results: %s' % e
+            print 'ERROR: Unable to generate results %s', e
         
         
             
