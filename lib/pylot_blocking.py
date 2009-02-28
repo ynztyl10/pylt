@@ -41,7 +41,7 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
     except Exception, e:
         ## TODO
         ## print an xml error msg
-        #print 'ERROR: can not parse testcase file: %s' % e
+        print 'ERROR: can not parse testcase file: %s' % e
         sys.exit(1)
     
     start_time = time.time()
