@@ -16,13 +16,16 @@ import os
 import re
 import sys
 import time
-import socket
 import pickle
+import socket
+import urllib2
 import Queue
 from threading import Thread
-import lib.httplib2 as httplib2
 import results
 
+
+# display httplib debugging  
+HTTP_DEBUG = False
 
 
 
@@ -145,7 +148,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue[:]  # copy of the shared message/request queue, so each agent has a unique copy
+        self.msg_queue = msg_queue  # shared message/request queue
         self.results_queue = results_queue  # shared results queue
         
         self.count = 0
@@ -160,9 +163,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         self.trace_logging = False
         if self.log_resps:
             self.enable_trace_logging()
-            
-        # create the Http object here and reuse it for every request
-        self.http = httplib2.Http()
         
         
     def run(self):
@@ -175,13 +175,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                     if self.running:
                         
                         # send the request message
-                        resp, content, cookie, req_start_time, req_end_time = self.send(req)
-                        
-                        # rudimentary cookie handling.  when we get a cookie in a response header, 
-                        # we just go back through the message queue and set the cookies of every request
-                        if cookie:
-                            for request in self.msg_queue:
-                                request.add_header('Cookie', cookie)
+                        resp, content, req_start_time, req_end_time = self.send(req)
                         
                         # get times for logging and error display
                         tmp_time = time.localtime()
@@ -190,7 +184,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         
                         # check verifications and status code for errors
                         is_error = False
-                        if resp.status >= 400 or resp.status == 0:
+                        if resp.code >= 400 or resp.code == 0:
                             is_error = True
                         if not req.verify == '':
                             if not re.search(req.verify, content, re.DOTALL): 
@@ -201,7 +195,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                     
                         if is_error:                    
                             self.error_count += 1
-                            error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.status, resp.reason, req.url)
+                            error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.code, resp.msg, req.url)
                             self.error_queue.append(error_string)
                             self.log_error(error_string)
                             
@@ -213,16 +207,15 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         total_latency += latency
                         
                         # update shared stats dictionary
-                        self.runtime_stats[self.id] = StatCollection(resp.status, resp.reason, latency, self.count, self.error_count, total_latency, total_bytes)
+                        self.runtime_stats[self.id] = StatCollection(resp.code, resp.msg, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.status, resp.reason, resp_bytes, latency)
+                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency)
                         self.results_queue.put(q_tuple)
 
                         # log response content
                         if self.trace_logging:
-                            for key in resp:
-                                self.log_trace('%s: %s' % (key, resp[key]))
+                            self.log_trace('\n\n%s' % resp.headers)
                             self.log_trace('\n\n%s' % content)
                             self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
                             
@@ -241,25 +234,35 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
             
     def send(self, req):
-        # timed msg send
+        if HTTP_DEBUG:
+            opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=1))
+        else:
+            opener = urllib2.build_opener()
+            
+        if req.method.lower() == 'post':
+            request = urllib2.Request(req.url, req.body)
+        else:
+            request = urllib2.Request(req.url)
+        
+        for header in req.headers:
+            opener.addheaders = [(header, req.headers[header])]
+            
+        # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
         try:
-            resp, content = self.http.request(req.url, method=req.method, body=req.body, headers=req.headers)
-        except httplib2.HttpLib2Error, e:
+            resp = opener.open(request)
+            content = resp.read()
+        except urllib2.HTTPError, e:
             resp = ErrorResponse()
-            resp.reason = e
+            resp.msg = e.code
             content = ''
-        except socket.error, e:
-            resp = ErrorResponse()
-            resp.reason = e
+        except urllib2.URLError, e:
+            resp = SockErrorResponse()
+            resp.msg = e.reason
             content = ''
         req_end_time = self.default_timer()
-        
-        cookie = None
-        for key in resp:
-            if 'ookie' in key:  # look for a set-cookie header
-                cookie = resp[key]
-        return (resp, content, cookie, req_start_time, req_end_time)
+    
+        return (resp, content, req_start_time, req_end_time)
 
     
     def log_error(self, txt):
@@ -269,7 +272,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             error_log.flush()
             error_log.close()
         except IOError, e: 
-            if not self.blocking:
                 print 'ERROR: Can not write to error log file\n'
     
     
@@ -309,22 +311,19 @@ class Request():
             
     def add_header(self, header_name, value):
         self.headers[header_name] = value
-        
 
 
 
-class ErrorResponse(dict):
-    #  httplib2.Response is a subclass of dict and instances of this class are returned from calls to Http.request
-    #  this is a dummy one that gets used as a response when we encounter socket or httplib2 errors.
+
+class SockErrorResponse():
+    #  dummy respone that gets used when we encounter socket errors
     def __init__(self):
-        self['status'] = 0
-        self['reason'] = 'Connection error'
-        self.status = 0
-        self.reason = 'Connection error'
-
-
-
-
+        self.code = 0
+        self.msg = 'Connection error'
+        
+        
+        
+        
 class StatCollection():
     def __init__(self, status, reason, latency, count, error_count, total_latency, total_bytes):
         self.status = status
