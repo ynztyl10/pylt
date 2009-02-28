@@ -29,7 +29,7 @@ def generate_results(dir, test_name, blocking):
     try:
         merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
     except IOError:
-        print 'ERROR: Can not find your results stat file'
+        print 'ERROR: Can not find your results log file'
     merged_error_log = merge_error_files(dir)
     epoch_timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
