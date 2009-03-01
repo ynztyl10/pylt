@@ -37,11 +37,8 @@ def load_xml_cases(tc_xml_filename):
                     req.url = element.text
                 if element.tag.lower() == 'method': 
                     req.method = element.text
-                    if (req.method.lower() == 'post'):
-                        req.add_header('Content-Length', '0')    
                 if element.tag.lower() == 'body': 
                     req.body = element.text
-                    req.add_header('Content-Length', str(len(req.body)))   
                 if element.tag.lower() == 'verify': 
                     req.verify = element.text
                 if element.tag.lower() == 'verify_negative': 
