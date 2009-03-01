@@ -25,7 +25,7 @@ import results
 
 
 # display httplib debugging 
-HTTP_DEBUG = False  
+HTTP_DEBUG = True  
 
 
 
@@ -250,7 +250,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp = opener.open(request)
             content = resp.read()
         except urllib2.HTTPError, e:
-            resp = ErrorResponse()
+            resp = SockErrorResponse()
             resp.msg = e.code
             content = ''
         except urllib2.URLError, e:
@@ -305,9 +305,7 @@ class Request():
         # defaults unless overidden in testcase
         if 'user-agent' not in [header.lower() for header in self.headers]:
             self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  
-        if 'content-type' not in [header.lower() for header in self.headers]:
-            self.add_header('Content-Type', 'text/xml')
-        
+                
         # verification string or regex
         self.verify = ''
         self.verify_negative = ''
