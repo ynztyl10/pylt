@@ -12,7 +12,7 @@
 #
 
 #  This function starts the engine in blocked output mode.  
-#  stdout is blocked until test finishes, then result is returned in XML
+#  stdout is blocked until test finishes, then results are returned as XML
 
 
 import sys
@@ -34,7 +34,7 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
 
     # create a load manager
     lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir, test_name,)
-    lm.blocking = True  # blocked output mode (STDOUT blocked until test finishes, then result is returned)
+    lm.blocking = True  # blocked output mode (STDOUT blocked until test finishes, then results are returned)
     
     # load the test cases
     try:
@@ -88,7 +88,8 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
     <errors>%d</errors>
     <avg-response-time>%.3f<avg-response-time>
     <bytes-received>%i</bytes-received>
-  </agent-results>  """ % (id + 1, runtime_stats[id].count, runtime_stats[id].error_count, runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
+  </agent-results>  """ % (id + 1, runtime_stats[id].count, runtime_stats[id].error_count, 
+                        runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
     print '</results>'
             
             
