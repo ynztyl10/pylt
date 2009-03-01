@@ -239,10 +239,10 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar), urllib2.HTTPHandler(debuglevel=1))
         else:
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
-        if req.method.lower() == 'post':
+        if req.method.upper() == 'POST':
             request = urllib2.Request(req.url, req.body, req.headers)
         else:  
-            request = urllib2.Request(req.url, None, req.headers)  # GET
+            request = urllib2.Request(req.url, None, req.headers)  # urllib2 assumes it is a GET if no data is supplied.  PUT and DELETE are not supported
         
         # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
@@ -317,7 +317,7 @@ class Request():
 
 
 class SockErrorResponse():
-    #  dummy respone that gets used when we encounter socket errors
+    # dummy respone that gets used when we encounter socket errors
     def __init__(self):
         self.code = 0
         self.msg = 'Connection error'
