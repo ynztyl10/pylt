@@ -302,11 +302,11 @@ class Request():
         else:
             self.headers = {}
             
+        # defaults unless overidden in testcase
         if 'user-agent' not in [header.lower() for header in self.headers]:
-            self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  # default unless overidden in testcase
-            
+            self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  
         if 'content-type' not in [header.lower() for header in self.headers]:
-            self.add_header('Content-Type', 'text/xml')  # default if no type specified
+            self.add_header('Content-Type', 'text/xml')
         
         # verification string or regex
         self.verify = ''
