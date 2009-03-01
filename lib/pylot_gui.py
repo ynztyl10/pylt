@@ -325,7 +325,7 @@ class Stopper(Thread):  # timer thread for stopping execution once duration laps
         
     def run(self):
         while (time.time() < self.start_time + self.duration) and self.running:
-            time.sleep(.75)
+            time.sleep(.25)
         if self.running:  # if stop() was already called explicitly, don't stop again
             self.root.stop()
 
@@ -354,7 +354,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
         self.error_list = error_list
         
         self.start_time = start_time
-        self.refresh_rate = 2.0
+        self.refresh_rate = 1.5
         
         
     def run(self):
