@@ -157,17 +157,17 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
     
     reporter = RuntimeReporter(duration, runtime_stats)
     while (time.time() < start_time + duration):         
-        refresh_rate = 1.0
-        time.sleep(refresh_rate)
+        refresh_rate = 0.5
+        time.sleep(refresh_rate)        
         
         # when all agents are started, start displaying the progress bar and stats
         elapsed_secs = time.time() - start_time
         reporter.refresh(elapsed_secs, refresh_rate)
-
+        
     lm.stop()
     
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
-        time.sleep(.10)
+        time.sleep(0.1)
     print '\nDone.'
     
