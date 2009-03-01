@@ -161,8 +161,9 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
         time.sleep(refresh_rate)        
         
         # when all agents are started, start displaying the progress bar and stats
-        elapsed_secs = time.time() - start_time
-        reporter.refresh(elapsed_secs, refresh_rate)
+        if lm.agents_started:
+            elapsed_secs = time.time() - start_time
+            reporter.refresh(elapsed_secs, refresh_rate)
         
     lm.stop()
     
