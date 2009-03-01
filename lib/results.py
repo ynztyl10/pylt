@@ -215,7 +215,7 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         try:
             generate_results(self.dir, self.test_name, self.blocking)
         except Exception, e:
-            print 'ERROR: Unable to generate results %s', e
+            print 'ERROR: Unable to generate results: %s' % e
         
         
             

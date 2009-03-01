@@ -18,6 +18,7 @@ import sys
 import time
 import pickle
 import urllib2
+import httplib
 import cookielib
 import Queue
 from threading import Thread
@@ -248,13 +249,19 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         req_start_time = self.default_timer()
         try:
             resp = opener.open(request)
-            content = resp.read()
+            try:
+                content = resp.read()
+            except httplib.HTTPException, e:
+                # this can happen on an incomplete read
+                resp = ErrorResponse()
+                resp.msg = str(e)
+                content = ''
         except urllib2.HTTPError, e:
-            resp = SockErrorResponse()
+            resp = ErrorResponse()
             resp.msg = e.code
             content = ''
         except urllib2.URLError, e:
-            resp = SockErrorResponse()
+            resp = ErrorResponse()
             resp.msg = e.reason
             content = ''
         req_end_time = self.default_timer()
@@ -316,8 +323,8 @@ class Request():
 
 
 
-class SockErrorResponse():
-    # dummy respone that gets used when we encounter socket errors
+class ErrorResponse():
+    # dummy respone that gets used when we encounter socket or http errors
     def __init__(self):
         self.code = 0
         self.msg = 'Connection error'
