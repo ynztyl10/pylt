@@ -240,13 +240,10 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         else:
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
         if req.method.lower() == 'post':
-            request = urllib2.Request(req.url, req.body)
+            request = urllib2.Request(req.url, req.body, req.headers)
         else:  
-            request = urllib2.Request(req.url)
+            request = urllib2.Request(req.url, None, req.headers)
         
-        for header in req.headers:
-            opener.addheaders = [(header, req.headers[header])]
-
         # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
         try:
@@ -304,7 +301,10 @@ class Request():
             self.headers = headers
         else:
             self.headers = {}
-
+            
+        if 'user-agent' not in [header.lower() for header in self.headers]:
+            self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  # default unless overidden in testcase
+        
         # verification string or regex
         self.verify = ''
         self.verify_negative = ''
