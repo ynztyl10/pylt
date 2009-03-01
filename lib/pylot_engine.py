@@ -242,7 +242,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         if req.method.lower() == 'post':
             request = urllib2.Request(req.url, req.body, req.headers)
         else:  
-            request = urllib2.Request(req.url, None, req.headers)  # HTTP Get
+            request = urllib2.Request(req.url, None, req.headers)  # GET
         
         # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
