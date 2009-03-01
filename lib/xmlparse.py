@@ -52,8 +52,5 @@ def load_xml_cases(tc_xml_filename):
                     x = splat[0].strip()
                     del splat[0]
                     req.add_header(x, ''.join(splat).strip())
-            if ('Content-type' not in req.headers) and ('Content-Type' not in req.headers):
-                req.add_header('Content-Type', 'text/xml')  # default if no type specified
-                #req.add_header('Content-Type', 'application/x-www-form-urlencoded') 
             cases.append(req)
     return cases
