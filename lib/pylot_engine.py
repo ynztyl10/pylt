@@ -25,7 +25,7 @@ import results
 
 
 # display httplib debugging 
-HTTP_DEBUG = True  
+HTTP_DEBUG = False  
 
 
 
@@ -302,7 +302,7 @@ class Request():
         else:
             self.headers = {}
             
-        # defaults unless overidden in testcase
+        # default unless overidden in testcase
         if 'user-agent' not in [header.lower() for header in self.headers]:
             self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  
                 
