@@ -105,7 +105,7 @@ else:  # shell/console mode
     if test_name:
         print '  test name:                 %s' % test_name
     if output_dir:
-        print '  output location:           %s' % output_dir
+        print '  output directory:           %s' % output_dir
     print '\n'
     try:    
         pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
