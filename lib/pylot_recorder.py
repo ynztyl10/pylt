@@ -23,10 +23,11 @@
 
 
 
-from win32com.client import Dispatch, WithEvents
+import sys
 import threading
 import pythoncom
-import sys
+from win32com.client import Dispatch, WithEvents
+
 
 
 stop_event = threading.Event()
@@ -34,7 +35,7 @@ finished = False
 
 class EventSink(object):        
     def OnBeforeNavigate2(self, *args):
-        print "  <case>"
+        print '  <case>'
         url = args[1]
         post_data = args[4]
         headers = args[5]
@@ -59,9 +60,9 @@ ev = WithEvents(ie, EventSink)
 
 ie.Visible = 1
 
-print "<testcases>"
+print '<testcases>'
 while not finished:
     pythoncom.PumpWaitingMessages()
     stop_event.wait(.05)
     stop_event.clear()
-print "</testcases>"
+print '</testcases>'
