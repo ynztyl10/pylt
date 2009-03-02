@@ -13,12 +13,11 @@
 
 
 import glob
-import corestats
-import graph
-import reportwriter
 import time
 import pickle
-import csv
+import graph
+import corestats
+import reportwriter
 from threading import Thread
 
 
@@ -58,20 +57,20 @@ def generate_results(dir, test_name, blocking):
     # calc the stats and load up a dictionary with the results
     stats_dict = get_stats(response_stats, throughput_stats)
     
+    # get the pickled stats dictionaries we saved
+    runtime_stats_dict, workload_dict = load_dat_detail(dir)
+    
     # get the summary stats and load up a dictionary with the results   
     summary_dict = {}
     summary_dict['cur_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
     summary_dict['start_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
     summary_dict['end_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
     summary_dict['duration'] = int(end_epoch - start_epoch) + 1 # add 1 to round up
-    summary_dict['num_agents'] =  find_num_users(merged_log)
+    summary_dict['num_agents'] = workload_dict['num_agents']
     summary_dict['req_count'] = len(epochs)
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
-   
-    # get the pickled stats dictionaries we saved
-    runtime_stats_dict, workload_dict = load_dat_detail(dir)
-    
+
     # write html report
     fh = open(dir + '/results.html', 'w')
     reportwriter.write_head_html(fh)
@@ -117,18 +116,6 @@ def list_timings(merged_log):
         response_time = splat[-1].strip()
         epoch_timings.append((float(epoch), float(response_time)))
     return sorted(epoch_timings)
-
-
-def find_num_users(merged_log):
-    # find the number of users that ran 
-    user_nums = {}
-    for line in merged_log:
-        user_num = line[0]
-        try :
-            user_nums[user_num] = None
-        except:
-            pass
-    return len(user_nums.keys())
     
     
 def calc_bytes(merged_log):
