@@ -40,6 +40,7 @@ class LoadManager(Thread):
         self.rampup = rampup
         self.log_resps = log_resps
         self.runtime_stats = runtime_stats
+        self.error_queue = error_queue  # list used like a queue
         self.test_name = test_name
         self.blocking = False  # don't block i/o in modes where stats are displayed in real-time
 
@@ -56,7 +57,7 @@ class LoadManager(Thread):
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
         self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval to millisecs
-        self.error_queue = error_queue
+        
         
         self.results_queue = Queue.Queue()  # result stats get queued up by agent threads
         self.agent_refs = []
