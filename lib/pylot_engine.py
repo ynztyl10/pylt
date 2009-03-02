@@ -94,7 +94,7 @@ class LoadManager(Thread):
                 if not self.blocking:
                     agent_started_line = 'Started agent ' + str(i + 1) 
                     if sys.platform.startswith('win'):
-                        sys.stdout.write(chr(0x08) * len(agent_started_line))
+                        sys.stdout.write(chr(0x08) * len(agent_started_line))  # move cursor back so we update the same line again
                         sys.stdout.write(agent_started_line)
                     else:
                         esc = chr(27) # escape key
