@@ -217,8 +217,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
 
                         # log response content
                         if self.trace_logging:
-                            self.log_trace('\n\n%s' % resp.headers)
-                            self.log_trace('\n\n%s' % content)
+                            for header in resp.headers:
+                                self.log_trace('%s: %s' % (header, resp.headers[header]))
+                            self.log_trace('\n%s' % content)
                             self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
                             
                         expire_time = (self.interval - latency)
