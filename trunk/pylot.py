@@ -22,7 +22,7 @@
   -x, --xmlfile=TEST_CASE_XML :  test case xml file
   -o, --output_dir=PATH       :  output directory
   -n, --name=TESTNAME	      :  name of test
-  -l, --log_responses         :  log responses
+  -l, --log_msgs              :  log messages
   -b, --blocking              :  blocking mode
   -g, --gui                   :  start GUI  
 """
@@ -39,7 +39,7 @@ duration = 60  # secs
 rampup = 0  # secs
 interval = 0  # millisecs
 tc_xml_filename = 'testcases.xml'
-log_responses = False
+log_msgs = False
 output_dir = None
 test_name = None
 blocking = False
@@ -63,8 +63,8 @@ try:
         interval = int(opt.interval)
     if opt.xmlfile:
         tc_xml_filename = opt.xmlfile
-    if opt.log_responses: 
-        log_responses = True
+    if opt.log_msgs: 
+        log_msgs = True
     if opt.output_dir:
         output_dir = opt.output_dir
     if opt.name:
@@ -80,13 +80,13 @@ except Exception, e:
 
 if gui:  # gui mode
     import lib.pylot_gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_responses, VERSION, output_dir, test_name)
+    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output_dir, test_name)
 
 
 elif blocking:  # blocked output mode (stdout blocked until test finishes, then result is returned)
     import lib.pylot_blocking as pylot_blocking
     try:    
-        pylot_blocking.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
+        pylot_blocking.start(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
@@ -101,14 +101,14 @@ else:  # shell/console mode
     print '  rampup in seconds:         %s' % rampup
     print '  interval in milliseconds:  %s' % interval
     print '  test case xml:             %s' % tc_xml_filename
-    print '  log responses:             %s' % log_responses
+    print '  log messages :             %s' % log_msgs
     if test_name:
         print '  test name:                 %s' % test_name
     if output_dir:
         print '  output directory:           %s' % output_dir
     print '\n'
     try:    
-        pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_responses, output_dir, test_name)
+        pylot_shell.start(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
