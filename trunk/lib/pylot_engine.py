@@ -29,7 +29,7 @@ import results
 
 
 HTTP_DEBUG = False  # display httplib debugging 
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 
 
