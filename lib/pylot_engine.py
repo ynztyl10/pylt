@@ -252,7 +252,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp = opener.open(request)
             content = resp.read()
         except httplib.HTTPException, e:
-            # this can happen on an incomplete read, but just catch all HTTPException
+            # this can happen on an incomplete read, just catch all HTTPException
             resp = ErrorResponse()
             resp.msg = str(e)
             content = ''
@@ -265,7 +265,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp.msg = e.reason
             content = ''
         req_end_time = self.default_timer()
-    
+        
+        print request
+        
         return (resp, content, req_start_time, req_end_time)
 
     
