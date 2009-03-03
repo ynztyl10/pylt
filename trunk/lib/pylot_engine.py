@@ -250,13 +250,12 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         req_start_time = self.default_timer()
         try:
             resp = opener.open(request)
-            try:
-                content = resp.read()
-            except httplib.HTTPException, e:
-                # this can happen on an incomplete read
-                resp = ErrorResponse()
-                resp.msg = str(e)
-                content = ''
+            content = resp.read()
+        except httplib.HTTPException, e:
+            # this can happen on an incomplete read, but just catch all HTTPException
+            resp = ErrorResponse()
+            resp.msg = str(e)
+            content = ''
         except urllib2.HTTPError, e:
             resp = ErrorResponse()
             resp.msg = e.code
