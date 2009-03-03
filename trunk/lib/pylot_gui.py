@@ -29,7 +29,7 @@ except:
 
     
 class Application(wx.Frame):
-    def __init__(self, parent, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output_dir=None, test_name=None):
+    def __init__(self, parent, agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output_dir=None, test_name=None):
         wx.Frame.__init__(self, parent, -1, 'Pylot - Web Performance  |  Version ' + VERSION, size=(690, 710))
     
         self.runtime_stats = {}  # shared runtime stats dictionary
@@ -102,9 +102,9 @@ class Application(wx.Frame):
         
         # run options
         runopts_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.logresp_checkbox = wx.CheckBox(panel, -1, 'Log Responses')
-        self.logresp_checkbox.SetValue(logresp)
-        runopts_sizer.Add(self.logresp_checkbox, wx.LEFT, 0)
+        self.log_msgs_checkbox = wx.CheckBox(panel, -1, 'Log Messages')
+        self.log_msgs_checkbox.SetValue(log_msgs)
+        runopts_sizer.Add(self.log_msgs_checkbox, wx.LEFT, 0)
         self.output_dir = output_dir
         
         # monitor
@@ -201,7 +201,7 @@ class Application(wx.Frame):
         interval = self.interval_spin.GetValue() / 1000.0  # convert millisecs to secs
         rampup = self.rampup_spin.GetValue()
         duration = self.duration_spin.GetValue()
-        log_resps = self.logresp_checkbox.GetValue()
+        log_msgs = self.log_msgs_checkbox.GetValue()
         test_name = self.name_textbox.GetValue()
         if test_name == 'Test Name':  # user didn't enter a Test Name
             test_name = None
@@ -210,7 +210,7 @@ class Application(wx.Frame):
                 self.output_dir = self.output_dir + '/' + test_name
         
         # create a load manager
-        self.lm = LoadManager(num_agents, interval, rampup, log_resps, self.runtime_stats, self.error_queue, self.output_dir, test_name)
+        self.lm = LoadManager(num_agents, interval, rampup, log_msgs, self.runtime_stats, self.error_queue, self.output_dir, test_name)
     
         # load the test cases
         try:
@@ -293,7 +293,7 @@ class Application(wx.Frame):
             self.interval_spin.Disable()
             self.rampup_spin.Disable()
             self.duration_spin.Disable()
-            self.logresp_checkbox.Disable()
+            self.log_msgs_checkbox.Disable()
             self.name_textbox.Disable()
             self.busy_timer.Start(75)
         else:
@@ -305,7 +305,7 @@ class Application(wx.Frame):
             self.interval_spin.Enable()
             self.rampup_spin.Enable()
             self.duration_spin.Enable()
-            self.logresp_checkbox.Enable()
+            self.log_msgs_checkbox.Enable()
             self.name_textbox.Enable()
             self.busy_timer.Stop()
 
@@ -436,7 +436,7 @@ class RTMonitor(Thread):  # real time monitor.  runs in its own thread so we don
 
 
 
-def main(agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output=None, test_name=None):
+def main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output=None, test_name=None):
     app = wx.App(0)
-    Application(None, agents, rampup, interval, duration, tc_xml_filename, logresp, VERSION, output, test_name=test_name)
+    Application(None, agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output, test_name=test_name)
     app.MainLoop()            

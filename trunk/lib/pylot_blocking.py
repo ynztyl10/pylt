@@ -22,7 +22,7 @@ from pylot_engine import LoadManager
 
 
 
-def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, output_dir=None, test_name=None):
+def start(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
     runtime_stats = {}
     error_queue = []
     
@@ -33,7 +33,7 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
             output_dir = output_dir + '/' + test_name
 
     # create a load manager
-    lm = LoadManager(num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir, test_name,)
+    lm = LoadManager(num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir, test_name,)
     lm.blocking = True  # blocked output mode (STDOUT blocked until test finishes, then results are returned)
     
     # load the test cases
@@ -42,8 +42,7 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_resps, ou
         for req in cases:
             lm.add_req(req)
     except Exception, e:
-        ## TODO
-        ## print an xml error msg
+        ## TODO: print an xml error msg
         print 'ERROR: can not parse testcase file: %s' % e
         sys.exit(1)
     

@@ -32,14 +32,14 @@ HTTP_DEBUG = False
 
 
 class LoadManager(Thread):
-    def __init__(self, num_agents, interval, rampup, log_resps, runtime_stats, error_queue, output_dir=None, test_name=None):
+    def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
         
         self.running = True
         self.num_agents = num_agents
         self.interval = interval
         self.rampup = rampup
-        self.log_resps = log_resps
+        self.log_msgs = log_msgs
         self.runtime_stats = runtime_stats
         self.error_queue = error_queue  # list used like a queue
         self.test_name = test_name
@@ -88,7 +88,7 @@ class LoadManager(Thread):
             if i > 0:  # first agent starts right away
                 time.sleep(spacing)
             if self.running:  # in case stop() was called before all agents are started
-                agent = LoadAgent(i, self.interval, self.log_resps, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue, self.results_queue)
+                agent = LoadAgent(i, self.interval, self.log_msgs, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue, self.results_queue)
                 agent.start()
                 self.agent_refs.append(agent)
                 if not self.blocking:
@@ -140,13 +140,13 @@ class LoadManager(Thread):
 
 
 class LoadAgent(Thread):  # each Agent/VU runs in its own thread
-    def __init__(self, id, interval, log_resps, output_dir, runtime_stats, error_queue, msg_queue, results_queue):
+    def __init__(self, id, interval, log_msgs, output_dir, runtime_stats, error_queue, msg_queue, results_queue):
         Thread.__init__(self)
         
         self.running = True
         self.id = id
         self.interval = interval
-        self.log_resps = log_resps
+        self.log_msgs = log_msgs
         self.output_dir = output_dir
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
@@ -164,7 +164,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             self.default_timer = time.time  # time.time() is more precise on Linux/Unix and most other platforms 
             
         self.trace_logging = False
-        if self.log_resps:
+        if self.log_msgs:
             self.enable_trace_logging()
         
         
