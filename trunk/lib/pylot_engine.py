@@ -270,7 +270,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         #    self.log_trace('\n\n%s' % content)
         #    self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
                    
-        
         return (resp, content, req_start_time, req_end_time)
 
     
