@@ -235,6 +235,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
             
     def send(self, req):
+        # req is our own Request object
         if HTTP_DEBUG:
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar), urllib2.HTTPHandler(debuglevel=1))
         elif COOKIES_ENABLED:
@@ -256,7 +257,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = str(e)
-            resp.headers = {}  # not sure if headers are available in the exception
+            resp.headers = {}
             content = ''
         except urllib2.HTTPError, e:
             resp = ErrorResponse()
@@ -264,7 +265,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
             resp.headers = dict(e.info())
             content = ''
-        except urllib2.URLError, e:
+        except urllib2.URLError, e:  # this catches all socket errors also
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = e.reason
@@ -272,20 +273,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             content = ''
         req_end_time = self.default_timer()
         
-        # log request and response messages
-        ## TODO:  this doesn't log *all* HTTP headers.  Not sure how to get a reference to them
         if self.trace_logging:
-            self.log_trace('\n\n************************* REQUEST *************************\n\n')
-            path = urlparse.urlparse(req.url).path
-            if path == '':
-                path = '/'
-            self.log_trace('%s %s' % (req.method.upper(), path))
-            for header_tuple in request.header_items():
-                self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
-            self.log_trace('\n\n************************* RESPONSE ************************\n\n')
-            for header in resp.headers:
-                self.log_trace('%s: %s' % (header, resp.headers[header]))   
-            self.log_trace('\n\n%s' % content)
+            # log request/response messages
+            self.log_msgs(req, request, resp, content)
         
         return (resp, content, req_start_time, req_end_time)
 
@@ -300,6 +290,21 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                 print 'ERROR: Can not write to error log file\n'
     
     
+    def log_msgs(self, req, request, resp, content):
+        self.log_trace('\n\n************************* REQUEST *************************\n\n')
+        path = urlparse.urlparse(req.url).path
+        if path == '':
+            path = '/'
+        self.log_trace('%s %s' % (req.method.upper(), path))
+        for header_tuple in request.header_items():
+            self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
+        self.log_trace('\n\n************************* RESPONSE ************************\n\n')
+        self.log_trace('%s %s' % (resp.code, resp.msg)) 
+        for header in resp.headers:
+            self.log_trace('%s: %s' % (header, resp.headers[header]))   
+        self.log_trace('\n\n%s' % content)
+     
+     
     def log_trace(self, txt):
         self.trace_log.write('%s\n' % txt)
         self.trace_log.flush()
@@ -329,14 +334,23 @@ class Request():
             self.headers = headers
         else:
             self.headers = {}
-            
-        # default unless overidden in testcase
-        if 'user-agent' not in [header.lower() for header in self.headers]:
-            self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')  
-                
+        
         # verification string or regex
         self.verify = ''
         self.verify_negative = ''
+        
+        # default unless overidden in testcase
+        if 'user-agent' not in [header.lower() for header in self.headers]:
+            self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')
+        
+        # just for logging purposes because urllib2 will always add a "Connection: close" header anyway
+        if 'connection' not in [header.lower() for header in self.headers]:
+            self.add_header('Connection', 'close')             
+        
+        # httplib adds this header unless we override it.  you can't read this header from a urrllib2 Request 
+        # object so we just explicitly set the default again here so we can log it later
+        if 'accept-encoding' not in [header.lower() for header in self.headers]:
+            self.add_header('Accept-Encoding', 'identity') 
             
     def add_header(self, header_name, value):
         self.headers[header_name] = value
