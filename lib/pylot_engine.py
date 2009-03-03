@@ -252,30 +252,33 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = str(e)
+            resp.headers = {}  # not sure if headers are available in the exception
             content = ''
         except urllib2.HTTPError, e:
             resp = ErrorResponse()
             resp.code = e.code
             resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
+            resp.headers = dict(e.info())
             content = ''
         except urllib2.URLError, e:
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = e.reason
+            resp.headers = {}  # headers are not available in the exception
             content = ''
         req_end_time = self.default_timer()
         
-        ## log request and response messages
-        #if self.trace_logging:
-        #    #self.log_trace('%s' % (req.method,)
-        #    for header_tuple in request.header_items():
-        #        self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
-        #    self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
-        #    for header in resp.headers:
-        #        self.log_trace('%s: %s' % (header, resp.headers[header]))   
-        #    self.log_trace('\n\n%s' % content)
-        #    self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
-                   
+        # log request and response messages
+        ## TODO:  this doesn't log *all* HTTP headers.  Not sure how to get a reference to them
+        if self.trace_logging:
+            self.log_trace('\n\n************************* REQUEST *************************\n\n')
+            for header_tuple in request.header_items():
+                self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
+            self.log_trace('\n\n************************* RESPONSE ************************\n\n')
+            for header in resp.headers:
+                self.log_trace('%s: %s' % (header, resp.headers[header]))   
+            self.log_trace('\n\n%s' % content)
+        
         return (resp, content, req_start_time, req_end_time)
 
     
@@ -338,6 +341,7 @@ class ErrorResponse():
     def __init__(self):
         self.code = 0
         self.msg = 'Connection error'
+        self.headers = {}
         
         
         
