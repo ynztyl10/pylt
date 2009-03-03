@@ -27,8 +27,8 @@ from threading import Thread
 import results
 
 
-# display httplib debugging 
-HTTP_DEBUG = False  
+
+HTTP_DEBUG = False  # display httplib debugging 
 COOKIES_ENABLED = False
 
 
@@ -173,9 +173,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def run(self):
         total_latency = 0
         total_bytes = 0
-        self.cookie_jar = cookielib.CookieJar()
-        
         while self.running:
+            self.cookie_jar = cookielib.CookieJar()
+            
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
