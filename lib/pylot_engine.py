@@ -18,6 +18,7 @@ import sys
 import time
 import pickle
 import urllib2
+import urlparse
 import httplib  # for exceptions only
 import BaseHTTPServer  # for exceptions only
 import cookielib
@@ -272,6 +273,10 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         ## TODO:  this doesn't log *all* HTTP headers.  Not sure how to get a reference to them
         if self.trace_logging:
             self.log_trace('\n\n************************* REQUEST *************************\n\n')
+            path = urlparse.urlparse(req.url).path
+            if path == '':
+                path = '/'
+            self.log_trace('%s %s' % (req.method.upper(), path))
             for header_tuple in request.header_items():
                 self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
             self.log_trace('\n\n************************* RESPONSE ************************\n\n')
