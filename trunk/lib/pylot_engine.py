@@ -252,7 +252,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         except urllib2.HTTPError, e:
             resp = ErrorResponse()
             resp.msg = e.code
-            content = ''
+            content = e.read()
         except urllib2.URLError, e:
             resp = ErrorResponse()
             resp.msg = e.reason
