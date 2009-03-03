@@ -16,13 +16,14 @@ import os
 import re
 import sys
 import time
+import copy
 import pickle
 import urllib2
 import urlparse
-import httplib  # for exceptions only
-import BaseHTTPServer  # for exceptions only
 import cookielib
 import Queue
+import httplib  # for exceptions only
+import BaseHTTPServer  # for exceptions only
 from threading import Thread
 import results
 
@@ -153,7 +154,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = msg_queue[:]  # copy message/request queue
+        self.msg_queue = copy.deepcopy(msg_queue)  # copy message/request queus and all its request objects so we have a unique copy for each agent
         self.results_queue = results_queue  # shared results queue
         
         self.count = 0
@@ -175,7 +176,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         total_bytes = 0
         while self.running:
             self.cookie_jar = cookielib.CookieJar()
-            
             for req in self.msg_queue:
                 for repeat in range(req.repeat):
                     if self.running:
