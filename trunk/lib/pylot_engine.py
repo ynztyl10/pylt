@@ -29,6 +29,7 @@ import results
 
 # display httplib debugging 
 HTTP_DEBUG = False  
+COOKIES_ENABLED = False
 
 
 
@@ -236,8 +237,10 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
     def send(self, req):
         if HTTP_DEBUG:
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar), urllib2.HTTPHandler(debuglevel=1))
-        else:
+        elif COOKIES_ENABLED:
             opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie_jar))
+        else:
+            opener = urllib2.build_opener()
         if req.method.upper() == 'POST':
             request = urllib2.Request(req.url, req.body, req.headers)
         else:  
