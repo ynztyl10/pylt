@@ -18,7 +18,8 @@ import sys
 import time
 import pickle
 import urllib2
-import httplib
+import httplib  # for exceptions only
+import BaseHTTPServer  # for exceptions only
 import cookielib
 import Queue
 from threading import Thread
@@ -111,8 +112,9 @@ class LoadManager(Thread):
         self.running = False
         for agent in self.agent_refs:
             agent.stop()
-            
-        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  # pickle dictionaries to files for results post-processing
+        
+        # pickle dictionaries to files for results post-processing        
+        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  
         
         self.results_writer.stop()
         
@@ -199,7 +201,8 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                             self.error_count += 1
                             error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.code, resp.msg, req.url)
                             self.error_queue.append(error_string)
-                            self.log_error(error_string)
+                            log_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg)
+                            self.log_error('%s,%s,%s,%s,%s,%s,%s' % log_tuple)  # write as csv
                             
                         self.count += 1
                             
@@ -247,14 +250,17 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         except httplib.HTTPException, e:
             # this can happen on an incomplete read, just catch all HTTPException
             resp = ErrorResponse()
+            resp.code = 0
             resp.msg = str(e)
             content = ''
         except urllib2.HTTPError, e:
             resp = ErrorResponse()
-            resp.msg = e.code
+            resp.code = e.code
+            resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
             content = ''
         except urllib2.URLError, e:
             resp = ErrorResponse()
+            resp.code = 0
             resp.msg = e.reason
             content = ''
         req_end_time = self.default_timer()
