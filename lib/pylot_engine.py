@@ -266,7 +266,11 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             content = ''
         req_end_time = self.default_timer()
         
-        print request
+        ## TODO build logging in here
+        #for k in request.unredirected_hdrs:
+        #    print k, request.unredirected_hdrs[k]
+        #for k in request.headers:
+        #    print '%s: %s' % (k, request.headers[k])
         
         return (resp, content, req_start_time, req_end_time)
 
