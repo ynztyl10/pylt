@@ -214,13 +214,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
                         q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency)
                         self.results_queue.put(q_tuple)
-
-                        # log response content
-                        if self.trace_logging:
-                            for header in resp.headers:
-                                self.log_trace('%s: %s' % (header, resp.headers[header]))
-                            self.log_trace('\n\n%s' % content)
-                            self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
                             
                         expire_time = (self.interval - latency)
                         if expire_time > 0:
@@ -266,11 +259,17 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             content = ''
         req_end_time = self.default_timer()
         
-        ## TODO build logging in here
-        #for k in request.unredirected_hdrs:
-        #    print k, request.unredirected_hdrs[k]
-        #for k in request.headers:
-        #    print '%s: %s' % (k, request.headers[k])
+        ## log request and response messages
+        #if self.trace_logging:
+        #    #self.log_trace('%s' % (req.method,)
+        #    for header_tuple in request.header_items():
+        #        self.log_trace('%s: %s' % (header_tuple[0], header_tuple[1]))
+        #    self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
+        #    for header in resp.headers:
+        #        self.log_trace('%s: %s' % (header, resp.headers[header]))   
+        #    self.log_trace('\n\n%s' % content)
+        #    self.log_trace('\n\n************************* LOG SEPARATOR *************************\n\n')
+                   
         
         return (resp, content, req_start_time, req_end_time)
 
