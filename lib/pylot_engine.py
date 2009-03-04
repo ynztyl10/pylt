@@ -18,12 +18,11 @@ import sys
 import time
 import copy
 import pickle
+import httplib
 import urllib2
 import urlparse
 import cookielib
 import Queue
-import httplib  # for exceptions only
-import BaseHTTPServer  # for exceptions only
 from threading import Thread
 import results
 
@@ -259,10 +258,11 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp.msg = str(e)
             resp.headers = {}
             content = ''
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError, e:  # http responses with status 400 or greater
             resp = ErrorResponse()
             resp.code = e.code
-            resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
+            #resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
+            resp.msg = httplib.responses[e.code]  # constant dict of http error codes/reasons
             resp.headers = dict(e.info())
             content = ''
         except urllib2.URLError, e:  # this catches all socket errors also
