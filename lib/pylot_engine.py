@@ -275,8 +275,8 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         
         if self.trace_logging:
             # log request/response messages
-            self.log_msgs(req, request, resp, content)
-        
+            self.log_http_msgs(req, request, resp, content)
+            
         return (resp, content, req_start_time, req_end_time)
 
     
@@ -290,7 +290,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                 print 'ERROR: Can not write to error log file\n'
     
     
-    def log_msgs(self, req, request, resp, content):
+    def log_http_msgs(self, req, request, resp, content):
         self.log_trace('\n\n************************* REQUEST *************************\n\n')
         path = urlparse.urlparse(req.url).path
         if path == '':
