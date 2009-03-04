@@ -347,6 +347,7 @@ class Request():
         if 'connection' not in [header.lower() for header in self.headers]:
             self.add_header('Connection', 'close')             
         
+        # default unless overidden in testcase
         # httplib adds this header unless we override it.  you can't read this header from a urrllib2 Request 
         # object so we just explicitly set the default again here so we can log it later
         if 'accept-encoding' not in [header.lower() for header in self.headers]:
