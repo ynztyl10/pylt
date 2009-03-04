@@ -24,12 +24,13 @@ import urlparse
 import cookielib
 import Queue
 from threading import Thread
+import config
 import results
 
 
 
-HTTP_DEBUG = False  # display httplib debugging 
-COOKIES_ENABLED = True
+HTTP_DEBUG = config.HTTP_DEBUG
+COOKIES_ENABLED = config.COOKIES_ENABLED
 
 
 
