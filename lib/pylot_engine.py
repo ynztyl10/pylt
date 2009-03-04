@@ -251,8 +251,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         try:
             resp = opener.open(request)
             content = resp.read()
-        except httplib.HTTPException, e:
-            # this can happen on an incomplete read, just catch all HTTPException
+        except httplib.HTTPException, e:  # this can happen on an incomplete read, just catch all HTTPException
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = str(e)
@@ -261,7 +260,6 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         except urllib2.HTTPError, e:  # http responses with status 400 or greater
             resp = ErrorResponse()
             resp.code = e.code
-            #resp.msg = BaseHTTPServer.BaseHTTPRequestHandler.responses[e.code][0]  # constant dict of http error codes/reasons
             resp.msg = httplib.responses[e.code]  # constant dict of http error codes/reasons
             resp.headers = dict(e.info())
             content = ''
