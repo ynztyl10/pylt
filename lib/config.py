@@ -26,4 +26,4 @@ LOG_MSGS = False
 BLOCKING = False
 GUI = False
 COOKIES_ENABLED = True
-HTTP_DEBUG = False  # really only useful if combined with blocking mode
+HTTP_DEBUG = False  # only useful if combined with blocking mode
