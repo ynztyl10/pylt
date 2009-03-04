@@ -27,23 +27,26 @@
   -g, --gui                   :  start GUI  
 """
 
-VERSION = '1.21'
 
 import sys
 import lib.optionparse as optionparse
+import lib.config as config
 
 
-# default parameters
-agents = 1
-duration = 60  # secs
-rampup = 0  # secs
-interval = 0  # millisecs
-tc_xml_filename = 'testcases.xml'
-log_msgs = False
-output_dir = None
-test_name = None
-blocking = False
-gui = False
+VERSION = '1.21'
+
+
+# get default config parameters
+agents = config.AGENTS
+duration = config.DURATION
+rampup = config.RAMPUP
+interval = config.INTERVAL
+tc_xml_filename = config.TC_XML_FILENAME
+output_dir = config.OUTPUT_DIR
+test_name = config.TEST_NAME
+log_msgs = config.LOG_MSGS
+blocking = config.BLOCKING
+gui = config.GUI
 
 
 # parse command line arguments
@@ -113,5 +116,3 @@ else:  # shell/console mode
         print '\nInterrupt'
         sys.exit(1)
     
-
-
