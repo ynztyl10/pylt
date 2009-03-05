@@ -16,8 +16,8 @@
 #    Original code by David Solomon (dave.c.solomon@gmail.com)
 #
 #
-#  Browser capture tool.  Builds Pylot test cases from an IE browsing session.
 #  Only works on Windows.
+#  Browser capture tool.  Builds Pylot test cases from an IE browsing session.
 #  You must have the Win32 Extensions for Python installed
 #  http://sourceforge.net/projects/pywin32/
 
