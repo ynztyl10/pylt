@@ -53,8 +53,7 @@ def start(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, out
     lm.start()
     
     # wait for the test duration to lapse
-    while (time.time() < start_time + duration):         
-        time.sleep(.05)
+    time.sleep(duration)
         
     elapsed_secs = time.time() - start_time
 
