@@ -20,9 +20,23 @@ except:
 from pylot_engine import Request
 
 
+
+def load_xml_string_cases(tc_xml_blob):
+    # parse xml and load request queue with pylot_engine.Request objects
+    # variant to parse from a raw string instead of a filename
+    dom = etree.ElementTree(etree.fromstring(tc_xml_blob))
+    return load_xml_cases_dom(dom)
+
+
 def load_xml_cases(tc_xml_filename):
     # parse xml and load request queue with pylot_engine.Request objects
+    # variant to load the xml from a file (the default shell behavior)
     dom = etree.parse(tc_xml_filename)
+    return load_xml_cases_dom(dom)
+
+
+def load_xml_cases_dom(dom):
+    # load cases from an already-parsed XML DOM
     cases = []
     for child in dom.getiterator():
         if child.tag != dom.getroot().tag and child.tag == 'case':
