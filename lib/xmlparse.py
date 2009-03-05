@@ -21,7 +21,7 @@ from pylot_engine import Request
 
 
 def load_xml_cases(tc_xml_filename):
-    # parse xml and load request queue
+    # parse xml and load request queue with pylot_engine.Request objects
     dom = etree.parse(tc_xml_filename)
     cases = []
     for child in dom.getiterator():
