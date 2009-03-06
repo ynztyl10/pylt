@@ -258,13 +258,13 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             resp.msg = str(e)
             resp.headers = {}
             content = ''
-        except urllib2.HTTPError, e:  # http responses with status 400 or greater
+        except urllib2.HTTPError, e:  # http responses with status >= 400
             resp = ErrorResponse()
             resp.code = e.code
             resp.msg = httplib.responses[e.code]  # constant dict of http error codes/reasons
             resp.headers = dict(e.info())
             content = ''
-        except urllib2.URLError, e:  # this catches all socket errors also
+        except urllib2.URLError, e:  # this also catches socket errors
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = e.reason
@@ -323,7 +323,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
 
 
 class Request():
-    def __init__(self, url='localhost', method='GET', body='', headers=None, repeat=1):
+    def __init__(self, url='http://localhost/', method='GET', body='', headers=None, repeat=1):
         self.url = url
         self.method = method
         self.body = body
