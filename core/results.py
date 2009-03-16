@@ -30,12 +30,12 @@ def generate_results(dir, test_name, blocking):
     except IOError:
         print 'ERROR: Can not find your results log file'
     merged_error_log = merge_error_files(dir)
-    epoch_timings = list_timings(merged_log)
+    timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
 
     # request throughput
-    epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
-    throughputs = calc_throughputs(epochs) # dict of secs and throughputs
+    timing_secs = [int(x[0]) for x in timings]  # grab just the secs (rounded-down)
+    throughputs = calc_throughputs(timing_secs)  # dict of secs and throughputs
     try:  # graphing only works on systems with Matplotlib installed
         graph.tp_graph(throughputs, dir=dir+'/')
     except: 
@@ -43,15 +43,11 @@ def generate_results(dir, test_name, blocking):
     throughput_stats = corestats.Stats(throughputs.values())
 
     # response times
-    # subtract start times so we have response times by elapsed time starting at zero
-    start_epoch = epoch_timings[0][0]
-    end_epoch = epoch_timings[-1][0]
-    based_timings = [((epoch_timing[0] - start_epoch), epoch_timing[1]) for epoch_timing in epoch_timings] 
     try:  # graphing only works on systems with Matplotlib installed
-        graph.resp_graph(based_timings, dir=dir + '/')
+        graph.resp_graph(timings, dir=dir + '/')
     except: 
         pass
-    resp_data_set = [x[1] for x in epoch_timings] # grab just the timings
+    resp_data_set = [x[1] for x in timings] # grab just the timings
     response_stats = corestats.Stats(resp_data_set)
     
     # calc the stats and load up a dictionary with the results
@@ -63,11 +59,9 @@ def generate_results(dir, test_name, blocking):
     # get the summary stats and load up a dictionary with the results   
     summary_dict = {}
     summary_dict['cur_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
-    summary_dict['start_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
-    summary_dict['end_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(end_epoch))
-    summary_dict['duration'] = int(end_epoch - start_epoch) + 1 # add 1 to round up
+    summary_dict['duration'] = int(timings[-1][0] - timings[0][0]) + 1 # add 1 to round up
     summary_dict['num_agents'] = workload_dict['num_agents']
-    summary_dict['req_count'] = len(epochs)
+    summary_dict['req_count'] = len(timing_secs)
     summary_dict['err_count'] = len(merged_error_log)
     summary_dict['bytes_received'] = calc_bytes(merged_log)
 
@@ -108,14 +102,14 @@ def merge_error_files(dir):
     
     
 def list_timings(merged_log):
-    # create a list of tuples with our timing data sorted by epoch
-    epoch_timings = []
+    # create a list of tuples with our timing data sorted by second
+    timings = []
     for line in merged_log:
         splat = line.split(',')
-        epoch = splat[3].strip()
+        timing_sec = splat[3].strip()
         response_time = splat[8].strip()
-        epoch_timings.append((float(epoch), float(response_time)))
-    return sorted(epoch_timings)
+        timings.append((float(timing_sec), float(response_time)))
+    return sorted(timings)
     
     
 def calc_bytes(merged_log):
@@ -128,15 +122,15 @@ def calc_bytes(merged_log):
     return total_bytes
     
 
-def calc_throughputs(epochs):
-    # load up a dictionary with epochs as keys and counts as values   
+def calc_throughputs(timing_secs):
+    # load up a dictionary with secs as keys and counts as values   
     # need start and end times
-    start_sec = epochs[0]
-    end_sec = epochs[-1]
+    start_sec = timing_secs[0]
+    end_sec = timing_secs[-1]
     throughputs = {}
-    for epoch in range(start_sec, end_sec + 1):
-        count = epochs.count(epoch)       
-        throughputs[epoch - start_sec] = count
+    for sec in range(start_sec, end_sec + 1):
+        count = timing_secs.count(sec)       
+        throughputs[sec - start_sec] = count
     return throughputs
     
 
