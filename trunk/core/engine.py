@@ -60,7 +60,7 @@ class LoadManager(Thread):
         for i in range(self.num_agents): 
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
-        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup}  # convert interval to millisecs  
+        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup, 'start_epoch': time.mktime(time.localtime())}  # convert interval to millisecs  
         
         self.results_queue = Queue.Queue()  # result stats get queued up by agent threads
         self.agent_refs = []
