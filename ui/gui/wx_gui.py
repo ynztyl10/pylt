@@ -15,10 +15,11 @@
 
 import time
 import sys
+import os.path
 from threading import Thread
-from pylot_engine import *
-import results
-import xmlparse
+from core.engine import *
+import core.results as results
+import core.xmlparse as xmlparse
 try:  # quit if wx is not installed
     import wx
     from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
@@ -38,7 +39,7 @@ class Application(wx.Frame):
         self.tc_xml_filename = tc_xml_filename
         self.output_dir = output_dir
         
-        self.SetIcon(wx.Icon('lib/icon.ico', wx.BITMAP_TYPE_ICO))
+        self.SetIcon(wx.Icon(os.path.join(os.path.dirname(__file__), 'icon.ico').replace('\\', '/'), wx.BITMAP_TYPE_ICO))
         self.CreateStatusBar()  # enable bottom status bar
         
         # menus
