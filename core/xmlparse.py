@@ -17,7 +17,7 @@ try:
 except:
     sys.stderr.write('ERROR: Pylot was unable to find the XML parser.  Make sure you have Python 2.5+ installed.\n')
     sys.exit(1)
-from pylot_engine import Request
+from engine import Request
 
 
 
