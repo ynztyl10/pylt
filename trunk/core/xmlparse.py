@@ -57,6 +57,8 @@ def load_xml_cases_dom(dom):
                     req.verify = element.text
                 if element.tag.lower() == 'verify_negative': 
                     req.verify_negative = element.text
+                if element.tag.lower() == 'timer_group': 
+                    req.timer_group = element.text
                 if element.tag.lower() == 'add_header':
                     # this protects against headers that contain colons
                     splat = element.text.split(':')

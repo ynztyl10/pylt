@@ -37,7 +37,7 @@ def generate_results(dir, test_name, blocking):
     epochs = [int(x[0]) for x in epoch_timings] # grab just the epochs as rounded-down secs
     throughputs = calc_throughputs(epochs) # dict of secs and throughputs
     try:  # graphing only works on systems with Matplotlib installed
-        graph.tp_graph(throughputs, dir=dir + '/')
+        graph.tp_graph(throughputs, dir=dir+'/')
     except: 
         print "ERROR: Unable to generate graphs with Matplotlib"
     throughput_stats = corestats.Stats(throughputs.values())
@@ -113,7 +113,7 @@ def list_timings(merged_log):
     for line in merged_log:
         splat = line.split(',')
         epoch = splat[3].strip()
-        response_time = splat[-1].strip()
+        response_time = splat[8].strip()
         epoch_timings.append((float(epoch), float(response_time)))
     return sorted(epoch_timings)
     
@@ -122,7 +122,7 @@ def calc_bytes(merged_log):
     # get total bytes received
     bytes_seq = []
     for line in merged_log:
-        bytes = int(line.split(',')[-2].strip())
+        bytes = int(line.split(',')[7].strip())
         bytes_seq.append(bytes)
     total_bytes = sum(bytes_seq)
     return total_bytes
@@ -199,10 +199,10 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         self.blocking = blocking
         
     def run(self):
-        try:
+        #try:
             generate_results(self.dir, self.test_name, self.blocking)
-        except Exception, e:
-            print 'ERROR: Unable to generate results: %s' % e
+        #except Exception, e:
+        #    print 'ERROR: Unable to generate results: %s' % e
         
         
             
