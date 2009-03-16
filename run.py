@@ -52,6 +52,7 @@ gui = config.GUI
 # parse command line arguments
 opt, args = optionparse.parse(__doc__)
 
+
 if not opt and not args:
     print 'version: %s' % VERSION
     optionparse.exit()
@@ -95,8 +96,8 @@ elif blocking:  # blocked output mode (stdout blocked until test finishes, then 
         sys.exit(1)
         
         
-else:  # shell/console mode
-    import ui.console as pylot_shell
+else:  # console/shell mode
+    import ui.console as pylot_console
     print '\n-------------------------------------------------'
     print 'Test parameters:'
     print '  number of agents:          %s' % agents
@@ -111,7 +112,7 @@ else:  # shell/console mode
         print '  output directory:           %s' % output_dir
     print '\n'
     try:    
-        pylot_shell.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
+        pylot_console.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
