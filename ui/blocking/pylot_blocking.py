@@ -71,7 +71,8 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     avg_resp_time = agg_total_latency / agg_count  # avg response time since start
     avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
     
-    print """<results>
+    print """\
+<results>
   <summary-results>
     <requests>%d</requests>
     <errors>%d</errors>
@@ -88,8 +89,8 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     <bytes-received>%i</bytes-received>
   </agent-results> """ % (id + 1, runtime_stats[id].count, runtime_stats[id].error_count, 
                         runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
-    print '</results>'
-
-            
+    print """\
+</results>"""
+    
             
 
