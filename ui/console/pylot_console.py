@@ -25,7 +25,7 @@ from core.engine import LoadManager
 is_windows = sys.platform.startswith('win')
 if is_windows:
     import win.cpos as cpos  
-# See the README.txt file in lib/win/ for more info.
+# See the README.txt file in ui/console/win/ for more info.
 # The cpos.py module is used to load a C++ extentsion.
 # The C++ extension defines windows native functions for 
 # positioning the cursor on the command prompt since ANSI 
