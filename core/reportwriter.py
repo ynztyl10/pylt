@@ -22,6 +22,7 @@ def write_starting_content(handle, test_name):
     else:
         handle.write('<h1>Pylot - Performance Results</h1>\n')
     
+    
 def write_images(handle):
     handle.write('<h2>Response Time</h2>\n')
     handle.write('<img src="response_time_graph.png" alt="response time graph">\n')
@@ -191,7 +192,7 @@ def write_closing_html(handle):
 <hr />
 </body>
 </html>
-    """)
+""")
 
 
 
