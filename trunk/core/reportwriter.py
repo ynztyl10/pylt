@@ -67,11 +67,10 @@ def write_stats_tables(handle, stats_dict):
 
 def write_summary_results(handle, summary_dict, workload_dict):
     handle.write('<b>%s:</b> &nbsp;%s<br />\n' % ('report generated', summary_dict['cur_time']))
-    start_epoch = workload_dict['start_epoch']
-    start_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch))
-    end_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(start_epoch + summary_dict['duration']))
-    handle.write('<b>%s:</b>  &nbsp;%s<br />\n' % ('test start', start_time))
-    handle.write('<b>%s:</b>  &nbsp;%s<br />\n' % ('test finish', end_time))
+    start_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(workload_dict['start_epoch']))
+    end_time = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime(workload_dict['start_epoch'] + summary_dict['duration']))
+    handle.write('<b>test start:</b>  &nbsp;%s<br />\n' % start_time)
+    handle.write('<b>test finish:</b>  &nbsp;%s<br />\n' % end_time)
     handle.write('<h2>Workload Model</h2>')
     handle.write('<table>\n')
     handle.write('<tr><td>%s</td><td>%d</td></tr>\n' % ('test duration (secs)', summary_dict['duration']))
