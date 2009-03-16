@@ -217,7 +217,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         self.runtime_stats[self.id] = StatCollection(resp.code, resp.msg, latency, self.count, self.error_count, total_latency, total_bytes)
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency)
+                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency, req.timer_group)
                         self.results_queue.put(q_tuple)
                             
                         expire_time = (self.interval - latency)
@@ -323,10 +323,11 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
 
 
 class Request():
-    def __init__(self, url='http://localhost/', method='GET', body='', headers=None, repeat=1):
+    def __init__(self, url='http://localhost/', method='GET', body='', headers=None, timer_group='default_timer', repeat=1):
         self.url = url
         self.method = method
         self.body = body
+        self.timer_group = timer_group
         self.repeat = repeat
         
         if headers:
@@ -342,6 +343,7 @@ class Request():
         if 'user-agent' not in [header.lower() for header in self.headers]:
             self.add_header('User-Agent', 'Mozilla/4.0 (compatible; Pylot)')
         
+        # default unless overidden in testcase
         # just for logging purposes because urllib2 will always add a "Connection: close" header anyway
         if 'connection' not in [header.lower() for header in self.headers]:
             self.add_header('Connection', 'close')             
@@ -403,7 +405,7 @@ class ResultWriter(Thread):
             try:
                 q_tuple = self.results_queue.get(False)
                 f = open('%s/agent_stats.csv' % self.output_dir, 'a')
-                f.write('%s,%s,%s,%s,%s,%d,%s,%d,%f\n' % q_tuple)  # write as csv
+                f.write('%s,%s,%s,%s,%s,%d,%s,%d,%f,%s\n' % q_tuple)  # log as csv
                 f.flush()
                 f.close()
             except Queue.Empty:
