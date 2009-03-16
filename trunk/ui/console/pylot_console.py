@@ -17,14 +17,14 @@
 import sys
 import time
 from threading import Thread
-import xmlparse
-from pylot_engine import LoadManager
+import core.xmlparse as xmlparse
+from core.engine import LoadManager
 
 
 
 is_windows = sys.platform.startswith('win')
 if is_windows:
-    import lib.win.cpos as cpos  
+    import win.cpos as cpos  
 # See the README.txt file in lib/win/ for more info.
 # The cpos.py module is used to load a C++ extentsion.
 # The C++ extension defines windows native functions for 
@@ -128,7 +128,7 @@ class RuntimeReporter(object):
         
 
 
-def start(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
+def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
     runtime_stats = {}
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
