@@ -24,6 +24,6 @@ TEST_NAME = None
 LOG_MSGS = False
 BLOCKING = False  # stdout blocked until test finishes, then result is returned as XML
 GUI = False
+SOCKET_TIMEOUT = 300  # secs
 COOKIES_ENABLED = True
 HTTP_DEBUG = False  # only useful if combined with blocking mode
-SOCKET_TIMEOUT = 300  # secs
