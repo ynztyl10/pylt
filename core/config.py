@@ -12,7 +12,7 @@
 #
 
 
-#  All configuration options here are overridden if specified on the command line
+# Configuration options here are overridden if specified on the command line
 
 AGENTS = 1
 DURATION = 60  # secs
@@ -26,3 +26,4 @@ BLOCKING = False  # stdout blocked until test finishes, then result is returned 
 GUI = False
 COOKIES_ENABLED = True
 HTTP_DEBUG = False  # only useful if combined with blocking mode
+SOCKET_TIMEOUT = 300  # secs
