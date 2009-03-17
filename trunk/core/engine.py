@@ -18,6 +18,7 @@ import sys
 import time
 import copy
 import pickle
+import socket
 import httplib
 import urllib2
 import urlparse
@@ -29,14 +30,18 @@ import results
 
 
 
-HTTP_DEBUG = config.HTTP_DEBUG
-COOKIES_ENABLED = config.COOKIES_ENABLED
+# get config options
+COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
+HTTP_DEBUG = config.HTTP_DEBUG  # default is False
+SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations
 
 
 
 class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
+        
+        socket.setdefaulttimeout(SOCKET_TIMEOUT)
         
         self.running = True
         self.num_agents = num_agents
