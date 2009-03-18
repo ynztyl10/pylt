@@ -41,7 +41,7 @@ class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
         
-        socket.setdefaulttimeout(SOCKET_TIMEOUT)
+        socket.setdefaulttimeout(SOCKET_TIMEOUT)  # this affects all socket operations (incl. HTTP)
         
         self.running = True
         self.num_agents = num_agents
@@ -65,7 +65,12 @@ class LoadManager(Thread):
         for i in range(self.num_agents): 
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
-        self.workload = {'num_agents': num_agents, 'interval': interval * 1000, 'rampup': rampup, 'start_epoch': time.mktime(time.localtime())}  # convert interval to millisecs  
+        self.workload = {
+            'num_agents': num_agents, 
+            'interval': interval * 1000,  # convert to millisecs   
+            'rampup': rampup, 
+            'start_epoch': time.mktime(time.localtime())
+        }  
         
         self.results_queue = Queue.Queue()  # result stats get queued up by agent threads
         self.agent_refs = []
