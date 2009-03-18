@@ -32,7 +32,8 @@ def generate_results(dir, test_name, blocking):
     merged_error_log = merge_error_files(dir)
     timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
-
+    timer_group_stats = get_timer_groups(merged_log)
+    
     # request throughput
     timing_secs = [int(x[0]) for x in timings]  # grab just the secs (rounded-down)
     throughputs = calc_throughputs(timing_secs)  # dict of secs and throughputs
@@ -72,8 +73,9 @@ def generate_results(dir, test_name, blocking):
     reportwriter.write_summary_results(fh, summary_dict, workload_dict)
     reportwriter.write_stats_tables(fh, stats_dict)
     reportwriter.write_images(fh)
+    reportwriter.write_timer_group_stats(fh, timer_group_stats)
     reportwriter.write_agent_detail_table(fh, runtime_stats_dict)
-    reportwriter.write_important_requests(fh, best_times, worst_times)
+    reportwriter.write_best_worst_requests(fh, best_times, worst_times)
     reportwriter.write_closing_html(fh)
     fh.close()
     
@@ -156,6 +158,33 @@ def get_stats(response_stats, throughput_stats):
     stats_dict['throughput_99pct'] = throughput_stats.percentile(99)
     return stats_dict 
     
+
+def get_timer_groups(merged_log):  # get the stats by timer group
+    stats_lists = [line.split(',') for line in merged_log]
+    uniq_timer_groups = list(set((stats_list[9].strip() for stats_list in stats_lists)))
+    timer_group_stats = {}
+    for timer_group in uniq_timer_groups:
+        elapsed_times = []
+        for stat_list in stats_lists:
+            if timer_group == stat_list[9].strip():
+                if stat_list[5] == '200':  # just concerned with valid responses
+                    elapsed_times.append(stat_list[8])
+        stats = corestats.Stats(elapsed_times)
+        stat_group = [
+            stats.count(),
+            stats.avg(), 
+            stats.stdev(), 
+            stats.min(), 
+            stats.percentile(50), 
+            stats.percentile(80), 
+            stats.percentile(90), 
+            stats.percentile(95), 
+            stats.percentile(99), 
+            stats.max()
+        ]
+        timer_group_stats[timer_group] = stat_group
+    return timer_group_stats
+
     
 def best_and_worst_requests(merged_log):  # get the fastest/slowest urls
     stats_lists = [line.split(',') for line in merged_log]
