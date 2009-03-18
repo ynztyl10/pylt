@@ -12,11 +12,11 @@
 #
 
 
-try: 
+try:
     from pylab import *  # Matplotlib for graphing.  Only enable on systems that have it installed.
-except: 
-    pass
-
+except ImportError, e:
+    print 'Matplotlib ImportError: %s' % e
+    
 
 
 # response time graph
