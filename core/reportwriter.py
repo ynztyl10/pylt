@@ -101,7 +101,23 @@ def write_agent_detail_table(handle, runtime_stats_dict):
     handle.write('</table>\n')
 
 
-def write_important_requests(handle, best_times, worst_times):
+def write_timer_group_stats(handle, timer_group_stats):
+    handle.write('<p><br /></p>')
+    handle.write('<h2>Timer Groups - Response Times</h2>\n')
+    handle.write('<table>\n')
+    handle.write('<th>Timer Group</th><th>Count</th><th>avg</th><th>stdev</th><th>min</th><th>50th %</th><th>80th %</th><th>90th%</th><th>95th %</th><th>99th %</th><th>max</th>\n')
+    for timer_group in timer_group_stats:
+        stat_list = timer_group_stats[timer_group]
+        handle.write('<tr> <td>%s</td> <td>%i</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> <td>%.3f</td> </tr>\n' % 
+            (timer_group, stat_list[0], stat_list[1], stat_list[2], stat_list[3], stat_list[4],
+             stat_list[5], stat_list[6], stat_list[7], stat_list[8], stat_list[9])
+        )
+    handle.write('</table>\n')
+    handle.write('<p><br /></p>')
+    handle.write('</table>\n')
+    
+
+def write_best_worst_requests(handle, best_times, worst_times):
     handle.write('<p><br /></p>')
     handle.write('<h2>Fastest Responding Requests</h2>\n')
     handle.write('<table>\n')
