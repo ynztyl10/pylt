@@ -15,7 +15,6 @@
 import glob
 import time
 import pickle
-import graph
 import corestats
 import reportwriter
 from threading import Thread
@@ -33,21 +32,9 @@ def generate_results(dir, test_name, blocking):
     timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
     timer_group_stats = get_timer_groups(merged_log)
-    
-    # request throughput
     timing_secs = [int(x[0]) for x in timings]  # grab just the secs (rounded-down)
     throughputs = calc_throughputs(timing_secs)  # dict of secs and throughputs
-    try:  # graphing only works on systems with Matplotlib installed
-        graph.tp_graph(throughputs, dir=dir+'/')
-    except: 
-        print "ERROR: Unable to generate graphs with Matplotlib"
     throughput_stats = corestats.Stats(throughputs.values())
-
-    # response times
-    try:  # graphing only works on systems with Matplotlib installed
-        graph.resp_graph(timings, dir=dir + '/')
-    except: 
-        pass
     resp_data_set = [x[1] for x in timings] # grab just the timings
     response_stats = corestats.Stats(resp_data_set)
     
@@ -79,6 +66,14 @@ def generate_results(dir, test_name, blocking):
     reportwriter.write_closing_html(fh)
     fh.close()
     
+    try:  # graphing only works on systems with Matplotlib installed
+        print 'Generating Graphs...'
+        import graph
+        graph.resp_graph(timings, dir=dir + '/')
+        graph.tp_graph(throughputs, dir=dir+'/')
+    except: 
+        print "ERROR: Unable to generate graphs with Matplotlib"
+
     if not blocking:
         print '\nDone generating results. You can view your test at:'
         print '%s/results.html\n' % dir

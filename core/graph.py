@@ -15,7 +15,7 @@
 try:
     from pylab import *  # Matplotlib for graphing.  Only used on systems that have it installed.
 except ImportError, e:
-    pass
+    print 'Matplotlib ImportError: %s' % e
     
 
 
