@@ -69,7 +69,7 @@ def generate_results(dir, test_name, blocking):
     try:  # graphing only works on systems with Matplotlib installed
         print 'Generating Graphs...'
         import graph
-        graph.resp_graph(timings, dir=dir + '/')
+        graph.resp_graph(timings, dir=dir+'/')
         graph.tp_graph(throughputs, dir=dir+'/')
     except: 
         print "ERROR: Unable to generate graphs with Matplotlib"
