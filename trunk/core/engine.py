@@ -33,7 +33,7 @@ import results
 # get config options
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
-SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations
+SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations.  default is 300 secs.
 
 
 
