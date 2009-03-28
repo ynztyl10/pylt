@@ -22,6 +22,7 @@ TC_XML_FILENAME = 'testcases.xml'
 OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
+SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 BLOCKING = False  # stdout blocked until test finishes, then result is returned as XML
 GUI = False
 SOCKET_TIMEOUT = 300  # secs
