@@ -12,19 +12,19 @@
 #
 
 
+import cookielib
+import copy
+import httplib
 import os
+import pickle
+import Queue
+import random
 import re
+import socket
 import sys
 import time
-import copy
-import random
-import pickle
-import socket
-import httplib
 import urllib2
 import urlparse
-import cookielib
-import Queue
 from threading import Thread
 import config
 import results
