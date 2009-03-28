@@ -170,5 +170,5 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     # wait until the result generator is finished
     while lm.results_gen.isAlive():
         time.sleep(0.1)
-    print '\nDone.'
+    print 'Done.'
     
