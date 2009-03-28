@@ -17,6 +17,7 @@ import re
 import sys
 import time
 import copy
+import random
 import pickle
 import socket
 import httplib
@@ -33,6 +34,7 @@ import results
 # get config options
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
+SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
 SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations.  default is 300 secs.
 
 
@@ -61,7 +63,7 @@ class LoadManager(Thread):
             else:
                 self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
-        # initialize the stats
+        # initialize stats
         for i in range(self.num_agents): 
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
@@ -165,6 +167,9 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
         self.msg_queue = copy.deepcopy(msg_queue)  # copy message/request queue and all its request objects so we have a unique copy for each agent
+        if SHUFFLE_TESTCASES:  # randomize order of testcases per agent
+            random.shuffle(self.msg_queue)
+        
         self.results_queue = results_queue  # shared results queue
         
         self.count = 0
