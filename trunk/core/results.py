@@ -209,6 +209,7 @@ def best_and_worst_requests(merged_log):  # get the fastest/slowest urls
 
 
 
+
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
     def __init__(self, dir, test_name, blocking):
         Thread.__init__(self)
