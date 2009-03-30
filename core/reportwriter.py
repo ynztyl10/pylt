@@ -89,15 +89,16 @@ def write_summary_results(handle, summary_dict, workload_dict):
 def write_agent_detail_table(handle, runtime_stats_dict):
     handle.write('<h2>Agent Details</h2>\n')
     handle.write('<table>\n')
-    handle.write('<th>Agent</th><th>Requests</th><th>Errors</th><th>Bytes Received</th><th>Avg Response Time (secs)</th>\n')
+    handle.write('<th>Agent</th><th>Start Time</th><th>Requests</th><th>Errors</th><th>Bytes Received</th><th>Avg Response Time (secs)</th>\n')
     for i in range(len(runtime_stats_dict)):
         agent_num = i + 1
+        agent_start_time = runtime_stats_dict[i].agent_start_time
         count = runtime_stats_dict[i].count
         error_count = runtime_stats_dict[i].error_count
         total_bytes = runtime_stats_dict[i].total_bytes
         avg_latency = runtime_stats_dict[i].avg_latency
-        handle.write('<tr><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%.3f</td></tr>\n' % 
-            (agent_num, count, error_count, total_bytes, avg_latency))
+        handle.write('<tr><td>%d</td><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%.3f</td></tr>\n' % 
+            (agent_num, agent_start_time, count, error_count, total_bytes, avg_latency))
     handle.write('</table>\n')
 
 
