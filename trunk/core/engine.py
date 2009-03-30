@@ -63,7 +63,7 @@ class LoadManager(Thread):
             else:
                 self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
-        # initialize stats
+        # initialize/reset stats
         for i in range(self.num_agents): 
             self.runtime_stats[i] = StatCollection(0, '', 0, 0, 0, 0, 0)
             
@@ -187,6 +187,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         
         
     def run(self):
+        agent_start_time = time.strftime('%H:%M:%S', time.localtime())
         total_latency = 0
         total_bytes = 0
         while self.running:
@@ -230,6 +231,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         
                         # update shared stats dictionary
                         self.runtime_stats[self.id] = StatCollection(resp.code, resp.msg, latency, self.count, self.error_count, total_latency, total_bytes)
+                        self.runtime_stats[self.id].agent_start_time = agent_start_time
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
                         q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency, req.timer_group)
@@ -394,6 +396,9 @@ class StatCollection():
         self.error_count = error_count
         self.total_latency = total_latency
         self.total_bytes = total_bytes
+
+        self.agent_start_time = None
+        
         if count > 0:
             self.avg_latency = total_latency / count
         else:
