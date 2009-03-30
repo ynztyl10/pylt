@@ -67,7 +67,8 @@ def generate_results(dir, test_name, blocking):
     fh.close()
     
     try:  # graphing only works on systems with Matplotlib installed
-        print 'Generating Graphs...'
+        if not blocking:
+            print 'Generating Graphs...'
         import graph
         graph.resp_graph(timings, dir=dir+'/')
         graph.tp_graph(throughputs, dir=dir+'/')
