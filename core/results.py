@@ -47,7 +47,7 @@ def generate_results(dir, test_name, blocking):
     # get the summary stats and load up a dictionary with the results   
     summary_dict = {}
     summary_dict['cur_time'] = time.strftime('%m/%d/%Y %H:%M:%S', time.localtime())
-    summary_dict['duration'] = int(timings[-1][0] - timings[0][0])
+    summary_dict['duration'] = int(timings[-1][0] - timings[0][0]) + 1  # add 1 to round up
     summary_dict['num_agents'] = workload_dict['num_agents']
     summary_dict['req_count'] = len(timing_secs)
     summary_dict['err_count'] = len(merged_error_log)
