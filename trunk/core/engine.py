@@ -81,7 +81,7 @@ class LoadManager(Thread):
     
     def run(self):
         if self.blocking:
-            sys.stderr = NullDevice()
+            sys.stderr = NullDevice()  # redirect stderr
         self.running = True
         self.agents_started = False
         try:
