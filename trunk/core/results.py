@@ -13,11 +13,12 @@
 
 
 import glob
-import time
 import pickle
+import sys
+import time
+from threading import Thread
 import corestats
 import reportwriter
-from threading import Thread
 
 
 
