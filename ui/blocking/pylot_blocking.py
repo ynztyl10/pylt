@@ -21,8 +21,15 @@ import core.xmlparse as xmlparse
 from core.engine import LoadManager
 
 
+original_stdout = sys.stdout  # keep a rederence to stdout
+
+
 
 def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
+    # turn off stdout and stderr
+    sys.stdout = NullDevice()
+    sys.stderr = NullDevice()
+    
     runtime_stats = {}
     error_queue = []
     
@@ -34,7 +41,6 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
 
     # create a load manager
     lm = LoadManager(num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir, test_name,)
-    lm.blocking = True  # blocked output mode (STDOUT blocked until test finishes, then results are returned)
     
     # load the test cases
     try:
@@ -42,7 +48,6 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
         for req in cases:
             lm.add_req(req)
     except Exception, e:
-        ## TODO: print an xml error msg
         print 'ERROR: can not parse testcase file: %s' % e
         sys.exit(1)
     
@@ -71,6 +76,8 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     avg_resp_time = agg_total_latency / agg_count  # avg response time since start
     avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
     
+    sys.stdout = original_stdout  # temporarily turn on stdout
+    
     print """\
 <results>
   <summary-results>
@@ -91,6 +98,12 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
                         runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
     print """\
 </results>"""
-    
-            
+
+    sys.stdout = NullDevice()  # turn off stdout again
+
+
+
+class NullDevice():  # for redirecting stderr
+    def write(self, s):
+        pass 
 
