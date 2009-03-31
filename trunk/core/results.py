@@ -27,7 +27,7 @@ def generate_results(dir, test_name, blocking):
     try:
         merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
     except IOError:
-        print 'ERROR: Can not find your results log file'
+        sys.stderr.write('ERROR: Can not find your results log file\n')
     merged_error_log = merge_error_files(dir)
     timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
@@ -73,7 +73,7 @@ def generate_results(dir, test_name, blocking):
         graph.resp_graph(timings, dir=dir+'/')
         graph.tp_graph(throughputs, dir=dir+'/')
     except: 
-        print "ERROR: Unable to generate graphs with Matplotlib"
+        sys.stderr.write('ERROR: Unable to generate graphs with Matplotlib\n')
 
     if not blocking:
         print '\nDone generating results. You can view your test at:'
@@ -222,7 +222,7 @@ class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't 
         try:
             generate_results(self.dir, self.test_name, self.blocking)
         except Exception, e:
-            print 'ERROR: Unable to generate results: %s' % e
+            sys.stderr.write('ERROR: Unable to generate results: %s\n' % e)
         
         
             

@@ -12,10 +12,12 @@
 #
 
 
+import sys
+
 try:
     from pylab import *  # Matplotlib for graphing.  Only used on systems that have it installed.
 except ImportError, e:
-    print 'Matplotlib ImportError: %s' % e
+    sys.stderr.write('Matplotlib ImportError: %s\n' % e)
     
 
 
