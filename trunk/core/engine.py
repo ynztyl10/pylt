@@ -53,7 +53,6 @@ class LoadManager(Thread):
         self.runtime_stats = runtime_stats
         self.error_queue = error_queue  # list used like a queue
         self.test_name = test_name
-        self.blocking = False  # don't block i/o in modes where stats are displayed in real-time
 
         if output_dir:
             self.output_dir = output_dir
@@ -80,8 +79,6 @@ class LoadManager(Thread):
         
     
     def run(self):
-        if self.blocking:
-            sys.stderr = NullDevice()  # redirect stderr
         self.running = True
         self.agents_started = False
         try:
@@ -91,8 +88,7 @@ class LoadManager(Thread):
             try:
                os.makedirs(self.output_dir, 0755)
             except OSError:
-                if not self.blocking:
-                    sys.stderr.write('ERROR: Can not create output directory\n')
+                sys.stderr.write('ERROR: Can not create output directory\n')
                 sys.exit(1)
         
         # start thread for reading and writing queued results
@@ -108,20 +104,18 @@ class LoadManager(Thread):
                 agent = LoadAgent(i, self.interval, self.log_msgs, self.output_dir, self.runtime_stats, self.error_queue, self.msg_queue, self.results_queue)
                 agent.start()
                 self.agent_refs.append(agent)
-                if not self.blocking:
-                    agent_started_line = 'Started agent ' + str(i + 1) 
-                    if sys.platform.startswith('win'):
-                        sys.stdout.write(chr(0x08) * len(agent_started_line))  # move cursor back so we update the same line again
-                        sys.stdout.write(agent_started_line)
-                    else:
-                        esc = chr(27) # escape key
-                        sys.stdout.write(esc + '[G' )
-                        sys.stdout.write(esc + '[A' )
-                        sys.stdout.write(agent_started_line + '\n')
-        if not self.blocking:
-            if sys.platform.startswith('win'):
-                sys.stdout.write('\n')
-            print '\nAll agents running...\n\n'
+                agent_started_line = 'Started agent ' + str(i + 1) 
+                if sys.platform.startswith('win'):
+                    sys.stdout.write(chr(0x08) * len(agent_started_line))  # move cursor back so we update the same line again
+                    sys.stdout.write(agent_started_line)
+                else:
+                    esc = chr(27) # escape key
+                    sys.stdout.write(esc + '[G' )
+                    sys.stdout.write(esc + '[A' )
+                    sys.stdout.write(agent_started_line + '\n')
+        if sys.platform.startswith('win'):
+            sys.stdout.write('\n')
+        print '\nAll agents running...\n\n'
         self.agents_started = True
         
     
@@ -136,7 +130,7 @@ class LoadManager(Thread):
         self.results_writer.stop()
         
         # auto-generate results from a new thread when the test is stopped
-        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name, self.blocking)
+        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
         self.results_gen.setDaemon(True)
         self.results_gen.start()
 
@@ -406,15 +400,7 @@ class StatCollection():
         else:
             self.avg_latency = 0
 
-    
 
-
-class NullDevice():  # for redirecting stderr
-    def write(self, s):
-        pass        
-        
-        
-        
         
 class ResultWriter(Thread):
     # this thread is for reading queued results and writing them to a log file.

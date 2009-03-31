@@ -118,3 +118,4 @@ else:  # console/shell mode
         print '\nInterrupt'
         sys.exit(1)
     
+    

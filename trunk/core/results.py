@@ -22,9 +22,8 @@ import reportwriter
 
 
 
-def generate_results(dir, test_name, blocking):
-    if not blocking:  # flag to block i/o in modes where stats are not displayed in real-time
-        print 'Generating Results...'
+def generate_results(dir, test_name):
+    print '\nGenerating Results...'
     try:
         merged_log = open(dir + '/agent_stats.csv', 'rb').readlines()  # this log contains commingled results from all agents
     except IOError:
@@ -68,17 +67,15 @@ def generate_results(dir, test_name, blocking):
     fh.close()
     
     try:  # graphing only works on systems with Matplotlib installed
-        if not blocking:
-            print 'Generating Graphs...'
+        print 'Generating Graphs...'
         import graph
         graph.resp_graph(timings, dir=dir+'/')
         graph.tp_graph(throughputs, dir=dir+'/')
     except: 
         sys.stderr.write('ERROR: Unable to generate graphs with Matplotlib\n')
-
-    if not blocking:
-        print '\nDone generating results. You can view your test at:'
-        print '%s/results.html\n' % dir
+    
+    print '\nDone generating results. You can view your test at:'
+    print '%s/results.html\n' % dir
 
 
 def load_dat_detail(dir):
@@ -213,15 +210,14 @@ def best_and_worst_requests(merged_log):  # get the fastest/slowest urls
 
 
 class ResultsGenerator(Thread):  # generate results in a new thread so UI isn't blocked
-    def __init__(self, dir, test_name, blocking):
+    def __init__(self, dir, test_name):
         Thread.__init__(self)
         self.dir = dir
         self.test_name = test_name
-        self.blocking = blocking
         
     def run(self):
         try:
-            generate_results(self.dir, self.test_name, self.blocking)
+            generate_results(self.dir, self.test_name)
         except Exception, e:
             sys.stderr.write('ERROR: Unable to generate results: %s\n' % e)
         
