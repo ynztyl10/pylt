@@ -37,8 +37,8 @@ HTTP_DEBUG = config.HTTP_DEBUG  # default is False
 SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
 SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations.  default is 300 secs.
 
-
-
+        
+        
 class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
@@ -80,6 +80,8 @@ class LoadManager(Thread):
         
     
     def run(self):
+        if self.blocking:
+            sys.stderr = NullDevice()
         self.running = True
         self.agents_started = False
         try:
@@ -90,7 +92,7 @@ class LoadManager(Thread):
                os.makedirs(self.output_dir, 0755)
             except OSError:
                 if not self.blocking:
-                    print 'ERROR: Can not create output directory'
+                    sys.stderr.write('ERROR: Can not create output directory\n')
                 sys.exit(1)
         
         # start thread for reading and writing queued results
@@ -303,7 +305,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             error_log.flush()
             error_log.close()
         except IOError, e: 
-                print 'ERROR: Can not write to error log file\n'
+                sys.stderr.write('ERROR: Can not write to error log file\n')
     
     
     def log_http_msgs(self, req, request, resp, content):
@@ -407,6 +409,13 @@ class StatCollection():
     
 
 
+class NullDevice():  # for redirecting stderr
+    def write(self, s):
+        pass        
+        
+        
+        
+        
 class ResultWriter(Thread):
     # this thread is for reading queued results and writing them to a log file.
     def __init__(self, results_queue, output_dir):
