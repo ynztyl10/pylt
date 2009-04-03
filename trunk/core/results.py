@@ -29,6 +29,19 @@ def generate_results(dir, test_name):
     except IOError:
         sys.stderr.write('ERROR: Can not find your results log file\n')
     merged_error_log = merge_error_files(dir)
+    
+    if len(merged_log) == 0:
+        fh = open(dir + '/results.html', 'w')
+        fh.write(r'<html><body><p>None of the agents finished successfully.  There is no data to report.</p></body></html>\n')
+        fh.close()
+        sys.stdout.write('ERROR: None of the agents finished successfully.  There is no data to report.\n')
+        return
+
+    
+    
+    
+    
+    
     timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
     timer_group_stats = get_timer_groups(merged_log)
