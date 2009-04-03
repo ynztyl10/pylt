@@ -23,6 +23,7 @@ OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
+WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
 BLOCKING = False  # stdout blocked until test finishes, then result is returned as XML
 GUI = False
 SOCKET_TIMEOUT = 300  # secs
