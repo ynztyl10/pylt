@@ -35,8 +35,8 @@ import results
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
 SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
+WAITFOR_AGENT_FINISH = config.WAITFOR_AGENT_FINISH  # wait for last requests to complete before stopping. default is True
 SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations
-WAITFOR_AGENT_FINISH = config.WAITFOR_AGENT_FINISH  # wait for last requests to complete before stopping. default is False
 
         
         
