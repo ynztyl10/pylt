@@ -411,6 +411,10 @@ class ResultWriter(Thread):
         self.output_dir = output_dir        
 
     def run(self):
+        # make sure a results file always exists, even if no agents finished
+        fh = open('%s/agent_stats.csv' % self.output_dir, 'w')
+        fh.close()
+
         # The file handle should really be opened once, but this is crashing the
         # Python interpreter when you quit the console with ctrl-c.  
         # This is a bug in Python: http://bugs.python.org/issue5160
