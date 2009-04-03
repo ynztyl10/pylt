@@ -35,7 +35,8 @@ import results
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
 SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
-SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations.  default is 300 secs.
+SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations
+WAITFOR_AGENT_FINISH = config.WAITFOR_AGENT_FINISH  # wait for last requests to complete before stopping. default is False
 
         
         
@@ -43,7 +44,7 @@ class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
         
-        socket.setdefaulttimeout(SOCKET_TIMEOUT)  # this affects all socket operations (incl. HTTP)
+        socket.setdefaulttimeout(SOCKET_TIMEOUT)  # this affects all socket operations (including HTTP)
         
         self.running = True
         self.num_agents = num_agents
@@ -124,6 +125,17 @@ class LoadManager(Thread):
         for agent in self.agent_refs:
             agent.stop()
         
+        if WAITFOR_AGENT_FINISH:
+            keep_running = True
+            while keep_running:
+                keep_running = False
+                for agent in self.agent_refs:
+                    if agent.isAlive():
+                        keep_running = True
+                        time.sleep(0.1)
+
+
+
         # pickle dictionaries to files for results post-processing        
         self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  
         
