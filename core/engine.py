@@ -31,7 +31,8 @@ import results
 
 
 
-# get config options
+# get config options from config.py
+GENERATE_RESULTS = config.GENERATE_RESULTS  # default is True
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
 SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
@@ -134,17 +135,16 @@ class LoadManager(Thread):
                         keep_running = True
                         time.sleep(0.1)
 
-
-
-        # pickle dictionaries to files for results post-processing        
-        self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  
-        
         self.results_writer.stop()
         
-        # auto-generate results from a new thread when the test is stopped
-        self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
-        self.results_gen.setDaemon(True)
-        self.results_gen.start()
+        if GENERATE_RESULTS:
+            # pickle dictionaries to files for results post-processing        
+            self.store_for_post_processing(self.output_dir, self.runtime_stats, self.workload)  
+            
+            # auto-generate results from a new thread when the test is stopped
+            self.results_gen = results.ResultsGenerator(self.output_dir, self.test_name)
+            self.results_gen.setDaemon(True)
+            self.results_gen.start()
 
 
     def add_req(self, req):
