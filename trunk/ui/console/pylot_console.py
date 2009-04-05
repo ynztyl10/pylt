@@ -18,9 +18,12 @@ import sys
 import time
 from threading import Thread
 import core.xmlparse as xmlparse
+import core.config as config
 from core.engine import LoadManager
 
 
+
+GENERATE_RESULTS = config.GENERATE_RESULTS  # default is True
 
 is_windows = sys.platform.startswith('win')
 if is_windows:
@@ -168,7 +171,8 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     lm.stop()
     
     # wait until the result generator is finished
-    while lm.results_gen.isAlive():
-        time.sleep(0.1)
+    if GENERATE_RESULTS:
+        while lm.results_gen.isAlive():
+            time.sleep(0.1)
     print 'Done.'
     
