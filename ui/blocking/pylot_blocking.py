@@ -104,7 +104,7 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
 
 
 
-class NullDevice():  # for redirecting stderr
+class NullDevice():  # for redirecting stdout/stderr
     def write(self, s):
         pass 
 
