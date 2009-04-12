@@ -23,8 +23,6 @@ from core.engine import LoadManager
 
 
 
-GENERATE_RESULTS = config.GENERATE_RESULTS  # default is True
-
 is_windows = sys.platform.startswith('win')
 if is_windows:
     import win.cpos as cpos  
@@ -171,7 +169,7 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     lm.stop()
     
     # wait until the result generator is finished
-    if GENERATE_RESULTS:
+    if config.GENERATE_RESULTS:
         while lm.results_gen.isAlive():
             time.sleep(0.1)
     print 'Done.'
