@@ -29,4 +29,4 @@ BLOCKING = False  # stdout blocked until test finishes, then result is returned 
 GUI = False
 SOCKET_TIMEOUT = 300  # secs
 COOKIES_ENABLED = True
-HTTP_DEBUG = False  # only useful if combined with blocking mode
+HTTP_DEBUG = True   
