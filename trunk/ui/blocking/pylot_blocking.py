@@ -18,6 +18,7 @@
 import sys
 import time
 import core.xmlparse as xmlparse
+import core.config as config
 from core.engine import LoadManager
 
 
@@ -27,9 +28,10 @@ original_stdout = sys.stdout  # keep a reference to stdout
 
 
 def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
-    # turn off stdout and stderr
-    sys.stdout = NullDevice()
-    sys.stderr = NullDevice()
+    if not config.HTTP_DEBUG:
+        # turn off stdout and stderr
+        sys.stdout = NullDevice()
+        sys.stderr = NullDevice()
     
     runtime_stats = {}
     error_queue = []
