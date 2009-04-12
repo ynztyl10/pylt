@@ -37,11 +37,6 @@ def generate_results(dir, test_name):
         sys.stdout.write('ERROR: None of the agents finished successfully.  There is no data to report.\n')
         return
 
-    
-    
-    
-    
-    
     timings = list_timings(merged_log)
     best_times, worst_times = best_and_worst_requests(merged_log)
     timer_group_stats = get_timer_groups(merged_log)
