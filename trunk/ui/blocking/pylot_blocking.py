@@ -22,7 +22,7 @@ from core.engine import LoadManager
 
 
 
-original_stdout = sys.stdout  # keep a rederence to stdout
+original_stdout = sys.stdout  # keep a reference to stdout
 
 
 
