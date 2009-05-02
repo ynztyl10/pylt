@@ -22,14 +22,14 @@ from engine import Request
 
 
 def load_xml_string_cases(tc_xml_blob):
-    # parse xml and load request queue with pylot_engine.Request objects
+    # parse xml and load request queue with core.engine.Request objects
     # variant to parse from a raw string instead of a filename
     dom = etree.ElementTree(etree.fromstring(tc_xml_blob))
     return load_xml_cases_dom(dom)
 
 
 def load_xml_cases(tc_xml_filename):
-    # parse xml and load request queue with pylot_engine.Request objects
+    # parse xml and load request queue with corey.engine.Request objects
     # variant to load the xml from a file (the default shell behavior)
     dom = etree.parse(tc_xml_filename)
     return load_xml_cases_dom(dom)

@@ -227,7 +227,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                             self.error_count += 1
                             error_string = 'Agent %s:  %s - %d %s,  url: %s' % (self.id + 1, cur_time, resp.code, resp.msg, req.url)
                             self.error_queue.append(error_string)
-                            log_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg)
+                            log_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg.replace(',', ''))
                             self.log_error('%s,%s,%s,%s,%s,%s,%s' % log_tuple)  # write as csv
                             
                         self.count += 1
