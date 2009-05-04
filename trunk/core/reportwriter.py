@@ -120,7 +120,7 @@ def write_timer_group_stats(handle, timer_group_stats):
 
 def write_best_worst_requests(handle, best_times, worst_times):
     handle.write('<p><br /></p>')
-    handle.write('<h2>Fastest Responding Requests</h2>\n')
+    handle.write('<h2>Fastest Responding URLs</h2>\n')
     handle.write('<table>\n')
     handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
     for url in best_times:
@@ -128,7 +128,7 @@ def write_best_worst_requests(handle, best_times, worst_times):
         handle.write('<tr><td>%s</td><td>%.3f</td></tr>\n' % (url, resp_time))
     handle.write('</table>\n')
     handle.write('<p><br /></p>')
-    handle.write('<h2>Slowest Responding Requests</h2>\n')
+    handle.write('<h2>Slowest Responding URLs</h2>\n')
     handle.write('<table>\n')
     handle.write('<th>Request URL</th><th>Avg Response Time (secs)</th>\n')
     for url in worst_times:

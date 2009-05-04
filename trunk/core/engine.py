@@ -205,7 +205,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                     if self.running:
 
                         # send the request message
-                        resp, content, req_start_time, req_end_time = self.send(req)
+                        resp, content, req_start_time, req_end_time, connect_end_time = self.send(req)
 
                         # get times for logging and error display
                         tmp_time = time.localtime()
@@ -236,13 +236,14 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         total_bytes += resp_bytes
                         latency = (req_end_time - req_start_time)
                         total_latency += latency
+                        connection_latency = (connect_end_time - req_start_time)
                         
                         # update shared stats dictionary
                         self.runtime_stats[self.id] = StatCollection(resp.code, resp.msg, latency, self.count, self.error_count, total_latency, total_bytes)
                         self.runtime_stats[self.id].agent_start_time = agent_start_time
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency, req.timer_group)
+                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency, connection_latency, req.timer_group)
                         self.results_queue.put(q_tuple)
                             
                         expire_time = (self.interval - latency)
@@ -275,33 +276,38 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
         # timed message send+receive (TTLB)
         req_start_time = self.default_timer()
         try:
-            resp = opener.open(request)
+            resp = opener.open(request)  # this sends the HTTP request and returns as soon as it is done connecting and sending
+            connect_end_time = self.default_timer()
             content = resp.read()
+            req_end_time = self.default_timer()
         except httplib.HTTPException, e:  # this can happen on an incomplete read, just catch all HTTPException
+            connect_end_time = self.default_timer()
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = str(e)
             resp.headers = {}
             content = ''
         except urllib2.HTTPError, e:  # http responses with status >= 400
+            connect_end_time = self.default_timer()
             resp = ErrorResponse()
             resp.code = e.code
             resp.msg = httplib.responses[e.code]  # constant dict of http error codes/reasons
             resp.headers = dict(e.info())
             content = ''
         except urllib2.URLError, e:  # this also catches socket errors
+            connect_end_time = self.default_timer()
             resp = ErrorResponse()
             resp.code = 0
             resp.msg = e.reason
             resp.headers = {}  # headers are not available in the exception
             content = ''
         req_end_time = self.default_timer()
-        
+            
         if self.trace_logging:
             # log request/response messages
             self.log_http_msgs(req, request, resp, content)
             
-        return (resp, content, req_start_time, req_end_time)
+        return (resp, content, req_start_time, req_end_time, connect_end_time)
 
     
     def log_error(self, txt):
@@ -311,7 +317,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             error_log.flush()
             error_log.close()
         except IOError, e: 
-                sys.stderr.write('ERROR: Can not write to error log file\n')
+            sys.stderr.write('ERROR: Can not write to error log file\n')
     
     
     def log_http_msgs(self, req, request, resp, content):
@@ -436,7 +442,7 @@ class ResultWriter(Thread):
             try:
                 q_tuple = self.results_queue.get(False)
                 f = open('%s/agent_stats.csv' % self.output_dir, 'a')
-                f.write('%s,%s,%s,%s,%s,%d,%s,%d,%f,%s\n' % q_tuple)  # log as csv
+                f.write('%s,%s,%s,%s,%s,%d,%s,%d,%f,%f,%s\n' % q_tuple)  # log as csv
                 f.flush()
                 f.close()
             except Queue.Empty:
