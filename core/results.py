@@ -163,12 +163,12 @@ def get_stats(response_stats, throughput_stats):
 
 def get_timer_groups(merged_log):  # get the stats by timer group
     stats_lists = [line.split(',') for line in merged_log]
-    uniq_timer_groups = list(set((stats_list[9].strip() for stats_list in stats_lists)))
+    uniq_timer_groups = list(set((stats_list[10].strip() for stats_list in stats_lists)))
     timer_group_stats = {}
     for timer_group in uniq_timer_groups:
         elapsed_times = []
         for stat_list in stats_lists:
-            if timer_group == stat_list[9].strip():
+            if timer_group == stat_list[10].strip():
                 if stat_list[5] == '200':  # just concerned with valid responses
                     elapsed_times.append(stat_list[8])
         stats = corestats.Stats(elapsed_times)
