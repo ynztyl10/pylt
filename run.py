@@ -106,7 +106,7 @@ else:  # console/shell mode
     print '  rampup in seconds:         %s' % rampup
     print '  interval in milliseconds:  %s' % interval
     print '  test case xml:             %s' % tc_xml_filename
-    print '  log messages :             %s' % log_msgs
+    print '  log messages:              %s' % log_msgs
     if test_name:
         print '  test name:                 %s' % test_name
     if output_dir:
