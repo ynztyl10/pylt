@@ -11,7 +11,6 @@
 #    for more details.
 #
 
-
 # Configuration options here are overridden if specified on the command line
 
 AGENTS = 1
@@ -22,11 +21,13 @@ TC_XML_FILENAME = 'testcases.xml'
 OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
+
 GENERATE_RESULTS = True
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
-BLOCKING = False  # stdout blocked until test finishes, then result is returned as XML
-GUI = False
 SOCKET_TIMEOUT = 300  # secs
 COOKIES_ENABLED = True
+
 HTTP_DEBUG = False  # only useful when combined with blocking mode  
+BLOCKING = False  # stdout blocked until test finishes, then result is returned as XML
+GUI = False
