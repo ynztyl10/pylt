@@ -13,13 +13,13 @@
 #    for more details.
 #
 
-
+ 
 import sys
 import time
 from threading import Thread
 import core.xmlparse as xmlparse
 import core.config as config
-import core.engine as engine
+from core.engine import LoadManager
 
 
 
@@ -139,7 +139,7 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
             output_dir = output_dir + '/' + test_name
     
     # create a load manager
-    lm = engine.LoadManager(num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir, test_name)
+    lm = LoadManager(num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir, test_name)
 
     # load the test cases
     try:
@@ -169,7 +169,7 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     lm.stop()
     
     # wait until the result generator is finished
-    if engine.GENERATE_RESULTS:
+    if config.GENERATE_RESULTS:
         while lm.results_gen.isAlive():
             time.sleep(0.1)
     print 'Done.'
