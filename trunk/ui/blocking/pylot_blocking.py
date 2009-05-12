@@ -15,6 +15,7 @@
 #  stdout is blocked until test finishes, then results are returned as XML
 
 
+import os
 import sys
 import time
 import core.xmlparse as xmlparse
@@ -30,8 +31,8 @@ original_stdout = sys.stdout  # keep a reference to stdout
 def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir=None, test_name=None):
     if not config.HTTP_DEBUG:
         # turn off stdout and stderr
-        sys.stdout = NullDevice()
-        sys.stderr = NullDevice()
+        sys.stdout = open(os.devnull, 'w')
+        sys.stderr = open(os.devnull, 'w')
     
     runtime_stats = {}
     error_queue = []
@@ -102,11 +103,6 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     print """\
 </results>"""
 
-    sys.stdout = NullDevice()  # turn off stdout again
+    sys.stdout = open(os.devnull, 'w')  # turn off stdout again
 
-
-
-class NullDevice():  # for redirecting stdout/stderr
-    def write(self, s):
-        pass 
 
