@@ -10,7 +10,7 @@
 #    (at your option) any later version.  See the GNU General Public License 
 #    for more details.
 #
-
+ 
 # Configuration options here are overridden if specified on the command line
 
 AGENTS = 1
@@ -22,9 +22,7 @@ OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
 
-WRITE_STATS = True  # agent output to file (needed to generate results)
-GENERATE_RESULTS = True  # reports and graphs
-
+GENERATE_RESULTS = True
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
 SOCKET_TIMEOUT = 300  # secs
