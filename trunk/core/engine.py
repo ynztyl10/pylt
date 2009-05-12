@@ -31,16 +31,19 @@ import results
 
 
 
-# get config options from config.py
-GENERATE_RESULTS = config.GENERATE_RESULTS  # default is True
+# set config options from config.py
 COOKIES_ENABLED = config.COOKIES_ENABLED  # default is True
 HTTP_DEBUG = config.HTTP_DEBUG  # default is False
 SHUFFLE_TESTCASES = config.SHUFFLE_TESTCASES  # default is False
 WAITFOR_AGENT_FINISH = config.WAITFOR_AGENT_FINISH  # wait for last requests to complete before stopping. default is True
 SOCKET_TIMEOUT = config.SOCKET_TIMEOUT  # global for all socket operations
+GENERATE_RESULTS = config.GENERATE_RESULTS  # default is True
+WRITE_STATS = True  # default is True
+if not WRITE_STATS:
+    GENERATE_RESULTS = False  # don't generate results if stats are turned off        
 
-        
-        
+
+
 class LoadManager(Thread):
     def __init__(self, num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir=None, test_name=None):
         Thread.__init__(self)
@@ -83,20 +86,22 @@ class LoadManager(Thread):
     def run(self):
         self.running = True
         self.agents_started = False
-        try:
-            os.makedirs(self.output_dir, 0755)
-        except OSError:
-            self.output_dir = self.output_dir + time.strftime('/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+        if WRITE_STATS:
             try:
-               os.makedirs(self.output_dir, 0755)
+                os.makedirs(self.output_dir, 0755)
             except OSError:
-                sys.stderr.write('ERROR: Can not create output directory\n')
-                sys.exit(1)
+                self.output_dir = self.output_dir + time.strftime('/results_%Y.%m.%d_%H.%M.%S', time.localtime())
+                try:
+                   os.makedirs(self.output_dir, 0755)
+                except OSError:
+                    sys.stderr.write('ERROR: Can not create output directory\n')
+                    sys.exit(1)
         
         # start thread for reading and writing queued results
-        self.results_writer = ResultWriter(self.results_queue, self.output_dir)
-        self.results_writer.setDaemon(True)
-        self.results_writer.start()
+        if WRITE_STATS:
+            self.results_writer = ResultWriter(self.results_queue, self.output_dir)
+            self.results_writer.setDaemon(True)
+            self.results_writer.start()
         
         for i in range(self.num_agents):
             spacing = float(self.rampup) / float(self.num_agents)
@@ -135,7 +140,8 @@ class LoadManager(Thread):
                         keep_running = True
                         time.sleep(0.1)
 
-        self.results_writer.stop()
+        if WRITE_STATS:
+            self.results_writer.stop()
         
         if GENERATE_RESULTS:
             # pickle dictionaries to files for results post-processing        

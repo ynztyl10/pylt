@@ -22,7 +22,9 @@ OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
 
-GENERATE_RESULTS = True
+WRITE_STATS = True  # agent output to file (needed to generate results)
+GENERATE_RESULTS = True  # reports and graphs
+
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
 SOCKET_TIMEOUT = 300  # secs
