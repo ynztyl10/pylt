@@ -174,7 +174,15 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             
         self.runtime_stats = runtime_stats  # shared stats dictionary
         self.error_queue = error_queue  # shared error list
-        self.msg_queue = copy.deepcopy(msg_queue)  # copy message/request queue and all its request objects so we have a unique copy for each agent
+        
+        # copy message/request queue and all its request objects so we have a unique copy for each agent.
+        # this is really slow when there are a lot (1000+) test cases, so we disable it unless we really need to do this.
+        # it is necessary for cookies and randomization to work correctly.
+        if (SHUFFLE_TESTCASES or COOKIES_ENABLED):
+            self.msg_queue = copy.deepcopy(msg_queue)  
+        else:
+            self.msg_queue = msg_queue
+        
         if SHUFFLE_TESTCASES:  # randomize order of testcases per agent
             random.shuffle(self.msg_queue)
         
