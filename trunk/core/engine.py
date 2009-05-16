@@ -254,7 +254,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         self.runtime_stats[self.id].agent_start_time = agent_start_time
                         
                         # put response stats/info on queue for reading by the consumer (ResultWriter) thread
-                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg, resp_bytes, latency, connect_latency, req.timer_group)
+                        q_tuple = (self.id + 1, cur_date, cur_time, req_end_time, req.url.replace(',', ''), resp.code, resp.msg.replace(',', ''), resp_bytes, latency, connect_latency, req.timer_group)
                         self.results_queue.put(q_tuple)
                             
                         expire_time = (self.interval - latency)
@@ -309,7 +309,7 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
             connect_end_time = self.default_timer()
             resp = ErrorResponse()
             resp.code = 0
-            resp.msg = e.reason
+            resp.msg = str(e.reason)
             resp.headers = {}  # headers are not available in the exception
             content = ''
         req_end_time = self.default_timer()
