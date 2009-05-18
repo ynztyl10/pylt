@@ -1,6 +1,6 @@
 #
-#    Original: Copyright (c) 2008 Vasil Vangelovski (vvangelovski@gmail.com)
-#    Additions: Copyright (c) 2008-2009 Corey Goldberg (corey@goldb.org)
+#    Copyright (c) 2008 Vasil Vangelovski (vvangelovski@gmail.com)
+#    Copyright (c) 2008-2009 Corey Goldberg (corey@goldb.org)
 #
 #    License: GNU GPLv3
 #
