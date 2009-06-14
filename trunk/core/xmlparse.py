@@ -14,7 +14,7 @@
 
 try:
     import xml.etree.ElementTree as etree
-except:
+except ImportError:
     sys.stderr.write('ERROR: Pylot was unable to find the XML parser.  Make sure you have Python 2.5+ installed.\n')
     sys.exit(1)
 from engine import Request
