@@ -12,6 +12,7 @@
 #
 
 
+from string import Template
 try:
     import xml.etree.ElementTree as etree
 except ImportError:
@@ -25,20 +26,27 @@ def load_xml_string_cases(tc_xml_blob):
     # parse xml and load request queue with core.engine.Request objects
     # variant to parse from a raw string instead of a filename
     dom = etree.ElementTree(etree.fromstring(tc_xml_blob))
-    return load_xml_cases_dom(dom)
+    cases = load_xml_cases_dom(dom)
+    return cases
 
 
 def load_xml_cases(tc_xml_filename):
     # parse xml and load request queue with corey.engine.Request objects
     # variant to load the xml from a file (the default shell behavior)
     dom = etree.parse(tc_xml_filename)
-    return load_xml_cases_dom(dom)
+    cases = load_xml_cases_dom(dom)
+    return cases
 
 
 def load_xml_cases_dom(dom):
     # load cases from an already-parsed XML DOM
     cases = []
+    param_map = {}
     for child in dom.getiterator():
+        if child.tag != dom.getroot().tag and child.tag == 'parameter':
+            name = child.attrib.get('name')
+            value = child.attrib.get('value')
+            param_map[name] = value
         if child.tag != dom.getroot().tag and child.tag == 'case':
             req = Request()
             repeat = child.attrib.get('repeat')
@@ -65,5 +73,15 @@ def load_xml_cases_dom(dom):
                     x = splat[0].strip()
                     del splat[0]
                     req.add_header(x, ''.join(splat).strip())
+            req = resolve_parameters(req, param_map)  # substitute vars
             cases.append(req)
     return cases
+
+
+def resolve_parameters(req, param_map):
+    # substitute variables based on parameter mapping
+    req.url = Template(req.url).substitute(param_map)
+    req.body = Template(req.body).substitute(param_map)
+    for header in req.headers:
+        req.headers[header] = Template(req.headers[header]).substitute(param_map)
+    return req
