@@ -141,7 +141,10 @@ def calc_throughputs(timing_secs):
 def get_stats(response_stats, throughput_stats):
     stats_dict = {}
     stats_dict['response_avg'] = response_stats.avg()
-    stats_dict['response_stdev'] = response_stats.stdev()
+    try:  # need this in case the sequence has only 1 item, since a stdev doesn't make sense
+        stats_dict['response_stdev'] = response_stats.stdev()
+    except ZeroDivisionError:
+        stats_dict['response_stdev'] = 0
     stats_dict['response_min'] = response_stats.min()
     stats_dict['response_max'] = response_stats.max()
     stats_dict['response_50pct'] = response_stats.percentile(50)
@@ -150,7 +153,10 @@ def get_stats(response_stats, throughput_stats):
     stats_dict['response_95pct'] = response_stats.percentile(95)
     stats_dict['response_99pct'] = response_stats.percentile(99)
     stats_dict['throughput_avg'] = throughput_stats.avg()
-    stats_dict['throughput_stdev'] = throughput_stats.stdev()
+    try:
+        stats_dict['throughput_stdev'] = throughput_stats.stdev()
+    except ZeroDivisionError:
+        stats_dict['throughput_stdev'] = 0
     stats_dict['throughput_min'] = throughput_stats.min()
     stats_dict['throughput_max'] = throughput_stats.max()
     stats_dict['throughput_50pct'] = throughput_stats.percentile(50)
@@ -172,10 +178,14 @@ def get_timer_groups(merged_log):  # get the stats by timer group
                 if stat_list[5] == '200':  # just concerned with valid responses
                     elapsed_times.append(stat_list[8])
         stats = corestats.Stats(elapsed_times)
+        try:
+            stdev = stats.stdev()
+        except ZeroDivisionError:
+            stdev = 0
         stat_group = [
             stats.count(),
             stats.avg(), 
-            stats.stdev(), 
+            stdev, 
             stats.min(), 
             stats.percentile(50), 
             stats.percentile(80), 
