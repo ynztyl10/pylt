@@ -66,6 +66,8 @@ class Stats:
     def stdev(self):
         if len(self.sequence) < 1: 
             return None
+        if len(self.sequence) == 1: 
+            return 0
         else:
             avg = self.avg()
             sdsq = sum([(i - avg) ** 2 for i in self.sequence])
