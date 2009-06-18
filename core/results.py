@@ -19,6 +19,11 @@ import time
 from threading import Thread
 import corestats
 import reportwriter
+import config
+
+
+
+SMOOTH_TP_GRAPH = config.SMOOTH_TP_GRAPH  # smooth/dampen the graph based on an interval.  default is 3 secs
 
 
 
@@ -132,9 +137,24 @@ def calc_throughputs(timing_secs):
     start_sec = timing_secs[0]
     end_sec = timing_secs[-1]
     throughputs = {}
-    for sec in range(start_sec, end_sec + 1):
-        count = timing_secs.count(sec)       
-        throughputs[sec - start_sec] = count
+    
+    # original implementation with no smoothing
+    #for sec in range(start_sec, end_sec + 1):
+    #    count = timing_secs.count(sec)       
+    #    throughputs[sec - start_sec] = count
+    
+    # new implementation with smoothing
+    cur = start_sec - 1
+    step = config.SMOOTH_TP_GRAPH
+    for sec in timing_secs:
+        if sec > cur:
+            cur += step
+        k = cur - start_sec - step + 1
+        v = throughputs.setdefault(k, 0)
+        throughputs[k] += 1
+    for k in throughputs:
+        throughputs[k] /= float(step)
+        
     return throughputs
     
 
