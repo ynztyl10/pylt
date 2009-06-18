@@ -56,13 +56,14 @@ class LoadManager(Thread):
         self.error_queue = error_queue  # list used like a queue
         self.test_name = test_name
 
-        if output_dir:
-            self.output_dir = output_dir
+        if output_dir and test_name:
+            self.output_dir = time.strftime(output_dir + '/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
+        elif output_dir:
+            self.output_dir = time.strftime(output_dir + '/' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
+        elif test_name:
+            self.output_dir = time.strftime('results/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
         else:
-            if test_name:
-                self.output_dir = time.strftime('results/' + test_name + '_' + 'results_%Y.%m.%d_%H.%M.%S', time.localtime())
-            else:
-                self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
+            self.output_dir = time.strftime('results/results_%Y.%m.%d_%H.%M.%S', time.localtime()) 
         
         # initialize/reset stats
         for i in range(self.num_agents): 
