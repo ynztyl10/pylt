@@ -25,6 +25,7 @@ LOG_MSGS = False
 GENERATE_RESULTS = True
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
+SMOOTH_TP_GRAPH = 1  # secs.  smooth/dampen throughput graph based on an interval
 SOCKET_TIMEOUT = 300  # secs
 COOKIES_ENABLED = True
 
