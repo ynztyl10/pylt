@@ -43,7 +43,7 @@ def load_xml_cases_dom(dom):
     cases = []
     param_map = {}
     for child in dom.getiterator():
-        if child.tag != dom.getroot().tag and child.tag == 'parameter':
+        if child.tag != dom.getroot().tag and child.tag == 'param':
             name = child.attrib.get('name')
             value = child.attrib.get('value')
             param_map[name] = value
