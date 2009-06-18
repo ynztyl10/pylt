@@ -133,10 +133,6 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     runtime_stats = {}
     error_queue = []
     interval = interval / 1000.0  # convert from millisecs to secs
-   
-    if test_name:
-        if output_dir:
-            output_dir = output_dir + '/' + test_name
     
     # create a load manager
     lm = LoadManager(num_agents, interval, rampup, log_msgs, runtime_stats, error_queue, output_dir, test_name)
