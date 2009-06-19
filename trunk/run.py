@@ -25,7 +25,8 @@
   -n, --name=TESTNAME	      :  name of test
   -l, --log_msgs              :  log messages
   -b, --blocking              :  blocking mode
-  -g, --gui                   :  start GUI  
+  -g, --gui                   :  start GUI
+  -p, --port=PORT             :  xml-rpc listening port  
 """
 
 
@@ -78,6 +79,8 @@ try:
         blocking = True
     if opt.gui:
         gui = True
+    if opt.port:
+        port = int(opt.port)
 except Exception, e:
    print 'Invalid Argument'
    sys.exit(1)
@@ -86,6 +89,21 @@ except Exception, e:
 if gui:  # gui mode
     import ui.gui as pylot_gui
     pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output_dir, test_name)
+
+
+elif opt.port:  # xml-rpc listener mode   
+    import SimpleXMLRPCServer
+    import ui.blocking as pylot_blocking
+    host = 'localhost'
+    class RemoteStarter:
+        def start(self):
+            return pylot_blocking.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
+    rs = RemoteStarter()
+    server = SimpleXMLRPCServer.SimpleXMLRPCServer((host, port))
+    server.register_instance(rs)
+    print 'Pylot - listening on port', port
+    print 'waiting for xml-rpc start command...\n'
+    server.serve_forever()
 
 
 elif blocking:  # blocked output mode (stdout blocked until test finishes, then result is returned)
