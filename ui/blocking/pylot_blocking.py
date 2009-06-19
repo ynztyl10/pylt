@@ -80,9 +80,7 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     avg_resp_time = agg_total_latency / agg_count  # avg response time since start
     avg_throughput = float(agg_count) / elapsed_secs  # avg throughput since start
     
-    sys.stdout = original_stdout  # temporarily turn on stdout
-    
-    print """\
+    response_xml = """\
 <results>
   <summary-results>
     <requests>%d</requests>
@@ -92,7 +90,8 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     <bytes-received>%i</bytes-received>
   </summary-results>  """ % (agg_count, agg_error_count, avg_resp_time, avg_throughput, total_bytes_received)
     for id in runtime_stats:
-        print """  <agent-results>
+        response_xml += """  
+  <agent-results>
     <agent-num>%d</agent-num>
     <requests>%d</requests>
     <errors>%d</errors>
@@ -100,9 +99,13 @@ def main(num_agents, rampup, interval, duration, tc_xml_filename, log_msgs, outp
     <bytes-received>%i</bytes-received>
   </agent-results> """ % (id + 1, runtime_stats[id].count, runtime_stats[id].error_count, 
                         runtime_stats[id].avg_latency, runtime_stats[id].total_bytes)
-    print """\
+    response_xml += """
 </results>"""
-
+    
+    sys.stdout = original_stdout  # temporarily turn on stdout
+    
+    print response_xml
+    
     sys.stdout = open(os.devnull, 'w')  # turn off stdout again
-
-
+    
+    return response_xml

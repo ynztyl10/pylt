@@ -22,6 +22,8 @@ OUTPUT_DIR = None
 TEST_NAME = None
 LOG_MSGS = False
 
+PORT = '8888'  # port to listen on for xml-rpc mode
+
 GENERATE_RESULTS = True
 SHUFFLE_TESTCASES = False  # randomize order of testcases per agent
 WAITFOR_AGENT_FINISH = True  # wait for last requests to complete before stopping
