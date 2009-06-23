@@ -23,7 +23,7 @@ import config
 
 
 
-SMOOTH_TP_GRAPH = config.SMOOTH_TP_GRAPH  # smooth/dampen the graph based on an interval.  default is 3 secs
+SMOOTH_TP_GRAPH = config.SMOOTH_TP_GRAPH  # smooth/dampen the throughput graph based on an interval.  default is 3 secs
 
 
 
