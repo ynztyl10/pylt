@@ -31,8 +31,8 @@
 
 
 import sys
-import optionparse
 import core.config as config
+import core.optionparse as optionparse
 
 
 VERSION = '1.26'
