@@ -31,7 +31,7 @@
 
 
 import sys
-import util.optionparse as optionparse
+import optionparse
 import core.config as config
 
 
