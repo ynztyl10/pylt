@@ -94,12 +94,11 @@ if gui:  # gui mode
 elif opt.port:  # xml-rpc listener mode   
     import SimpleXMLRPCServer
     import ui.blocking as pylot_blocking
-    host = 'localhost'
     class RemoteStarter:
         def start(self):
             return pylot_blocking.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
     rs = RemoteStarter()
-    server = SimpleXMLRPCServer.SimpleXMLRPCServer((host, port))
+    server = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', port))
     server.register_instance(rs)
     print 'Pylot - listening on port', port
     print 'waiting for xml-rpc start command...\n'
