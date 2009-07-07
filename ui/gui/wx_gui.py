@@ -23,7 +23,7 @@ import core.xmlparse as xmlparse
 try:  # quit if wx is not installed
     import wx
     from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
-except:
+except Exception:
     sys.stderr.write('Pylot was unable to start the GUI.  Check if wxPython is installed properly.\n')
     sys.exit(1)
     
