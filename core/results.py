@@ -84,7 +84,7 @@ def generate_results(dir, test_name):
         import graph
         graph.resp_graph(timings, dir=dir+'/')
         graph.tp_graph(throughputs, dir=dir+'/')
-    except: 
+    except Exception: 
         sys.stderr.write('ERROR: Unable to generate graphs with Matplotlib\n')
     
     print '\nDone generating results. You can view your test at:'
