@@ -35,7 +35,7 @@ import core.config as config
 import core.optionparse as optionparse
 
 
-VERSION = '1.26'
+VERSION = '1.27'
 
 
 # get default config parameters
