@@ -49,6 +49,11 @@ def load_xml_cases_dom(dom):
             param_map[name] = value
         if child.tag != dom.getroot().tag and child.tag == 'case':
             req = Request()
+            wait = child.attrib.get('wait')
+            if wait:
+                req.wait = int(wait)
+            else:
+                req.wait = 0
             repeat = child.attrib.get('repeat')
             if repeat:
                 req.repeat = int(repeat)

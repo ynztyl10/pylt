@@ -261,6 +261,8 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
                         expire_time = (self.interval - latency)
                         if expire_time > 0:
                             time.sleep(expire_time)  # sleep remainder of interval so we keep even pacing
+                            
+                        time.sleep(req.wait / 1000.0)
                     
                     else:  # don't go through entire range if stop has been called
                         break
@@ -366,12 +368,13 @@ class LoadAgent(Thread):  # each Agent/VU runs in its own thread
 
 
 class Request():
-    def __init__(self, url='http://localhost/', method='GET', body='', headers=None, timer_group='default_timer', repeat=1):
+    def __init__(self, url='http://localhost/', method='GET', body='', headers=None, timer_group='default_timer', repeat=1, wait=0):
         self.url = url
         self.method = method
         self.body = body
         self.timer_group = timer_group
         self.repeat = repeat
+        self.wait = wait  # sleep time after request is sent (millisecs)
         
         if headers:
             self.headers = headers
