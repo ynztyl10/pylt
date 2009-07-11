@@ -88,7 +88,8 @@ except Exception, e:
 
 if gui:  # gui mode
     import ui.gui as pylot_gui
-    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, VERSION, output_dir, test_name)
+    pylot_gui.main(agents, rampup, interval, duration, tc_xml_filename, 
+        log_msgs, VERSION, output_dir, test_name)
 
 
 elif opt.port:  # xml-rpc listener mode   
@@ -96,7 +97,8 @@ elif opt.port:  # xml-rpc listener mode
     import ui.blocking as pylot_blocking
     class RemoteStarter:
         def start(self):
-            return pylot_blocking.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
+            return pylot_blocking.main(agents, rampup, interval, duration, 
+                tc_xml_filename, log_msgs, output_dir, test_name)
     rs = RemoteStarter()
     server = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', port))
     server.register_instance(rs)
@@ -108,7 +110,8 @@ elif opt.port:  # xml-rpc listener mode
 elif blocking:  # blocked output mode (stdout blocked until test finishes, then result is returned)
     import ui.blocking as pylot_blocking
     try:    
-        pylot_blocking.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
+        pylot_blocking.main(agents, rampup, interval, duration, 
+            tc_xml_filename, log_msgs, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
@@ -130,7 +133,8 @@ else:  # console/shell mode
         print '  output directory:           %s' % output_dir
     print '\n'
     try:    
-        pylot_console.main(agents, rampup, interval, duration, tc_xml_filename, log_msgs, output_dir, test_name)
+        pylot_console.main(agents, rampup, interval, duration, 
+            tc_xml_filename, log_msgs, output_dir, test_name)
     except KeyboardInterrupt:
         print '\nInterrupt'
         sys.exit(1)
