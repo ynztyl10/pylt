@@ -30,6 +30,7 @@
 """
 
 
+import os
 import sys
 import core.config as config
 import core.optionparse as optionparse
@@ -100,7 +101,8 @@ elif opt.port:  # xml-rpc listener mode
             return pylot_blocking.main(agents, rampup, interval, duration, 
                 tc_xml_filename, log_msgs, output_dir, test_name)
     rs = RemoteStarter()
-    server = SimpleXMLRPCServer.SimpleXMLRPCServer(('localhost', port))
+    host=os.uname()[1]
+    server = SimpleXMLRPCServer.SimpleXMLRPCServer((host, port))
     server.register_instance(rs)
     print 'Pylot - listening on port', port
     print 'waiting for xml-rpc start command...\n'
