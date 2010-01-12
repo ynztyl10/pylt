@@ -101,7 +101,7 @@ elif opt.port:  # xml-rpc listener mode
             return pylot_blocking.main(agents, rampup, interval, duration, 
                 tc_xml_filename, log_msgs, output_dir, test_name)
     rs = RemoteStarter()
-    host=os.uname()[1]
+    host = os.uname()[1]
     server = SimpleXMLRPCServer.SimpleXMLRPCServer((host, port))
     server.register_instance(rs)
     print 'Pylot - listening on port', port
